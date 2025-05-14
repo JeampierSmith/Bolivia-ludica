@@ -45,9 +45,4 @@ Aplicación web para la comunidad de juegos de mesa en Bolivia.
 - `.dockerignore`: Evita copiar archivos innecesarios al contenedor.
 - `nginx.conf`: Configuración para servir la app como SPA.
 
-## Notas
-- No subas la carpeta `node_modules` al repositorio.
-- Las variables de entorno pueden ir en un archivo `.env` (ignorado por git).
 
----
-¿Dudas o problemas? Abre un issue o contacta al equipo de Bolivia Lúdica.
