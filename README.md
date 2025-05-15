@@ -50,4 +50,4 @@ Aplicación web para la comunidad de juegos de mesa en Bolivia.
 - Las variables de entorno pueden ir en un archivo `.env` (ignorado por git).
 
 ---
-¿Dudas o problemas? Abre un issue o contacta al equipo de Bolivia Lúdica.
+
