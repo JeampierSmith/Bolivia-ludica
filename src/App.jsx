@@ -1,10 +1,29 @@
-import React, { useState, useEffect } from "react";
-import { FaDice, FaFacebook, FaTwitter, FaInstagram, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import React, { useState, useEffect, useRef } from "react";
+import { FaDice, FaFacebook, FaTwitter, FaInstagram, FaBars, FaTimes } from "react-icons/fa";
 import { BsCalendarEvent } from "react-icons/bs";
 import { GiMeeple, GiCardPlay, GiTrophyCup } from "react-icons/gi";
+import FeaturedGames from "./components/FeaturedGames";
 
 const App = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  const handleMenuToggle = () => setMenuOpen((open) => !open);
+  const handleMenuClose = () => setMenuOpen(false);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClick = (e) => {
+      if (
+        !e.target.closest('#mobile-menu') &&
+        !e.target.closest('#hamburger-btn')
+      ) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [menuOpen]);
 
   const gameStores = [
     {
@@ -23,57 +42,57 @@ const App = () => {
       name: "Tabletop Central",
       location: "Cochabamba, Bolivia",
       description: "Biggest selection of strategy games in the region",
-      image: "https://images.unsplash.com/photo-1606503153255-59d5e417e3f3"
+      image: "https://www.jestatharogue.com/wp-content/uploads/2022/11/Powerline-Central-Board.jpg"
     }
   ];
 
-  const featuredGames = [
-    {
-      name: "CATAN",
-      players: "3-4",
-      time: "60-120 min",
-      image: "https://blog.colonist.io/content/images/size/w2000/2024/06/colonist-io.png"
-    },
-    {
-      name: "King of Tokyo",
-      players: "2-6",
-      time: "30 min",
-      image: "https://images.unsplash.com/photo-1611371805429-8b5c1b2c34ba"
-    },
-    {
-      name: "Carcassonne",
-      players: "2-5",
-      time: "45 min",
-      image: "https://images.unsplash.com/photo-1610890690846-5149750c8634"
-    }
-  ];
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % featuredGames.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
+  // Altura del header
+  const headerHeight = 72; // px (aprox. py-4 + text)
 
   return (
-    <div className="min-h-screen bg-background">
+    <div>
       {/* Header */}
-      <header className="bg-card shadow-sm">
+      <header className="bg-card shadow-sm fixed w-full z-50 top-0 left-0">
         <div className="container mx-auto px-4 py-4">
           <nav className="flex items-center justify-between">
             <div className="flex items-center space-x-2" data-aos="fade-right">
-              <GiMeeple className="text-primary text-3xl" />
-              <span className="text-2xl font-bold text-foreground">Bolivia Lúdica</span>
+              <a href="/" className="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                <GiMeeple className="text-primary text-3xl" />
+                <span className="text-2xl font-bold text-foreground">Bolivia Lúdica</span>
+              </a>
             </div>
+            {/* Desktop menu */}
             <div className="hidden md:flex space-x-6" data-aos="fade-left">
               <a className="relative text-foreground hover:text-primary transition-colors duration-300 after:content-[''] after:block after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full after:absolute after:left-0 after:-bottom-1" href="#">Home</a>
               <a className="relative text-foreground hover:text-primary transition-colors duration-300 after:content-[''] after:block after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full after:absolute after:left-0 after:-bottom-1" href="#">Our Community</a>
               <a className="relative text-foreground hover:text-primary transition-colors duration-300 after:content-[''] after:block after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full after:absolute after:left-0 after:-bottom-1" href="#">Bolivia Play</a>
               <a className="relative text-foreground hover:text-primary transition-colors duration-300 after:content-[''] after:block after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full after:absolute after:left-0 after:-bottom-1" href="#">Ranking</a>
             </div>
+            {/* Hamburger icon for mobile */}
+            <button id="hamburger-btn" className="md:hidden text-3xl text-primary focus:outline-none" onClick={handleMenuToggle} aria-label="Abrir menú">
+              {menuOpen ? <FaTimes /> : <FaBars />}
+            </button>
           </nav>
         </div>
       </header>
+      {/* Mobile menu desplegable debajo del header */}
+      <div
+        id="mobile-menu"
+        ref={menuRef}
+        className={`md:hidden fixed left-0 w-full bg-white shadow-lg z-40 overflow-hidden transition-all duration-300 ${menuOpen ? 'top-[72px] h-60' : 'top-[72px] h-0'}`}
+        style={{
+          boxShadow: menuOpen ? '0 4px 24px rgba(0,0,0,0.08)' : 'none',
+        }}
+      >
+        <div className={`flex flex-col items-center justify-center transition-opacity duration-300 ${menuOpen ? 'opacity-100 pt-8' : 'opacity-0 pt-0'}`} style={{height: menuOpen ? '15rem' : 0}}>
+          <a onClick={handleMenuClose} className="mb-6 relative text-foreground hover:text-primary transition-colors duration-300 after:content-[''] after:block after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full after:absolute after:left-0 after:-bottom-1" href="#">Home</a>
+          <a onClick={handleMenuClose} className="mb-6 relative text-foreground hover:text-primary transition-colors duration-300 after:content-[''] after:block after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full after:absolute after:left-0 after:-bottom-1" href="#">Our Community</a>
+          <a onClick={handleMenuClose} className="mb-6 relative text-foreground hover:text-primary transition-colors duration-300 after:content-[''] after:block after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full after:absolute after:left-0 after:-bottom-1" href="#">Bolivia Play</a>
+          <a onClick={handleMenuClose} className="mb-6 relative text-foreground hover:text-primary transition-colors duration-300 after:content-[''] after:block after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full after:absolute after:left-0 after:-bottom-1" href="#">Ranking</a>
+        </div>
+      </div>
+      {/* Espacio para el header y menú móvil */}
+      <div className={menuOpen ? 'pt-[312px] md:pt-[72px] transition-all duration-300' : 'pt-[72px] transition-all duration-300'} />
 
       {/* Hero Section */}
       <section className="bg-primary py-20">
@@ -98,7 +117,14 @@ const App = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {gameStores.map((store, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-sm overflow-hidden" data-aos="fade-up" data-aos-delay={index * 100}>
+              <a
+                key={index}
+                href="#"
+                className="block bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-primary"
+                data-aos="fade-up"
+                data-aos-delay={index * 100}
+                tabIndex={0}
+              >
                 <img
                   src={store.image}
                   alt={store.name}
@@ -109,7 +135,7 @@ const App = () => {
                   <p className="text-accent mb-2">{store.location}</p>
                   <p className="text-foreground">{store.description}</p>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </div>
@@ -126,54 +152,15 @@ const App = () => {
             </p>
           </div>
           <div className="flex justify-center" data-aos="zoom-in" data-aos-delay="200">
-            <button className="bg-primary text-primary-foreground px-8 py-3 rounded-md hover:bg-primary/90 transition-colors">
+            <button className="bg-primary text-primary-foreground px-8 py-3 rounded-md transition-all duration-300 animate-pulse hover:animate-none hover:scale-105 hover:shadow-lg hover:bg-primary/90 focus:animate-none">
               Join Now
             </button>
           </div>
         </div>
       </section>
 
-      {/* Featured Games Carousel */}
-      <section className="py-16 bg-card">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-foreground" data-aos="fade-up">
-            Featured Games
-          </h2>
-          <div className="relative" data-aos="fade-up" data-aos-delay="200">
-            <div className="overflow-hidden">
-              <div className="flex transition-transform duration-500" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
-                {featuredGames.map((game, index) => (
-                  <div key={index} className="w-full flex-shrink-0">
-                    <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-sm overflow-hidden">
-                      <img
-                        src={game.image}
-                        alt={game.name}
-                        className="w-full h-64 object-cover"
-                      />
-                      <div className="p-6">
-                        <h3 className="text-2xl font-bold mb-2 text-foreground">{game.name}</h3>
-                        <p className="text-accent">{game.players} Players | {game.time}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <button
-              onClick={() => setCurrentSlide((prev) => (prev - 1 + featuredGames.length) % featuredGames.length)}
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-primary/80 p-2 rounded-full text-white"
-            >
-              <FaChevronLeft />
-            </button>
-            <button
-              onClick={() => setCurrentSlide((prev) => (prev + 1) % featuredGames.length)}
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-primary/80 p-2 rounded-full text-white"
-            >
-              <FaChevronRight />
-            </button>
-          </div>
-        </div>
-      </section>
+      {/* Featured Games Section */}
+      <FeaturedGames />
 
       {/* Footer */}
       <footer className="bg-secondary py-12">
