@@ -48,30 +48,33 @@
   transform: translateX(-2px);
 }
 
-@media (max-width: 768px) {
-  .swiper-button-next,
-  .swiper-button-prev {
-    display: none !important;
-  }
+/* Efectos de fade para el carrusel */
+.swiper-slide {
+  opacity: 0;
+  transition: opacity 0.5s ease;
 }
 
-/* Card hover effects */
+.swiper-slide-active {
+  opacity: 1;
+}
+
+/* Efectos de hover para las tarjetas */
 .swiper-slide .bg-white {
-  transition: all 0.3s ease;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateY(0);
 }
 
 .swiper-slide:hover .bg-white {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
 
 .swiper-slide img {
-  transition: transform 0.5s ease;
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .swiper-slide:hover img {
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
 .swiper-slide .p-6 {
@@ -91,4 +94,11 @@
 
 .swiper-slide:hover .p-6::after {
   width: 100%;
+}
+
+@media (max-width: 768px) {
+  .swiper-button-next,
+  .swiper-button-prev {
+    display: none !important;
+  }
 } 

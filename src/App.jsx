@@ -112,7 +112,7 @@ const App = () => {
       {/* Stores Section */}
       <section className="py-16 bg-card">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-foreground" data-aos="fade-up">
+          <h2 className="text-3xl font-bold text-center mb-12 text-foreground" data-aos="fade-up" data-aos-duration="1000">
             Partner Stores
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -120,20 +120,24 @@ const App = () => {
               <a
                 key={index}
                 href="#"
-                className="block bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="block bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-500 hover:shadow-xl hover:-translate-y-2 focus:outline-none focus:ring-2 focus:ring-primary group"
                 data-aos="fade-up"
-                data-aos-delay={index * 100}
+                data-aos-duration="1000"
+                data-aos-delay={index * 200}
+                data-aos-easing="ease-out-cubic"
                 tabIndex={0}
               >
-                <img
-                  src={store.image}
-                  alt={store.name}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-6">
-                  <h3 className="text-xl font-bold mb-2 text-foreground">{store.name}</h3>
-                  <p className="text-accent mb-2">{store.location}</p>
-                  <p className="text-foreground">{store.description}</p>
+                <div className="overflow-hidden">
+                  <img
+                    src={store.image}
+                    alt={store.name}
+                    className="w-full h-48 object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                </div>
+                <div className="p-6 relative">
+                  <h3 className="text-xl font-bold mb-2 text-foreground transition-colors duration-300 group-hover:text-primary">{store.name}</h3>
+                  <p className="text-accent mb-2 transition-colors duration-300 group-hover:text-accent/80">{store.location}</p>
+                  <p className="text-foreground transition-colors duration-300 group-hover:text-foreground/90">{store.description}</p>
                 </div>
               </a>
             ))}

@@ -1,8 +1,9 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination, Navigation, Autoplay } from 'swiper/modules';
+import { Pagination, Navigation, Autoplay, EffectFade } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
+import 'swiper/css/effect-fade';
 import '../styles/swiper.css';
 
 const FeaturedGames = () => {
@@ -31,11 +32,10 @@ const FeaturedGames = () => {
     <section className="py-16 bg-card">
       <div className="container mx-auto px-4">
         <h2 
-          className="text-3xl font-bold text-center mb-12 text-foreground opacity-0 transform translate-y-4 transition-all duration-700 ease-out"
+          className="text-3xl font-bold text-center mb-12 text-foreground"
           data-aos="fade-up"
           data-aos-duration="1000"
-          data-aos-delay="100"
-          style={{ animation: 'fadeInUp 0.7s ease-out forwards' }}
+          data-aos-easing="ease-out-cubic"
         >
           Featured Games
         </h2>
@@ -43,33 +43,40 @@ const FeaturedGames = () => {
           data-aos="fade-up" 
           data-aos-duration="1000"
           data-aos-delay="300"
-          className="opacity-0 transform translate-y-4 transition-all duration-700 ease-out"
-          style={{ animation: 'fadeInUp 0.7s ease-out 0.3s forwards' }}
+          data-aos-easing="ease-out-cubic"
         >
           <Swiper
-            modules={[Pagination, Navigation, Autoplay]}
+            modules={[Pagination, Navigation, Autoplay, EffectFade]}
             spaceBetween={30}
             slidesPerView={1}
-            pagination={{ clickable: true }}
+            pagination={{ 
+              clickable: true,
+              dynamicBullets: true
+            }}
             navigation
             autoplay={{
               delay: 5000,
               disableOnInteraction: false,
             }}
             className="max-w-2xl mx-auto"
+            effect="fade"
+            speed={1000}
+            fadeEffect={{
+              crossFade: true
+            }}
           >
             {featuredGames.map((game, index) => (
               <SwiperSlide key={index}>
                 <a
                   href="#"
-                  className="block bg-white rounded-lg shadow-sm overflow-hidden group focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="block bg-white rounded-lg shadow-sm overflow-hidden group focus:outline-none focus:ring-2 focus:ring-primary transform transition-all duration-500 hover:shadow-xl hover:-translate-y-2"
                   tabIndex={0}
                 >
                   <div className="overflow-hidden">
                     <img
                       src={game.image}
                       alt={game.name}
-                      className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                   </div>
                   <div className="p-6 relative">
