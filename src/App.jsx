@@ -1,10 +1,10 @@
 import React from "react";
-import Header from "./components/Header";
-import Hero from "./components/Hero";
-import FeaturedGames from "./components/FeaturedGames";
-import Footer from "./components/Footer";
-import StoresSection from "./components/StoresSection";
-import PasaporteLudico from "./components/PasaporteLudico";
+import Header from "./components/layout/Header/Header";
+import Hero from "./components/features/Hero";
+import FeaturedGames from "./components/features/games/FeaturedGames";
+import Footer from "./components/layout/Footer/Footer";
+import StoresSection from "./components/features/stores/StoresSection";
+import PasaporteLudico from "./components/features/pasaporte/PasaporteLudico";
 
 const App = () => {
   

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { GiMeeple } from "react-icons/gi";
 import { FaBars, FaTimes } from "react-icons/fa";
-import NavLink from "./NavLink";
+import NavLink from "../Navigation/NavLink";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);

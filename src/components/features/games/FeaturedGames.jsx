@@ -4,7 +4,8 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/effect-fade';
-import '../styles/swiper.css';
+import "../../../styles/swiper.css";
+import Card from "../../common/Card/Card";
 
 const FeaturedGames = () => {
   const featuredGames = [
@@ -67,27 +68,14 @@ const FeaturedGames = () => {
           >
             {featuredGames.map((game, index) => (
               <SwiperSlide key={index}>
-                <a
+                <Card
+                  title={game.name}
+                  image={game.image}
+                  description={`${game.players} Players | ${game.time}`}
+                  className="h-full flex flex-col justify-between"
+                  underlineOnHover={true}
                   href="#"
-                  className="block bg-white rounded-lg shadow-sm overflow-hidden group focus:outline-none focus:ring-2 focus:ring-primary transform transition-all duration-500 hover:shadow-xl hover:-translate-y-2"
-                  tabIndex={0}
-                >
-                  <div className="overflow-hidden">
-                    <img
-                      src={game.image}
-                      alt={game.name}
-                      className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                  </div>
-                  <div className="p-6 relative">
-                    <h3 className="text-2xl font-bold mb-2 text-foreground transition-colors duration-300 group-hover:text-primary">
-                      {game.name}
-                    </h3>
-                    <p className="text-accent transition-colors duration-300 group-hover:text-accent/80">
-                      {game.players} Players | {game.time}
-                    </p>
-                  </div>
-                </a>
+                />
               </SwiperSlide>
             ))}
           </Swiper>
