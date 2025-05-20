@@ -3,15 +3,14 @@ import React from 'react';
 const PasaporteLudico = () => {
   return (
     <section className="py-16 relative overflow-hidden">
-
       <img
         src="/assets/image/boardgame.jpeg"
         alt=""
         className="absolute inset-0 w-full h-full object-cover z-0"
         style={{ opacity: 0.25 }}
         aria-hidden="true"
-    
-      <div className="absolute inset-0 bg-black/50 z-0 pointer-events-none" />
+      />
+      <div className="absolute inset-0 bg-black/50 z-0 pointer-events-none"></div>
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-12" data-aos="fade-up">
           <h2 className="text-4xl font-extrabold text-white mb-4 drop-shadow-lg">Pasaporte Lúdico</h2>
