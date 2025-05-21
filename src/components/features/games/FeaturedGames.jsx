@@ -38,7 +38,7 @@ const FeaturedGames = () => {
           data-aos-duration="1000"
           data-aos-easing="ease-out-cubic"
         >
-          Featured Games
+          Juegos Destacados
         </h2>
         <div 
           data-aos="fade-up" 
@@ -71,7 +71,7 @@ const FeaturedGames = () => {
                 <Card
                   title={game.name}
                   image={game.image}
-                  description={`${game.players} Players | ${game.time}`}
+                  description={`${game.players} Jugadores | ${game.time}`}
                   className="h-full flex flex-col justify-between"
                   underlineOnHover={true}
                   href="#"

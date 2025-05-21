@@ -15,13 +15,13 @@ const PasaporteLudico = () => {
         <div className="text-center mb-12" data-aos="fade-up">
           <h2 className="text-4xl font-extrabold text-white mb-4 drop-shadow-lg">Pasaporte Lúdico</h2>
           <p className="text-white/90 max-w-2xl mx-auto text-lg drop-shadow">
-            Join our membership program and unlock exclusive benefits, tournament entries,
-            and special discounts at partner stores.
+            Únete a nuestro programa de membresía y desbloquea beneficios exclusivos, entradas a torneos
+            y descuentos especiales en tiendas asociadas.
           </p>
         </div>
         <div className="flex justify-center" data-aos="zoom-in" data-aos-delay="200">
           <button className="bg-primary text-primary-foreground px-8 py-3 rounded-md transition-all duration-300 animate-pulse hover:animate-none hover:scale-105 hover:shadow-lg hover:bg-primary/90 focus:animate-none">
-            Join Now
+            Únete Ahora
           </button>
         </div>
       </div>

@@ -2,6 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Font imports */
+@font-face {
+  font-family: 'Prototype';
+  src: url('/fonts/prototype.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Calis MT';
+  src: url('/fonts/calisto-mt.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Font utilities */
+@layer base {
+  html {
+    font-family: 'Calis MT', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Prototype', sans-serif;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  p, span, a, button, input, textarea {
+    font-family: 'Calis MT', sans-serif;
+  }
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;

@@ -25,8 +25,8 @@ const Header = () => {
   }, [menuOpen]);
 
   const navLinks = [
-    { href: "#", text: "Home" },
-    { href: "#", text: "Our Community" },
+    { href: "#", text: "Inicio" },
+    { href: "#", text: "Nuestra Comunidad" },
     { href: "#", text: "Bolivia Play" },
     { href: "#", text: "Ranking" }
   ];
@@ -38,8 +38,12 @@ const Header = () => {
           <nav className="flex items-center justify-between">
             <div className="flex items-center space-x-2" data-aos="fade-right">
               <a href="/" className="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-primary">
-                <GiMeeple className="text-primary text-3xl" />
-                <span className="text-2xl font-bold text-foreground">Bolivia Lúdica</span>
+                <img 
+                  src="/assets/image/LOGO-BOLIVIA-LUDICA.svg" 
+                  alt="Bolivia Ludica Logo" 
+                  className="h-12 w-auto"
+                />
+                <span className="text-2xl font-bold text-foreground font-['Prototype'] tracking-wider uppercase">Bolivia Ludica</span>
               </a>
             </div>
             {/* Desktop menu */}
