@@ -1,14 +1,15 @@
+import { useTranslation } from 'react-i18next';
 import { FaDice } from "react-icons/fa";
-
 const Hero = () => {
+  const { t } = useTranslation();
   return (
     <section className="bg-primary py-20">
       <div className="container mx-auto px-4 text-center">
         <h1 className="text-4xl md:text-6xl font-bold text-primary-foreground mb-6">
-          Bienvenido a la Comunidad de Juegos de Mesa de Bolivia
+          {t("welcome")}
         </h1>
         <p className="text-xl text-primary-foreground/90 mb-8">
-          Fundada en 2024, uniendo a los entusiastas de juegos de mesa en Bolivia
+          {t("description")}
         </p>
         <div className="animate-bounce">
           <FaDice className="text-6xl text-primary-foreground mx-auto" />
@@ -18,4 +19,4 @@ const Hero = () => {
   );
 };
 
-export default Hero; 
+export default Hero;

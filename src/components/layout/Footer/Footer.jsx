@@ -1,21 +1,23 @@
+import { useTranslation } from 'react-i18next';
 import { FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
 
 const Footer = () => {
+  const { t } = useTranslation();
   return (
     <footer className="bg-secondary py-12">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-bold mb-4 text-foreground">Enlaces Rápidos</h3>
+            <h3 className="text-lg font-bold mb-4 text-foreground">{t('links')}</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-accent hover:text-primary">Inicio</a></li>
-              <li><a href="#" className="text-accent hover:text-primary">Nuestra Comunidad</a></li>
-              <li><a href="#" className="text-accent hover:text-primary">Bolivia Play</a></li>
-              <li><a href="#" className="text-accent hover:text-primary">Ranking</a></li>
+              <li><a href="#" className="text-accent hover:text-primary">{t('home')}</a></li>
+              <li><a href="#" className="text-accent hover:text-primary">{t('community')}</a></li>
+              <li><a href="#" className="text-accent hover:text-primary">{t('play')}</a></li>
+              <li><a href="#" className="text-accent hover:text-primary">{t('ranking')}</a></li>
             </ul>
           </div>
           <div>
-            <h3 className="text-lg font-bold mb-4 text-foreground">Conéctate con Nosotros</h3>
+            <h3 className="text-lg font-bold mb-4 text-foreground">{t('connect')}</h3>
             <div className="flex space-x-4">
               <a href="#" className="text-accent hover:text-primary text-2xl"><FaFacebook /></a>
               <a href="#" className="text-accent hover:text-primary text-2xl"><FaTwitter /></a>
@@ -23,20 +25,22 @@ const Footer = () => {
             </div>
           </div>
           <div>
-            <h3 className="text-lg font-bold mb-4 text-foreground">Contacto</h3>
-            <p className="text-accent">Email: info@bolivialudica.com</p>
-            <p className="text-accent">Teléfono: +591 123 456 789</p>
+            <h3 className="text-lg font-bold mb-4 text-foreground">{t('contact')}</h3>
+            <p className="text-accent">{t('email')}: BOLIVIALUDICA@gmail.com</p>
+            <p className="text-accent">{t('phone')}: +591 77958996</p>
+            <p className="text-accent">{t('address')}: Av. Villarroel, esq. Beni</p>
+            <p className="text-accent">Cochabamba-Bolivia</p>
           </div>
           <div>
-            <h3 className="text-lg font-bold mb-4 text-foreground">Boletín</h3>
+            <h3 className="text-lg font-bold mb-4 text-foreground">{t('letter')}</h3>
             <div className="flex">
               <input
                 type="email"
-                placeholder="Ingresa tu email"
+                placeholder={t('email')}
                 className="px-4 py-2 rounded-l-md border border-input focus:outline-none focus:ring-1 focus:ring-primary"
               />
               <button className="bg-primary text-primary-foreground px-4 py-2 rounded-r-md hover:bg-primary/90 transition-colors">
-                Suscribirse
+                {t('subscribe')}
               </button>
             </div>
           </div>
@@ -49,4 +53,4 @@ const Footer = () => {
   );
 };
 
-export default Footer; 
+export default Footer;

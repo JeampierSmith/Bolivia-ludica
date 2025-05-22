@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { GiMeeple } from "react-icons/gi";
 import { FaBars, FaTimes } from "react-icons/fa";
 import NavLink from "../Navigation/NavLink";
+import { useTranslation } from 'react-i18next';
 
 const Header = () => {
+  const { t, i18n } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -25,11 +27,14 @@ const Header = () => {
   }, [menuOpen]);
 
   const navLinks = [
-    { href: "#", text: "Inicio" },
-    { href: "#", text: "Nuestra Comunidad" },
-    { href: "#", text: "Bolivia Play" },
-    { href: "#", text: "Ranking" }
+    { href: "#", text: t('home', 'Inicio') },
+    { href: "#", text: t('community', 'Nuestra Comunidad') },
+    { href: "#", text: t('play', 'Bolivia Play') },
+    { href: "#", text: t('ranking', 'Ranking') }
   ];
+
+  // Selector de idioma
+  const changeLanguage = (lng) => i18n.changeLanguage(lng);
 
   return (
     <>
@@ -53,6 +58,10 @@ const Header = () => {
                   {link.text}
                 </NavLink>
               ))}
+              <select onChange={e => changeLanguage(e.target.value)} value={i18n.language} className="ml-4 px-2 py-1 rounded">
+                <option value="es">ES</option>
+                <option value="en">EN</option>
+              </select>
             </div>
             {/* Hamburger icon for mobile */}
             <button 
@@ -86,6 +95,10 @@ const Header = () => {
               {link.text}
             </NavLink>
           ))}
+          <select onChange={e => changeLanguage(e.target.value)} value={i18n.language} className="mt-2 px-2 py-1 rounded">
+            <option value="es">ES</option>
+            <option value="en">EN</option>
+          </select>
         </div>
       </div>
       {/* Espacio para el header y menú móvil */}
@@ -94,4 +107,4 @@ const Header = () => {
   );
 };
 
-export default Header; 
+export default Header;

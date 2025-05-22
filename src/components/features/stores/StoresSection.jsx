@@ -1,7 +1,10 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import StoreCard from './StoreCard';
 
 const StoresSection = () => {
+  const { t } = useTranslation();
+
   const gameStores = [
     {
       name: "Dice & Dragons",
@@ -27,7 +30,7 @@ const StoresSection = () => {
     <section className="py-16 bg-card">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-12 text-foreground" data-aos="fade-up" data-aos-duration="1000">
-          Tiendas Asociadas
+          {t('partner')}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {gameStores.map((store, index) => (
@@ -39,4 +42,4 @@ const StoresSection = () => {
   );
 };
 
-export default StoresSection; 
+export default StoresSection;
