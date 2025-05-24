@@ -7,13 +7,21 @@ const StoreCard = ({ store, index }) => {
       title={store.name}
       image={store.image}
       description={store.location}
-      className={
-        `overflow-hidden transition-all duration-500 hover:shadow-xl hover:-translate-y-2 focus:outline-none focus:ring-2 focus:ring-primary group`}
+      className="overflow-hidden transition-all duration-500 hover:shadow-xl hover:-translate-y-2 focus:outline-none focus:ring-2 focus:ring-primary group h-full"
       href="#"
     >
-      <p className="text-foreground transition-colors duration-300 group-hover:text-foreground/90 mb-2">
-        {store.description}
-      </p>
+      <div className="flex flex-col h-full">
+        <div className="flex-grow">
+          <p className="text-foreground transition-colors duration-300 group-hover:text-foreground/90 mb-2">
+            {store.description}
+          </p>
+        </div>
+        <div className="mt-auto pt-4 border-t border-gray-200">
+          <span className="text-sm text-gray-500">
+            {store.location}
+          </span>
+        </div>
+      </div>
       {/* Animaciones AOS */}
       <div
         data-aos="fade-up"

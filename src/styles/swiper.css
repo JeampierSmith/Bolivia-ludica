@@ -1,5 +1,7 @@
 .swiper {
   padding-bottom: 3rem !important;
+  width: 100%;
+  overflow: visible;
 }
 
 .swiper-pagination-bullet {
@@ -50,8 +52,9 @@
 
 /* Efectos de fade para el carrusel */
 .swiper-slide {
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.5s ease;
+  height: auto;
 }
 
 .swiper-slide-active {
