@@ -409,29 +409,35 @@ const StoresSection = () => {
             >
               {Object.entries(storesByCity).map(([city, stores], idx) => (
                 <SwiperSlide key={city}>
-                  <div className="bg-white rounded-lg shadow-lg p-8 flex flex-col items-center h-full">
+                  <div className="bg-white rounded-lg shadow-lg p-8 flex flex-col items-center h-full border-2 border-transparent stores-slide group transition-all duration-300">
                     <h3 className="text-2xl font-bold mb-4 text-primary text-center">{city}</h3>
                     <ul className="w-full space-y-6">
                       {stores.map((store, i) => (
                         <li 
                           key={i} 
-                          className="flex items-center gap-4 border-b pb-4 last:border-b-0 last:pb-0 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+                          className="flex items-center gap-4 border-b pb-4 last:border-b-0 last:pb-0 cursor-pointer hover:bg-gray-100 p-2 rounded transition-all duration-200 hover:shadow-lg hover:scale-[1.03] group"
                           onClick={() => setSelectedStore(store)}
+                          tabIndex={0}
+                          aria-label={`Ver detalles de ${store.name}`}
                         >
-                          <div className="w-14 h-14 flex items-center justify-center bg-gray-100 rounded">
+                          <div className="w-14 h-14 flex items-center justify-center bg-white rounded-full border border-gray-200 shadow-sm relative">
                             <img 
-                              src={store.logo} 
+                              src={store.logo || 'https://via.placeholder.com/48?text=Logo'} 
                               alt={`${store.name} logo`} 
-                              className="w-12 h-12 object-contain"
+                              className="w-12 h-12 object-contain rounded-full"
+                              title={store.name}
                               onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.src = 'https://via.placeholder.com/48?text=Logo';
                               }}
                             />
                           </div>
-                          <div>
-                            <div className="font-bold text-lg text-foreground">{store.name}</div>
-                            <div className="text-accent mb-1">{store.description}</div>
+                          <div className="flex flex-col">
+                            <div className="font-bold text-lg text-foreground flex items-center gap-2">
+                              {store.name}
+                              <span className="inline-block bg-primary/10 text-primary text-xs font-semibold px-2 py-0.5 rounded ml-1 border border-primary/20" title={store.specialty}>{store.specialty}</span>
+                            </div>
+                            <div className="text-accent mb-1 text-sm">{store.description}</div>
                           </div>
                         </li>
                       ))}

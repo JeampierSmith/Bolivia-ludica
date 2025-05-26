@@ -104,4 +104,25 @@
   .swiper-button-prev {
     display: none !important;
   }
-} 
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modalPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease;
+}
+.animate-modalPop {
+  animation: modalPop 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}

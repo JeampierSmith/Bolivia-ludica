@@ -6,11 +6,8 @@ import 'swiper/css/navigation';
 import 'swiper/css/effect-fade';
 import "../../../styles/swiper.css";
 import Card from "../../common/Card/Card";
-import { useTranslation } from 'react-i18next';
 
 const FeaturedGames = () => {
-  const { t } = useTranslation();
-
   const featuredGames = [
     {
       name: "CATAN",
@@ -41,7 +38,7 @@ const FeaturedGames = () => {
           data-aos-duration="1000"
           data-aos-easing="ease-out-cubic"
         >
-          {t('game')}
+          Juegos Destacados
         </h2>
         <div 
           data-aos="fade-up" 
@@ -88,4 +85,4 @@ const FeaturedGames = () => {
   );
 };
 
-export default FeaturedGames;
+export default FeaturedGames; 
