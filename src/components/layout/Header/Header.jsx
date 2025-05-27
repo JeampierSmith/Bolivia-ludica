@@ -27,10 +27,10 @@ const Header = () => {
   }, [menuOpen]);
 
   const navLinks = [
-    { href: "#", text: t('home', 'Inicio') },
-    { href: "#", text: t('community', 'Nuestra Comunidad') },
-    { href: "#", text: t('play', 'Bolivia Play') },
-    { href: "#", text: t('ranking', 'Ranking') }
+    { href: "/", text: t('home', 'Inicio') },
+    { href: "/comunidad", text: t('community', 'Nuestra Comunidad') },
+    { href: "/boliviaplay", text: t('play', 'Bolivia Play') },
+    { href: "/ranking", text: t('ranking', 'Ranking') }
   ];
 
   // Selector de idioma
@@ -44,7 +44,7 @@ const Header = () => {
             <div className="flex items-center space-x-2" data-aos="fade-right">
               <a href="/" className="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-primary">
                 <img 
-                  src="/assets/image/LOGO-BOLIVIA-LUDICA.svg" 
+                  src={import.meta.env.BASE_URL + 'assets/image/LOGO-BOLIVIA-LUDICA.svg'}
                   alt="Bolivia Ludica Logo" 
                   className="h-12 w-auto"
                 />

@@ -5,6 +5,7 @@ import App from './App.jsx'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import './i18n/i18n.js'
+import { BrowserRouter } from 'react-router-dom'
 
 // Initialize AOS
 AOS.init({
@@ -15,6 +16,8 @@ AOS.init({
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <BrowserRouter basename="/Bolivia-ludica">
+      <App />
+    </BrowserRouter>
   </StrictMode>,
 )
