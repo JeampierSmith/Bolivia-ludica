@@ -1,17 +1,318 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-const Comunidad = () => (
-  <section className="py-16 min-h-[60vh] flex flex-col items-center justify-center bg-gradient-to-b from-neutral-50 to-neutral-200">
-    <h2 className="text-4xl font-extrabold mb-4 text-neutral-900 drop-shadow">Nuestra Comunidad</h2>
-    <p className="max-w-2xl text-center text-lg text-neutral-700 mb-8">
-      Únete a la comunidad de Bolivia Lúdica y conecta con jugadores, tiendas y eventos de todo el país. Comparte tus experiencias, participa en actividades y haz crecer el hobby junto a nosotros.
-    </p>
-    <div className="flex flex-wrap gap-6 justify-center">
-      <a href="https://www.facebook.com/people/Bolivia-Ludica/61568542995767/" target="_blank" rel="noopener noreferrer" className="bg-neutral-900 text-white px-6 py-2 rounded shadow hover:bg-neutral-700 transition">Facebook</a>
-      <a href="https://chat.whatsapp.com/" target="_blank" rel="noopener noreferrer" className="bg-neutral-700 text-white px-6 py-2 rounded shadow hover:bg-neutral-900 transition">WhatsApp</a>
-      <a href="https://discord.gg/" target="_blank" rel="noopener noreferrer" className="bg-white text-neutral-900 border border-neutral-900 px-6 py-2 rounded shadow hover:bg-neutral-100 transition">Discord</a>
-    </div>
-  </section>
-);
+// Mock de datos de departamentos y tiendas (ajusta paths y datos reales luego)
+const departamentos = [
+	{
+		nombre: 'Cochabamba',
+		ambiente: '/Bolivia-ludica/assets/image/ambientes/Cochabamba/Antikuna/Antikuna.jpg',
+		tiendas: [
+			{
+				nombre: 'Antikuna',
+				logo: '/Bolivia-ludica/assets/image/stores/antikuna.png',
+				ciudad: 'Cochabamba',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/Cochabamba/Antikuna/Antikuna.jpg',
+			},
+			{
+				nombre: 'El Mercader Errante',
+				logo: '/Bolivia-ludica/assets/image/stores/mercadererrante.jpg',
+				ciudad: 'Cochabamba',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/Cochabamba/MercadoErrante/MercadoErrante.jpg',
+			},
+			{
+				nombre: 'Tinkuna Games',
+				logo: '/Bolivia-ludica/assets/image/stores/tinkunagmaes.png',
+				ciudad: 'Cochabamba',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/Cochabamba/Tinkunagames/TinkunaGames.jpg', // corregido el nombre de la carpeta y archivo
+			},
+			{
+				nombre: 'Games Landing',
+				logo: '/Bolivia-ludica/assets/image/stores/gameslanding.jpg',
+				ciudad: 'Cochabamba',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/Cochabamba/GamesLanding/GamesLanding.jpg',
+			},
+			{
+				nombre: 'Magic Games',
+				logo: '/Bolivia-ludica/assets/image/stores/magicgames.jpg',
+				ciudad: 'Cochabamba',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/Cochabamba/MagicgGames/IMG-20241014-WA0053.jpg',
+			},
+		],
+	},
+	{
+		nombre: 'La Paz',
+		ambiente: '/Bolivia-ludica/assets/image/ambientes/LaPaz/GuaridadelGoblin/GuaridadelGoblin.jpg',
+		tiendas: [
+			{
+				nombre: 'Bros Game Club',
+				logo: '/Bolivia-ludica/assets/image/stores/brosGame.png',
+				ciudad: 'La Paz',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/LaPaz/Bros/Bros.jpg',
+			},
+			{
+				nombre: 'Guarida del Goblin',
+				logo: '/Bolivia-ludica/assets/image/stores/guarida del goblin.png',
+				ciudad: 'La Paz',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/LaPaz/GuaridadelGoblin/GuaridadelGoblin.jpg',
+			},
+			{
+				nombre: 'Shadow Games',
+				logo: '/Bolivia-ludica/assets/image/stores/shadowgame.jpg',
+				ciudad: 'La Paz',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/LaPaz/ShadowGames/ShadowGames.jpg',
+			},
+		],
+	},
+	{
+		nombre: 'Oruro',
+		ambiente: '/Bolivia-ludica/assets/image/ambientes/Oruro/CoffeArkham/CoffeArkham.jpg',
+		tiendas: [
+			{
+				nombre: 'Coffe Arkham',
+				logo: '/Bolivia-ludica/assets/image/stores/coffearkham.jpg',
+				ciudad: 'Oruro',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/Oruro/CoffeArkham/CoffeArkham.jpg',
+			},
+			{
+				nombre: 'Dados y Dragones',
+				logo: '/Bolivia-ludica/assets/image/stores/dadosydragones.jpg',
+				ciudad: 'Oruro',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/Oruro/DadosYDragones/DadosYDragones.jpg',
+			},
+			{
+				nombre: 'El baúl de los juegos',
+				logo: '/Bolivia-ludica/assets/image/stores/bauldejuegos.jpg',
+				ciudad: 'Oruro',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/Oruro/BauldelosJuegos/BauldelosJuegos.jpg',
+			},
+			{
+				nombre: 'La posada del gato',
+				logo: '/Bolivia-ludica/assets/image/stores/posadadelgato.png',
+				ciudad: 'Oruro',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/Oruro/PosadaDelGato/PosadaDelGato.jpg',
+			},
+		],
+	},
+	{
+		nombre: 'Potosí',
+		ambiente: '/Bolivia-ludica/assets/image/ambientes/Potosi/CarcamodelGato/CarcamodelGato.jpg',
+		tiendas: [
+			{
+				nombre: 'El carcamo del Gato',
+				logo: '/Bolivia-ludica/assets/image/stores/carcamodelcato.jpg',
+				ciudad: 'Potosí',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/Potosi/CarcamodelGato/CarcamodelGato.jpg',
+			},
+			{
+				nombre: 'Le gato',
+				logo: '/Bolivia-ludica/assets/image/stores/legato.jpg',
+				ciudad: 'Potosí',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/Potosi/LeGato/LeGato.jpg',
+			},
+		],
+	},
+	{
+		nombre: 'Santa Cruz',
+		ambiente: '/Bolivia-ludica/assets/image/ambientes/SantaCruz/JugateEsta/JugateEsta.jpg',
+		tiendas: [
+			{
+				nombre: 'Jugate esta',
+				logo: '/Bolivia-ludica/assets/image/stores/jugateesta.jpg',
+				ciudad: 'Santa Cruz',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/SantaCruz/JugateEsta/JugateEsta.jpg',
+			},
+			{
+				nombre: 'La Marmorra del Juasi',
+				logo: '/Bolivia-ludica/assets/image/stores/juasi.jpg',
+				ciudad: 'Santa Cruz',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/SantaCruz/Jausi/Jausi.jpg',
+			},
+			{
+				nombre: 'Sharks TCG',
+				logo: '/Bolivia-ludica/assets/image/stores/sharkstcg.jpg',
+				ciudad: 'Santa Cruz',
+				especialidad: 'TCG',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/SantaCruz/SharksTCG/SharksTCG.jpg',
+			},
+			{
+				nombre: 'Uruloki',
+				logo: '/Bolivia-ludica/assets/image/stores/uroloki.jpg',
+				ciudad: 'Santa Cruz',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/SantaCruz/Uruloki/Uruloki.jpg',
+			},
+		],
+	},
+	{
+		nombre: 'Sucre',
+		ambiente: '/Bolivia-ludica/assets/image/ambientes/Sucre/PuntoDeVictoria/PuntoDeVictoria.jpg',
+		tiendas: [
+			{
+				nombre: 'Punto de Victoria',
+				logo: '/Bolivia-ludica/assets/image/stores/puntodevictoria.jpg',
+				ciudad: 'Sucre',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/Sucre/PuntoDeVictoria/PuntoDeVictoria.jpg',
+			},
+		],
+	},
+	{
+		nombre: 'Tarija',
+		ambiente: '/Bolivia-ludica/assets/image/ambientes/Tarija/Bazinga/Bazinga.jpg',
+		tiendas: [
+			{
+				nombre: 'Bazinga',
+				logo: '/Bolivia-ludica/assets/image/stores/bazinga.jpg',
+				ciudad: 'Tarija',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/Tarija/Bazinga/Bazinga.jpg',
+			},
+			{
+				nombre: 'Mesa Dragon',
+				logo: '/Bolivia-ludica/assets/image/stores/mesadragon.jpg',
+				ciudad: 'Tarija',
+				especialidad: 'Juegos de mesa',
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/Tarija/MesaDragon/MesaDragon.jpeg',
+			},
+		],
+	},
+];
+
+const Comunidad = () => {
+	const [modalDepto, setModalDepto] = useState(null);
+	// Estado para el logo actual de cada departamento
+	const [logoIndices, setLogoIndices] = useState(
+		departamentos.map(() => 0)
+	);
+
+	// Efecto para rotar logos cada 5 segundos
+	React.useEffect(() => {
+		const interval = setInterval(() => {
+			setLogoIndices(prev =>
+				prev.map((idx, d) =>
+					departamentos[d].tiendas.length > 0
+						? (idx + 1) % departamentos[d].tiendas.length
+						: 0
+				)
+			);
+		}, 5000);
+		return () => clearInterval(interval);
+	}, []);
+
+	return (
+		<section className="py-16 min-h-[60vh] bg-gradient-to-b from-neutral-50 to-neutral-200">
+			<div className="animate-fade-in-header">
+				{/* HERO sección comunidad */}
+				<section className="w-full bg-black py-16 mb-10">
+					<div className="max-w-4xl mx-auto px-4 text-center">
+						<h2 className="text-5xl font-extrabold mb-4 text-white drop-shadow font-[prototype]">
+							Nuestra Comunidad
+						</h2>
+						<p className="max-w-2xl mx-auto text-center text-lg text-white/90 mb-0">
+							Conoce a las tiendas y espacios que hacen posible Bolivia Lúdica en
+							cada rincón del país.
+						</p>
+					</div>
+				</section>
+			</div>
+
+			<div className="max-w-6xl mx-auto px-4">
+				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+					{departamentos.map((depto, idx) => {
+						const currentLogo = depto.tiendas[logoIndices[idx]]?.logo || depto.ambiente;
+						return (
+							<div
+								key={depto.nombre}
+								className="relative rounded-2xl shadow-lg overflow-hidden group cursor-pointer border border-neutral-200"
+								onClick={() => setModalDepto(idx)}
+								style={{
+									background: `url(${currentLogo}) center/cover no-repeat`,
+									minHeight: '260px',
+									transition: 'background-image 0.5s ease-in-out',
+									backgroundColor: '#222',
+								}}
+							>
+								<div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition" />
+								<div className="absolute bottom-0 left-0 w-full p-4 flex flex-col items-start z-10">
+									<h3 className="text-2xl font-bold text-white drop-shadow mb-2">
+										{depto.nombre}
+									</h3>
+									<div className="flex items-center gap-2 mb-2 flex-wrap">
+										{depto.tiendas.map(tienda => (
+											<img
+												key={tienda.nombre}
+												src={tienda.logo}
+												alt={tienda.nombre}
+												className="w-10 h-10 object-contain bg-white rounded-full border border-neutral-200 shadow mb-1"
+												onError={e => (e.target.style.opacity = 0.2)}
+											/>
+										))}
+									</div>
+									<button className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-4 py-1 rounded-full shadow text-sm mt-1">
+										Ver tiendas
+									</button>
+								</div>
+							</div>
+						);
+					})}
+				</div>
+			</div>
+
+			{/* Modal de tiendas por departamento */}
+			{modalDepto !== null && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+					<div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 relative animate-fadeIn">
+						<button
+							className="absolute top-3 right-3 text-neutral-500 hover:text-neutral-900 text-2xl font-bold"
+							onClick={() => setModalDepto(null)}
+							aria-label="Cerrar"
+						>
+							×
+						</button>
+						<h3 className="text-3xl font-bold mb-4 text-yellow-700">
+							{departamentos[modalDepto].nombre}
+						</h3>
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+							{departamentos[modalDepto].tiendas.map(tienda => (
+								<div key={tienda.nombre} className="flex flex-col items-center bg-neutral-50 rounded-xl p-4 shadow border border-neutral-200">
+									<img
+										src={tienda.logo}
+										alt={tienda.nombre}
+										className="w-16 h-16 object-contain bg-white rounded-full border border-neutral-200 mb-2"
+										onError={e => e.target.style.opacity=0.2}
+									/>
+									<h4 className="text-lg font-bold text-neutral-900 mb-1">{tienda.nombre}</h4>
+									<span className="text-sm text-neutral-600 mb-1">{tienda.ciudad}</span>
+									<span className="text-xs text-yellow-700 mb-2">{tienda.especialidad}</span>
+									<img
+										src={tienda.ambiente}
+										alt={`Ambiente ${tienda.nombre}`}
+										className="w-full h-20 object-cover rounded-lg border border-neutral-200"
+										onError={e => e.target.style.opacity=0.2}
+									/>
+								</div>
+							))}
+						</div>
+					</div>
+				</div>
+			)}
+		</section>
+	);
+};
 
 export default Comunidad;
