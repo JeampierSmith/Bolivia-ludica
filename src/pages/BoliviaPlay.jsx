@@ -56,6 +56,10 @@ const actividades = [
 const BoliviaPlay = () => {
   const [modalEmprendedor, setModalEmprendedor] = useState(null);
   const [modalFood, setModalFood] = useState(null);
+  const [showInscripcion, setShowInscripcion] = useState(false);
+  const [form, setForm] = useState({ categoria: '', nombre: '', nitci: '', celular: '', email: '', mensaje: '' });
+  const [formError, setFormError] = useState({});
+  const formRef = React.useRef(null);
 
   // Carousel helpers
   const [emprStart, setEmprStart] = useState(0);
@@ -70,12 +74,41 @@ const BoliviaPlay = () => {
   const nextFood = () => setFoodStart((prev) => (prev + foodPerView) % foodTotal);
   const prevFood = () => setFoodStart((prev) => (prev - foodPerView + foodTotal) % foodTotal);
 
+  // Modal accesibilidad: cerrar con ESC/clic fuera, foco automático
+  React.useEffect(() => {
+    if (!showInscripcion) return;
+    const handleKey = (e) => { if (e.key === 'Escape') setShowInscripcion(false); };
+    document.addEventListener('keydown', handleKey);
+    if (formRef.current) formRef.current.querySelector('select, input, textarea')?.focus();
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [showInscripcion]);
+
+  const handleFormChange = e => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setFormError({ ...formError, [e.target.name]: '' });
+  };
+  const validateForm = () => {
+    const err = {};
+    if (!form.categoria) err.categoria = 'Selecciona una categoría';
+    if (!form.nombre) err.nombre = 'Campo requerido';
+    if (!form.nitci) err.nitci = 'Campo requerido';
+    if (!form.celular || !/^\d{7,15}$/.test(form.celular)) err.celular = 'Número inválido';
+    if (!form.email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) err.email = 'Correo inválido';
+    return err;
+  };
+  const handleSubmit = e => {
+    e.preventDefault();
+    const err = validateForm();
+    if (Object.keys(err).length) { setFormError(err); return; }
+    // Aquí podrías enviar el formulario
+    setShowInscripcion(false);
+    alert('¡Inscripción enviada!');
+  };
+
   return (
     <div className="bg-white min-h-screen">
       {/* NAVBAR */}
-      <div className="animate-fade-in-header">
-        <Header />
-      </div>
+      <Header />
 
       {/* HERO */}
       <section
@@ -261,8 +294,118 @@ const BoliviaPlay = () => {
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-extrabold text-neutral-900 mb-4">¿Quieres participar en el próximo Bolivia Juega?</h2>
           <p className="text-lg text-neutral-800 mb-6">Inscríbete como tienda, expositor o jugador y sé parte de la comunidad lúdica más grande del país.</p>
-          <a href="#" className="bg-black hover:bg-neutral-900 text-yellow-300 font-bold px-8 py-3 rounded-full shadow-lg transition text-lg">Inscribirse</a>
+          <button
+            className="bg-black hover:bg-neutral-900 text-yellow-300 font-bold px-8 py-3 rounded-full shadow-lg transition text-lg"
+            onClick={() => setShowInscripcion(true)}
+            aria-haspopup="dialog"
+            aria-controls="modal-inscripcion"
+          >
+            Inscribirse
+          </button>
         </div>
+        {showInscripcion && (
+          <div
+            className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 animate-fadeIn"
+            onClick={e => { if (e.target === e.currentTarget) setShowInscripcion(false); }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+            id="modal-inscripcion"
+          >
+            <form
+              ref={formRef}
+              className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 relative flex flex-col gap-4"
+              onSubmit={handleSubmit}
+              tabIndex={-1}
+            >
+              <button
+                type="button"
+                className="absolute top-3 right-3 text-neutral-500 hover:text-neutral-900 text-2xl font-bold bg-white/80 rounded-full px-2 z-10"
+                onClick={() => setShowInscripcion(false)}
+                aria-label="Cerrar"
+              >×</button>
+              <div className="mb-2 text-center">
+                <img src="/Bolivia-ludica/assets/image/catan/logo-blanco.png" alt="Bolivia Juega Logo" className="w-20 mx-auto mb-2" />
+                <h3 id="modal-title" className="text-2xl font-bold text-yellow-700 mb-1">Inscripción a Bolivia Juega 2025</h3>
+                <p className="text-neutral-700 text-sm">Selecciona tu categoría e ingresa tus datos.</p>
+              </div>
+              <label className="font-semibold text-neutral-800">Categoría
+                <select
+                  name="categoria"
+                  value={form.categoria}
+                  onChange={handleFormChange}
+                  className={`mt-1 block w-full rounded border px-3 py-2 ${formError.categoria ? 'border-red-500' : 'border-neutral-300'}`}
+                  required
+                >
+                  <option value="">Selecciona una opción</option>
+                  <option value="emprendimiento">Emprendimiento</option>
+                  <option value="expositor">Expositor</option>
+                  <option value="jugador">Jugador</option>
+                </select>
+                {formError.categoria && <span className="text-red-500 text-xs">{formError.categoria}</span>}
+              </label>
+              <label className="font-semibold text-neutral-800">Nombre Completo del Representante
+                <input
+                  name="nombre"
+                  type="text"
+                  value={form.nombre}
+                  onChange={handleFormChange}
+                  className={`mt-1 block w-full rounded border px-3 py-2 ${formError.nombre ? 'border-red-500' : 'border-neutral-300'}`}
+                  required
+                />
+                {formError.nombre && <span className="text-red-500 text-xs">{formError.nombre}</span>}
+              </label>
+              <label className="font-semibold text-neutral-800">NIT/CI
+                <input
+                  name="nitci"
+                  type="text"
+                  value={form.nitci}
+                  onChange={handleFormChange}
+                  className={`mt-1 block w-full rounded border px-3 py-2 ${formError.nitci ? 'border-red-500' : 'border-neutral-300'}`}
+                  required
+                />
+                {formError.nitci && <span className="text-red-500 text-xs">{formError.nitci}</span>}
+              </label>
+              <label className="font-semibold text-neutral-800">Número de Celular
+                <input
+                  name="celular"
+                  type="tel"
+                  value={form.celular}
+                  onChange={handleFormChange}
+                  className={`mt-1 block w-full rounded border px-3 py-2 ${formError.celular ? 'border-red-500' : 'border-neutral-300'}`}
+                  required
+                  pattern="\d{7,15}"
+                />
+                {formError.celular && <span className="text-red-500 text-xs">{formError.celular}</span>}
+              </label>
+              <label className="font-semibold text-neutral-800">Correo electrónico
+                <input
+                  name="email"
+                  type="email"
+                  value={form.email}
+                  onChange={handleFormChange}
+                  className={`mt-1 block w-full rounded border px-3 py-2 ${formError.email ? 'border-red-500' : 'border-neutral-300'}`}
+                  required
+                />
+                {formError.email && <span className="text-red-500 text-xs">{formError.email}</span>}
+              </label>
+              <label className="font-semibold text-neutral-800">Preguntas, sugerencias o mensajes
+                <textarea
+                  name="mensaje"
+                  value={form.mensaje}
+                  onChange={handleFormChange}
+                  className="mt-1 block w-full rounded border border-neutral-300 px-3 py-2 min-h-[60px]"
+                  placeholder="Escribe aquí tus preguntas o sugerencias..."
+                  rows={3}
+                />
+              </label>
+              <button
+                type="submit"
+                className="mt-4 bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-6 py-2 rounded-full shadow transition text-lg"
+              >Enviar inscripción</button>
+            </form>
+          </div>
+        )}
       </section>
     </div>
   );

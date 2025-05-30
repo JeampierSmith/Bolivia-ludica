@@ -25,7 +25,7 @@ const departamentos = [
 				logo: '/Bolivia-ludica/assets/image/stores/tinkunagmaes.png',
 				ciudad: 'Cochabamba',
 				especialidad: 'Juegos de mesa',
-				ambiente: '/Bolivia-ludica/assets/image/ambientes/Cochabamba/Tinkunagames/TinkunaGames.jpg', // corregido el nombre de la carpeta y archivo
+				ambiente: '/Bolivia-ludica/assets/image/ambientes/Cochabamba/Tinkunagames/TinkunaGames.jpg',
 			},
 			{
 				nombre: 'Games Landing',
@@ -56,7 +56,7 @@ const departamentos = [
 			},
 			{
 				nombre: 'Guarida del Goblin',
-				logo: '/Bolivia-ludica/assets/image/stores/guarida del goblin.png',
+				logo: '/Bolivia-ludica/assets/image/stores/guaridadelgoblin.png',
 				ciudad: 'La Paz',
 				especialidad: 'Juegos de mesa',
 				ambiente: '/Bolivia-ludica/assets/image/ambientes/LaPaz/GuaridadelGoblin/GuaridadelGoblin.jpg',
@@ -106,15 +106,9 @@ const departamentos = [
 	},
 	{
 		nombre: 'Potosí',
-		ambiente: '/Bolivia-ludica/assets/image/ambientes/Potosi/CarcamodelGato/CarcamodelGato.jpg',
+		ambiente: '/Bolivia-ludica/assets/image/ambientes/Potosi/LeGato/LeGato.jpg',
 		tiendas: [
-			{
-				nombre: 'El carcamo del Gato',
-				logo: '/Bolivia-ludica/assets/image/stores/carcamodelcato.jpg',
-				ciudad: 'Potosí',
-				especialidad: 'Juegos de mesa',
-				ambiente: '/Bolivia-ludica/assets/image/ambientes/Potosi/CarcamodelGato/CarcamodelGato.jpg',
-			},
+			
 			{
 				nombre: 'Le gato',
 				logo: '/Bolivia-ludica/assets/image/stores/legato.jpg',
@@ -204,11 +198,13 @@ const Comunidad = () => {
 	React.useEffect(() => {
 		const interval = setInterval(() => {
 			setLogoIndices(prev =>
-				prev.map((idx, d) =>
-					departamentos[d].tiendas.length > 0
-						? (idx + 1) % departamentos[d].tiendas.length
-						: 0
-				)
+				prev.map((idx, d) => {
+					const tiendas = departamentos[d].tiendas.filter(t => t.logo);
+					if (tiendas.length === 0) return 0;
+					// Si el índice actual es mayor o igual al número de tiendas con logo, reiniciar a 0
+					const nextIdx = (idx + 1) % tiendas.length;
+					return nextIdx;
+				})
 			);
 		}, 5000);
 		return () => clearInterval(interval);
@@ -216,25 +212,24 @@ const Comunidad = () => {
 
 	return (
 		<section className="py-16 min-h-[60vh] bg-gradient-to-b from-neutral-50 to-neutral-200">
-			<div className="animate-fade-in-header">
-				{/* HERO sección comunidad */}
-				<section className="w-full bg-black py-16 mb-10">
-					<div className="max-w-4xl mx-auto px-4 text-center">
-						<h2 className="text-5xl font-extrabold mb-4 text-white drop-shadow font-[prototype]">
-							Nuestra Comunidad
-						</h2>
-						<p className="max-w-2xl mx-auto text-center text-lg text-white/90 mb-0">
-							Conoce a las tiendas y espacios que hacen posible Bolivia Lúdica en
-							cada rincón del país.
-						</p>
-					</div>
-				</section>
-			</div>
+			{/* HERO sección comunidad */}
+			<section className="w-full bg-black py-16 mb-10">
+				<div className="max-w-4xl mx-auto px-4 text-center">
+					<h2 className="text-5xl font-extrabold mb-4 text-white drop-shadow font-[prototype]">
+						Nuestra Comunidad
+					</h2>
+					<p className="max-w-2xl mx-auto text-center text-lg text-white/90 mb-0">
+						Conoce a las tiendas y espacios que hacen posible Bolivia Lúdica en
+						cada rincón del país.
+					</p>
+				</div>
+			</section>
 
 			<div className="max-w-6xl mx-auto px-4">
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
 					{departamentos.map((depto, idx) => {
-						const currentLogo = depto.tiendas[logoIndices[idx]]?.logo || depto.ambiente;
+						const tiendasConLogo = depto.tiendas.filter(t => t.logo);
+						const currentLogo = tiendasConLogo.length > 0 ? tiendasConLogo[logoIndices[idx] % tiendasConLogo.length].logo : depto.ambiente;
 						return (
 							<div
 								key={depto.nombre}
@@ -275,8 +270,25 @@ const Comunidad = () => {
 
 			{/* Modal de tiendas por departamento */}
 			{modalDepto !== null && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-					<div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 relative animate-fadeIn">
+				<div
+					className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 overflow-y-auto"
+					tabIndex={-1}
+					onClick={e => {
+						if (e.target === e.currentTarget) setModalDepto(null);
+					}}
+					onKeyDown={e => {
+						if (e.key === 'Escape') setModalDepto(null);
+					}}
+					aria-modal="true"
+					role="dialog"
+				>
+					<div
+						className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 relative animate-fadeIn max-h-[90vh] overflow-y-auto"
+						tabIndex={0}
+						onKeyDown={e => {
+							if (e.key === 'Escape') setModalDepto(null);
+						}}
+					>
 						<button
 							className="absolute top-3 right-3 text-neutral-500 hover:text-neutral-900 text-2xl font-bold"
 							onClick={() => setModalDepto(null)}

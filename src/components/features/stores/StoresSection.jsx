@@ -36,7 +36,7 @@ const StoresSection = () => {
       location: "La Paz, Bolivia",
       description: "Especialistas en juegos de rol y miniaturas",
       image: "https://images.unsplash.com/photo-1632501641765-e568d28b0015",
-      logo: import.meta.env.BASE_URL + 'assets/image/stores/guarida%20del%20goblin.png',
+      logo: import.meta.env.BASE_URL + 'assets/image/stores/guaridadelgoblin.png',
       instagram: "https://www.instagram.com/laguaridadelgoblin/",
       facebook: "https://www.facebook.com/people/La-Guarida-del-Goblin/100063749131951/",
       email: "N/A",
@@ -182,7 +182,7 @@ const StoresSection = () => {
       location: "Oruro, Bolivia",
       description: "Juegos y comunidad en un espacio único",
       image: "https://images.unsplash.com/photo-1464983953574-0892a716854b",
-      logo: import.meta.env.BASE_URL + 'assets/image/stores/legato.jpg',
+      logo: import.meta.env.BASE_URL + 'assets/image/stores/posadadelgato.png',
       phone: "62789462",
       specialty: "General",
       address: "Avenida del Valle y Calle 4 , Oruro, Bolivia",
@@ -385,75 +385,76 @@ const StoresSection = () => {
   });
 
   return (
-    <section className="py-16 bg-card">
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12 text-foreground" data-aos="fade-up" data-aos-duration="1000">
+    <section className="py-8 sm:py-16 bg-card">
+      <div className="container mx-auto px-1 sm:px-4">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12 text-foreground" data-aos="fade-up" data-aos-duration="1000">
           {t('partner')}
         </h2>
         <div data-aos="fade-up" data-aos-duration="1000" data-aos-delay="300">
-          <div className="w-full">
-            <Swiper
-              modules={[Pagination, Navigation, Autoplay]}
-              spaceBetween={30}
-              slidesPerView={3}
-              pagination={{ clickable: true, dynamicBullets: true }}
-              navigation
-              autoplay={{ delay: 7000, disableOnInteraction: false }}
-              breakpoints={{
-                320: { slidesPerView: 1 },
-                640: { slidesPerView: 2 },
-                1024: { slidesPerView: 3 }
-              }}
-              className="stores-swiper"
-              speed={700}
-            >
-              {Object.entries(storesByCity).map(([city, stores], idx) => (
-                <SwiperSlide key={city}>
-                  <div className="bg-white rounded-lg shadow-lg p-8 flex flex-col items-center h-full border-2 border-transparent stores-slide group transition-all duration-300">
-                    <h3 className="text-2xl font-bold mb-4 text-primary text-center">{city}</h3>
-                    <ul className="w-full space-y-6">
-                      {stores.map((store, i) => (
-                        <li 
-                          key={i} 
-                          className="flex items-center gap-4 border-b pb-4 last:border-b-0 last:pb-0 cursor-pointer hover:bg-gray-100 p-2 rounded transition-all duration-200 hover:shadow-lg hover:scale-[1.03] group"
-                          onClick={() => setSelectedStore(store)}
-                          tabIndex={0}
-                          aria-label={`Ver detalles de ${store.name}`}
-                        >
-                          <div className="w-14 h-14 flex items-center justify-center bg-white rounded-full border border-gray-200 shadow-sm relative">
-                            <img 
-                              src={store.logo || 'https://via.placeholder.com/48?text=Logo'} 
-                              alt={`${store.name} logo`} 
-                              className="w-12 h-12 object-contain rounded-full"
-                              title={store.name}
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = 'https://via.placeholder.com/48?text=Logo';
-                              }}
-                            />
+          <Swiper
+            modules={[Pagination, Navigation, Autoplay]}
+            spaceBetween={30}
+            slidesPerView={3}
+            pagination={{ clickable: true, dynamicBullets: true }}
+            navigation
+            autoplay={{ delay: 7000, disableOnInteraction: false }}
+            breakpoints={{
+              320: { slidesPerView: 1 },
+              640: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 }
+            }}
+            className="stores-swiper"
+            speed={700}
+            style={{overflow: 'hidden'}}
+          >
+            {Object.entries(storesByCity).map(([city, stores], idx) => (
+              <SwiperSlide key={city}>
+                <div
+                  className="bg-white rounded-lg shadow-lg p-4 sm:p-8 flex flex-col items-center h-full border-2 border-transparent stores-slide group transition-all duration-300 min-w-0 max-w-full"
+                  style={{ boxSizing: 'border-box' }}
+                >
+                  <h3 className="text-xl sm:text-2xl font-bold mb-4 text-primary text-center">{city}</h3>
+                  <ul className="w-full space-y-4 sm:space-y-6">
+                    {stores.map((store, i) => (
+                      <li
+                        key={i}
+                        className="flex items-center gap-3 sm:gap-4 border-b pb-3 sm:pb-4 last:border-b-0 last:pb-0 cursor-pointer hover:bg-gray-100 p-2 rounded transition-all duration-200 hover:shadow-lg hover:scale-[1.03] group"
+                        onClick={() => setSelectedStore(store)}
+                        tabIndex={0}
+                        aria-label={`Ver detalles de ${store.name}`}
+                      >
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center bg-white rounded-full border border-gray-200 shadow-sm relative">
+                          <img
+                            src={store.logo || 'https://via.placeholder.com/48?text=Logo'}
+                            alt={`${store.name} logo`}
+                            className="w-10 h-10 sm:w-12 sm:h-12 object-contain rounded-full"
+                            title={store.name}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = 'https://via.placeholder.com/48?text=Logo';
+                            }}
+                          />
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <div className="font-bold text-base sm:text-lg text-foreground flex items-center gap-2 flex-wrap">
+                            {store.name}
+                            <span className="inline-block bg-primary/10 text-primary text-xs font-semibold px-2 py-0.5 rounded ml-1 border border-primary/20" title={store.specialty}>{store.specialty}</span>
                           </div>
-                          <div className="flex flex-col">
-                            <div className="font-bold text-lg text-foreground flex items-center gap-2">
-                              {store.name}
-                              <span className="inline-block bg-primary/10 text-primary text-xs font-semibold px-2 py-0.5 rounded ml-1 border border-primary/20" title={store.specialty}>{store.specialty}</span>
-                            </div>
-                            <div className="text-accent mb-1 text-sm">{store.description}</div>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          </div>
+                          <div className="text-accent mb-1 text-xs sm:text-sm truncate max-w-[180px] sm:max-w-none">{store.description}</div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
       </div>
-
-      <StoreModal 
-        store={selectedStore} 
-        isOpen={!!selectedStore} 
-        onClose={() => setSelectedStore(null)} 
+      <StoreModal
+        store={selectedStore}
+        isOpen={!!selectedStore}
+        onClose={() => setSelectedStore(null)}
       />
     </section>
   );
