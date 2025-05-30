@@ -10,16 +10,16 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-bold mb-4 text-foreground">{t('links')}</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-accent hover:text-primary">{t('home')}</a></li>
-              <li><a href="#" className="text-accent hover:text-primary">{t('community')}</a></li>
-              <li><a href="#" className="text-accent hover:text-primary">{t('play')}</a></li>
-              <li><a href="#" className="text-accent hover:text-primary">{t('ranking')}</a></li>
+              <li><a href="/Bolivia-ludica/" className="text-accent hover:text-primary">{t('home')}</a></li>
+              <li><a href="/Bolivia-ludica/comunidad" className="text-accent hover:text-primary">{t('community')}</a></li>
+              <li><a href="/Bolivia-ludica/boliviaplay" className="text-accent hover:text-primary">{t('play')}</a></li>
+              <li><a href="/Bolivia-ludica/ranking" className="text-accent hover:text-primary">{t('ranking')}</a></li>
             </ul>
           </div>
           <div>
             <h3 className="text-lg font-bold mb-4 text-foreground">{t('connect')}</h3>
             <div className="flex space-x-4">
-              <a href="#" className="text-accent hover:text-primary text-2xl"><FaFacebook /></a>
+              <a href="https://www.facebook.com/people/Bolivia-Ludica/61568542995767/" className="text-accent hover:text-primary text-2xl"><FaFacebook /></a>
               <a href="#" className="text-accent hover:text-primary text-2xl"><FaTwitter /></a>
               <a href="#" className="text-accent hover:text-primary text-2xl"><FaInstagram /></a>
             </div>

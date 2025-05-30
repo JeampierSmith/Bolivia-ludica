@@ -1,12 +1,13 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 const PasaporteLudico = () => {
   const { t } = useTranslation();
   return (
     <section className="py-16 relative overflow-hidden">
       <img
-        src="/assets/image/boardgame.jpeg"
+        src={import.meta.env.BASE_URL + 'assets/image/boardgame.jpeg'}
         alt=""
         className="absolute inset-0 w-full h-full object-cover z-0"
         style={{ opacity: 0.25 }}
@@ -21,9 +22,11 @@ const PasaporteLudico = () => {
           </p>
         </div>
         <div className="flex justify-center" data-aos="zoom-in" data-aos-delay="200">
-          <button className="bg-primary text-primary-foreground px-8 py-3 rounded-md transition-all duration-300 animate-pulse hover:animate-none hover:scale-105 hover:shadow-lg hover:bg-primary/90 focus:animate-none">
-            {t('join')}
-          </button>
+          <Link to="/unete">
+            <button className="bg-primary text-primary-foreground px-8 py-3 rounded-md transition-all duration-300 animate-pulse hover:animate-none hover:scale-105 hover:shadow-lg hover:bg-primary/90 focus:animate-none">
+              {t('join')}
+            </button>
+          </Link>
         </div>
       </div>
     </section>
