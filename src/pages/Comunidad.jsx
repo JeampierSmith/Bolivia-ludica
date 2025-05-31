@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Mock de datos de departamentos y tiendas (ajusta paths y datos reales luego)
 const departamentos = [
@@ -11,7 +12,10 @@ const departamentos = [
 				logo: '/Bolivia-ludica/assets/image/stores/antikuna.png',
 				ciudad: 'Cochabamba',
 				especialidad: 'Juegos de mesa',
-				ambiente: '/Bolivia-ludica/assets/image/ambientes/Cochabamba/Antikuna/Antikuna.jpg',
+				ambiente: [
+					'/Bolivia-ludica/assets/image/ambientes/Cochabamba/Antikuna/Antikuna.jpg',
+					'/Bolivia-ludica/assets/image/ambientes/Cochabamba/Antikuna/Antikuna2.jpg'
+				],
 			},
 			{
 				nombre: 'El Mercader Errante',
@@ -39,7 +43,10 @@ const departamentos = [
 				logo: '/Bolivia-ludica/assets/image/stores/magicgames.jpg',
 				ciudad: 'Cochabamba',
 				especialidad: 'Juegos de mesa',
-				ambiente: '/Bolivia-ludica/assets/image/ambientes/Cochabamba/MagicgGames/IMG-20241014-WA0053.jpg',
+				ambiente: [
+					'/Bolivia-ludica/assets/image/ambientes/Cochabamba/MagicgGames/IMG-20241014-WA0053.jpg',
+					'/Bolivia-ludica/assets/image/ambientes/Cochabamba/MagicgGames/IMG-20241014-WA0054.jpg'
+				],
 			},
 		],
 	},
@@ -130,7 +137,7 @@ const departamentos = [
 				ambiente: '/Bolivia-ludica/assets/image/ambientes/SantaCruz/JugateEsta/JugateEsta.jpg',
 			},
 			{
-				nombre: 'La Marmorra del Juasi',
+				nombre: 'La Mazmorra del Juasi',
 				logo: '/Bolivia-ludica/assets/image/stores/juasi.jpg',
 				ciudad: 'Santa Cruz',
 				especialidad: 'Juegos de mesa',
@@ -189,10 +196,16 @@ const departamentos = [
 
 const Comunidad = () => {
 	const [modalDepto, setModalDepto] = useState(null);
-	// Estado para el logo actual de cada departamento
 	const [logoIndices, setLogoIndices] = useState(
 		departamentos.map(() => 0)
 	);
+	const [selectedTienda, setSelectedTienda] = useState(null);
+	const navigate = useNavigate();
+
+	// Utilidad para normalizar el nombre de la tienda en la URL
+	function slugify(str) {
+		return str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+	}
 
 	// Efecto para rotar logos cada 5 segundos
 	React.useEffect(() => {
@@ -299,27 +312,58 @@ const Comunidad = () => {
 						<h3 className="text-3xl font-bold mb-4 text-yellow-700">
 							{departamentos[modalDepto].nombre}
 						</h3>
-						<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-							{departamentos[modalDepto].tiendas.map(tienda => (
-								<div key={tienda.nombre} className="flex flex-col items-center bg-neutral-50 rounded-xl p-4 shadow border border-neutral-200">
-									<img
-										src={tienda.logo}
-										alt={tienda.nombre}
-										className="w-16 h-16 object-contain bg-white rounded-full border border-neutral-200 mb-2"
-										onError={e => e.target.style.opacity=0.2}
-									/>
-									<h4 className="text-lg font-bold text-neutral-900 mb-1">{tienda.nombre}</h4>
-									<span className="text-sm text-neutral-600 mb-1">{tienda.ciudad}</span>
-									<span className="text-xs text-yellow-700 mb-2">{tienda.especialidad}</span>
-									<img
-										src={tienda.ambiente}
-										alt={`Ambiente ${tienda.nombre}`}
-										className="w-full h-20 object-cover rounded-lg border border-neutral-200"
-										onError={e => e.target.style.opacity=0.2}
-									/>
-								</div>
-							))}
-						</div>
+						{/* Si hay una tienda seleccionada, mostrar detalles */}
+						{selectedTienda ? (
+							<div className="flex flex-col items-center gap-4">
+								<button
+									className="self-end text-neutral-500 hover:text-neutral-900 text-lg font-bold mb-2"
+									onClick={() => setSelectedTienda(null)}
+								>
+									← Volver
+								</button>
+								<img
+									src={selectedTienda.logo}
+									alt={selectedTienda.nombre}
+									className="w-24 h-24 object-contain bg-white rounded-full border border-neutral-200 mb-2"
+									onError={e => (e.target.style.opacity = 0.2)}
+								/>
+								<h4 className="text-2xl font-bold text-neutral-900 mb-1">{selectedTienda.nombre}</h4>
+								<span className="text-md text-neutral-600 mb-1">{selectedTienda.ciudad}</span>
+								<span className="text-sm text-yellow-700 mb-2">{selectedTienda.especialidad}</span>
+								<img
+									src={selectedTienda.ambiente}
+									alt={`Ambiente ${selectedTienda.nombre}`}
+									className="w-full h-40 object-cover rounded-lg border border-neutral-200 mb-2"
+									onError={e => (e.target.style.opacity = 0.2)}
+								/>
+								{/* Sugerencia: puedes agregar más detalles aquí, como dirección, contacto, redes sociales, horarios, etc. */}
+								<p className="text-neutral-700 text-center mt-2">Próximamente más información y fotos de este espacio.</p>
+							</div>
+						) : (
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+								{departamentos[modalDepto].tiendas.map(tienda => (
+									<div key={tienda.nombre} className="flex flex-col items-center bg-neutral-50 rounded-xl p-4 shadow border border-neutral-200 cursor-pointer hover:bg-yellow-50 transition"
+										onClick={() => navigate(`/comunidad/${slugify(tienda.nombre)}`)}
+									>
+										<img
+											src={tienda.logo}
+											alt={tienda.nombre}
+											className="w-16 h-16 object-contain bg-white rounded-full border border-neutral-200 mb-2"
+											onError={e => (e.target.style.opacity=0.2)}
+										/>
+										<h4 className="text-lg font-bold text-neutral-900 mb-1">{tienda.nombre}</h4>
+										<span className="text-sm text-neutral-600 mb-1">{tienda.ciudad}</span>
+										<span className="text-xs text-yellow-700 mb-2">{tienda.especialidad}</span>
+										<img
+											src={tienda.ambiente}
+											alt={`Ambiente ${tienda.nombre}`}
+											className="w-full h-20 object-cover rounded-lg border border-neutral-200"
+											onError={e => (e.target.style.opacity=0.2)}
+										/>
+									</div>
+								))}
+							</div>
+						)}
 					</div>
 				</div>
 			)}

@@ -10,6 +10,7 @@ import Unete from "./components/features/pasaporte/Unete";
 import Comunidad from "./pages/Comunidad";
 import BoliviaPlay from "./pages/BoliviaPlay";
 import Ranking from "./pages/Ranking";
+import ComunidadTienda from "./pages/ComunidadTienda";
 
 const App = () => {
   return (
@@ -26,6 +27,7 @@ const App = () => {
         } />
         <Route path="/unete" element={<Unete />} />
         <Route path="/comunidad" element={<Comunidad />} />
+        <Route path="/comunidad/:tiendaSlug" element={<ComunidadTienda />} />
         <Route path="/boliviaplay" element={<BoliviaPlay />} />
         <Route path="/ranking" element={<Ranking />} />
       </Routes>
