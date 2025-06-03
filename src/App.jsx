@@ -11,6 +11,10 @@ import Comunidad from "./pages/Comunidad";
 import BoliviaPlay from "./pages/BoliviaPlay";
 import Ranking from "./pages/Ranking";
 import ComunidadTienda from "./pages/ComunidadTienda";
+import Tienda from "./pages/tienda/Tienda";
+import Login from "./pages/tienda/Login.jsx";
+import ProductoDetalle from './pages/tienda/ProductoDetalle';
+
 
 const App = () => {
   return (
@@ -30,6 +34,9 @@ const App = () => {
         <Route path="/comunidad/:tiendaSlug" element={<ComunidadTienda />} />
         <Route path="/boliviaplay" element={<BoliviaPlay />} />
         <Route path="/ranking" element={<Ranking />} />
+        <Route path="/tienda" element={<Tienda />} />
+        <Route path="/tienda/:productoSlug" element={<ProductoDetalle />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
       <Footer />
     </div>

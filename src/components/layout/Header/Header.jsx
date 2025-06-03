@@ -30,7 +30,8 @@ const Header = () => {
     { href: "/", text: t('home', 'Inicio') },
     { href: "/comunidad", text: t('community', 'Nuestra Comunidad') },
     { href: "/boliviaplay", text: t('play', 'Bolivia Play') },
-    { href: "/ranking", text: t('ranking', 'Ranking') }
+    { href: "/ranking", text: t('ranking', 'Ranking') },
+    { href: "/tienda", text: t('store', 'Tienda Online') }
   ];
 
   // Selector de idioma
@@ -58,6 +59,7 @@ const Header = () => {
                   {link.text}
                 </NavLink>
               ))}
+              
               <select onChange={e => changeLanguage(e.target.value)} value={i18n.language} className="ml-4 px-2 py-1 rounded">
                 <option value="es">ES</option>
                 <option value="en">EN</option>
@@ -95,6 +97,7 @@ const Header = () => {
               {link.text}
             </NavLink>
           ))}
+          
           <select onChange={e => changeLanguage(e.target.value)} value={i18n.language} className="mt-2 px-2 py-1 rounded">
             <option value="es">ES</option>
             <option value="en">EN</option>
