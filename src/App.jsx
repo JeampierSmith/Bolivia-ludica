@@ -14,32 +14,44 @@ import ComunidadTienda from "./pages/ComunidadTienda";
 import Tienda from "./pages/tienda/Tienda";
 import Login from "./pages/tienda/Login.jsx";
 import ProductoDetalle from './pages/tienda/ProductoDetalle';
+import { AuthProvider } from './components/common/AuthContext';
+import { CartProvider } from './components/common/CartContext';
+import Perfil from './pages/tienda/Perfil';
+import Carrito from './pages/tienda/Carrito';
+import Confirmacion from './pages/tienda/Confirmacion';
 
 
 const App = () => {
   return (
-    <div>
-      <Header />
-      <Routes>
-        <Route path="/" element={
-          <>
-            <Hero />
-            <StoresSection />
-            <PasaporteLudico />
-            <FeaturedGames />
-          </>
-        } />
-        <Route path="/unete" element={<Unete />} />
-        <Route path="/comunidad" element={<Comunidad />} />
-        <Route path="/comunidad/:tiendaSlug" element={<ComunidadTienda />} />
-        <Route path="/boliviaplay" element={<BoliviaPlay />} />
-        <Route path="/ranking" element={<Ranking />} />
-        <Route path="/tienda" element={<Tienda />} />
-        <Route path="/tienda/:productoSlug" element={<ProductoDetalle />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
-      <Footer />
-    </div>
+    <AuthProvider>
+      <CartProvider>
+        <div>
+          <Header />
+          <Routes>
+            <Route path="/" element={
+              <>
+                <Hero />
+                <StoresSection />
+                <PasaporteLudico />
+                <FeaturedGames />
+              </>
+            } />
+            <Route path="/unete" element={<Unete />} />
+            <Route path="/comunidad" element={<Comunidad />} />
+            <Route path="/comunidad/:tiendaSlug" element={<ComunidadTienda />} />
+            <Route path="/boliviaplay" element={<BoliviaPlay />} />
+            <Route path="/ranking" element={<Ranking />} />
+            <Route path="/tienda" element={<Tienda />} />
+            <Route path="/tienda/:productoSlug" element={<ProductoDetalle />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/carrito" element={<Carrito />} />
+            <Route path="/confirmacion" element={<Confirmacion />} />
+          </Routes>
+          <Footer />
+        </div>
+      </CartProvider>
+    </AuthProvider>
   );
 };
 

@@ -2,14 +2,21 @@ import React, { useState } from 'react';
 import LoginForm from '../../components/features/auth/LoginForm';
 import UneteForm from '../../components/features/auth/UneteForm';
 import Modal from '../../components/common/Modal';
+import { useAuth } from '../../components/common/AuthContext';
 
 const Login = () => {
   const [showRegister, setShowRegister] = useState(false);
   const [showModal, setShowModal] = useState(true);
+  const { login } = useAuth();
 
+  // TEMPORAL: Solo permite usuario y contraseña 'admin' para probar el frontend
   const handleLogin = (data) => {
-    // Aquí iría la lógica para manejar el inicio de sesión
-    console.log('Login:', data);
+    const ok = login(data);
+    if (!ok) {
+      // El mensaje ya se muestra en AuthContext, pero aquí puedes agregar lógica extra si quieres
+    } else {
+      setShowModal(false);
+    }
   };
   const handleRegister = (data) => {
     // Aquí iría la lógica para manejar el registro
@@ -22,27 +29,34 @@ const Login = () => {
         {showRegister ? 'Crea tu cuenta' : 'Iniciar sesión con su cuenta'}
       </h2>
       {showRegister ? (
-        <UneteForm onRegister={handleRegister} />
-      ) : (
-        <LoginForm onLogin={handleLogin} />
-      )}
-      <div className="text-center text-sm mt-4">
-        {showRegister ? (
-          <>
-            ¿Ya tienes una cuenta?{' '}
-            <button type="button" className="font-medium text-primary hover:text-primary/80" onClick={() => setShowRegister(false)}>
-              Inicia sesión aquí
+        <>
+          <UneteForm onRegister={handleRegister} onShowLogin={() => setShowRegister(false)} />
+          <div className="text-center text-sm mt-4">
+            ¿Ya tiene una cuenta?{' '}
+            <button
+              type="button"
+              className="font-medium text-primary hover:text-primary/80 underline focus:outline-none"
+              onClick={() => setShowRegister(false)}
+            >
+              Inicie sesión aquí
             </button>
-          </>
-        ) : (
-          <>
-            ¿No tienes una cuenta?{' '}
-            <button type="button" className="font-medium text-primary hover:text-primary/80" onClick={() => setShowRegister(true)}>
+          </div>
+        </>
+      ) : (
+        <>
+          <LoginForm onLogin={handleLogin} onShowRegister={() => setShowRegister(true)} />
+          <div className="text-center text-sm mt-4">
+            ¿No tiene una cuenta?{' '}
+            <button
+              type="button"
+              className="font-medium text-primary hover:text-primary/80 underline focus:outline-none"
+              onClick={() => setShowRegister(true)}
+            >
               Cree una aquí
             </button>
-          </>
-        )}
-      </div>
+          </div>
+        </>
+      )}
     </Modal>
   );
 };

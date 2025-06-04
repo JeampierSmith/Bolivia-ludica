@@ -20,7 +20,7 @@ const validatePassword = (password) => {
   };
 };
 
-const Unete = (props) => {
+const UneteForm = ({ onRegister, onShowLogin }) => {
   const [form, setForm] = useState(initialState);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
@@ -37,7 +37,6 @@ const Unete = (props) => {
     if (name === 'password') {
       const checks = validatePassword(value);
       setPasswordChecks(checks);
-      // Score: 1 por cada check positivo
       const score = Object.values(checks).filter(Boolean).length;
       setPasswordScore(score);
     }
@@ -54,84 +53,74 @@ const Unete = (props) => {
     if (form.password !== form.confirmPassword) newErrors.confirmPassword = 'Las contraseñas no coinciden';
     if (!form.terms) newErrors.terms = 'Debes aceptar los términos';
     setErrors(newErrors);
-    if (Object.keys(newErrors).length === 0) setSubmitted(true);
-    else setSubmitted(false);
+    if (Object.keys(newErrors).length === 0) {
+      setSubmitted(true);
+      if (onRegister) onRegister(form);
+    } else setSubmitted(false);
   };
 
-  // Colores blanco y negro
+  // Colores del logo Bolivia Lúdica
   const mainColor = "#191e2b";
-  const accentColor = "#fff";
-  const borderColor = "#191e2b";
-  const bgColor = "#fff";
-  const textColor = "#191e2b";
+  const accentColor = "#00b3b0";
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-auto p-4 sm:p-6 md:p-8 border-t-8 border-black"
-      style={{ borderTopColor: borderColor }}
-    >
-      <div className="flex flex-col items-center mb-4">
-        <img
-          src={import.meta.env.BASE_URL + 'assets/image/LOGO-BOLIVIA-LUDICA.svg'}
-          alt="Bolivia Ludica Logo"
-          className="h-20 mb-2"
-        />
-        <h2 className="text-xl sm:text-2xl font-bold" style={{ color: mainColor }}>¡ÚNETE A LA COMUNIDAD!</h2>
-        <p className="text-gray-700 text-center mt-1 mb-2 text-sm">Completa tus datos para crear tu cuenta</p>
-      </div>
-      <div className="flex flex-col sm:flex-row gap-2 mb-3">
+    <form className="space-y-6 max-w-sm w-full mx-auto p-4 bg-white rounded-xl shadow-md" onSubmit={handleSubmit} style={{minWidth:0}}>
+      <div className="flex gap-2 mb-4">
         <div className="flex-1">
-          <label className="block text-xs font-medium text-gray-800 mb-1">Nombre</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
           <input
             type="text"
             name="nombre"
             value={form.nombre}
             onChange={handleChange}
-            className={`w-full border rounded px-2 py-2 focus:outline-none focus:ring-2 ${errors.nombre ? 'border-red-500' : 'border-black'} bg-white text-black text-sm`}
+            className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 ${errors.nombre ? 'border-red-500' : ''}`}
+            style={{ borderColor: accentColor }}
             required
           />
           {errors.nombre && <div className="text-xs text-red-500 mt-1">{errors.nombre}</div>}
         </div>
         <div className="flex-1">
-          <label className="block text-xs font-medium text-gray-800 mb-1">Apellido</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Apellido</label>
           <input
             type="text"
             name="apellido"
             value={form.apellido}
             onChange={handleChange}
-            className={`w-full border rounded px-2 py-2 focus:outline-none focus:ring-2 ${errors.apellido ? 'border-red-500' : 'border-black'} bg-white text-black text-sm`}
+            className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 ${errors.apellido ? 'border-red-500' : ''}`}
+            style={{ borderColor: accentColor }}
             required
           />
           {errors.apellido && <div className="text-xs text-red-500 mt-1">{errors.apellido}</div>}
         </div>
       </div>
-      <div className="mb-3">
-        <label className="block text-xs font-medium text-gray-800 mb-1">Correo electrónico</label>
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
         <input
           type="email"
           name="email"
           value={form.email}
           onChange={handleChange}
-          className={`w-full border rounded px-2 py-2 focus:outline-none focus:ring-2 ${errors.email ? 'border-red-500' : 'border-black'} bg-white text-black text-sm`}
+          className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 ${errors.email ? 'border-red-500' : ''}`}
+          style={{ borderColor: accentColor }}
           required
         />
         {errors.email && <div className="text-xs text-red-500 mt-1">{errors.email}</div>}
       </div>
-      <div className="mb-3">
-        <label className="block text-xs font-medium text-gray-800 mb-1">Contraseña</label>
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
         <input
           type="password"
           name="password"
           value={form.password}
           onChange={handleChange}
-          className={`w-full border rounded px-2 py-2 focus:outline-none focus:ring-2 ${errors.password ? 'border-red-500' : 'border-black'} bg-white text-black text-sm`}
+          className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 ${errors.password ? 'border-red-500' : ''}`}
+          style={{ borderColor: accentColor }}
           required
         />
         {/* Barra de seguridad */}
-        <div className="mt-1">
+        <div className="mt-2">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-gray-700">Seguridad de la contraseña:</span>
+            <span className="text-xs text-gray-600">Seguridad de la contraseña:</span>
             <span className={`text-xs font-bold ${passwordScore <= 2 ? 'text-red-500' : passwordScore === 3 ? 'text-yellow-500' : passwordScore === 4 ? 'text-blue-500' : 'text-green-600'}`}>{
               passwordScore <= 2 ? 'Muy débil' : passwordScore === 3 ? 'Débil' : passwordScore === 4 ? 'Aceptable' : 'Fuerte'
             }</span>
@@ -146,9 +135,9 @@ const Unete = (props) => {
           </div>
         </div>
         {/* Requisitos visuales */}
-        <div className="mt-2 p-2 rounded bg-neutral-100 border text-xs">
-          <div className="font-semibold mb-1 flex items-center gap-1 text-black"><span>⏰</span> Requisitos de la contraseña:</div>
-          <div className="grid grid-cols-2 gap-1">
+        <div className="mt-3 p-3 rounded bg-gray-50 border text-xs">
+          <div className="font-semibold mb-1 flex items-center gap-1"><span>⏰</span> Requisitos de la contraseña:</div>
+          <div className="grid grid-cols-2 gap-2">
             <div className={passwordChecks.length ? 'text-green-600' : 'text-gray-700'}>
               {passwordChecks.length ? '✔' : '✗'} 8+ caracteres
             </div>
@@ -168,56 +157,58 @@ const Unete = (props) => {
         </div>
         {errors.password && <div className="text-xs text-red-500 mt-1">{errors.password}</div>}
       </div>
-      <div className="mb-3">
-        <label className="block text-xs font-medium text-gray-800 mb-1">Confirmar contraseña</label>
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
         <input
           type="password"
           name="confirmPassword"
           value={form.confirmPassword}
           onChange={handleChange}
-          className={`w-full border rounded px-2 py-2 focus:outline-none focus:ring-2 ${errors.confirmPassword ? 'border-red-500' : 'border-black'} bg-white text-black text-sm`}
+          className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 ${errors.confirmPassword ? 'border-red-500' : ''}`}
+          style={{ borderColor: accentColor }}
           required
         />
         {errors.confirmPassword && <div className="text-xs text-red-500 mt-1">{errors.confirmPassword}</div>}
       </div>
-      <div className="mb-3 flex items-center">
+      <div className="mb-4 flex items-center">
         <input
           type="checkbox"
           name="terms"
           checked={form.terms}
           onChange={handleChange}
-          className={`mr-2 accent-black ${errors.terms ? 'border-red-500' : 'border-black'}`}
+          className={`mr-2 accent-[var(--accentColor)] ${errors.terms ? 'border-red-500' : ''}`}
           required
-          style={{ accentColor: mainColor }}
+          style={{ accentColor: accentColor }}
         />
-        <span className="text-xs text-gray-800">
-          Acepto los <a href="#" className="text-black underline">Términos y Condiciones</a> y la <a href="#" className="text-black underline">Política de Privacidad</a>
+        <span className="text-sm text-gray-600">
+          Acepto los <a href="#" className="text-[var(--accentColor)] underline" style={{ color: accentColor }}>Términos y Condiciones</a> y la <a href="#" className="text-[var(--accentColor)] underline" style={{ color: accentColor }}>Política de Privacidad</a>
         </span>
       </div>
       {errors.terms && <div className="text-xs text-red-500 mb-2">{errors.terms}</div>}
       <button
         type="submit"
-        className="w-full py-2 rounded-md font-bold text-base flex items-center justify-center gap-2 bg-black text-white hover:bg-neutral-800 transition"
+        className="w-full py-3 rounded-md font-bold text-lg flex items-center justify-center gap-2"
+        style={{
+          background: `linear-gradient(90deg, ${mainColor} 0%, ${accentColor} 100%)`,
+          color: "#fff",
+          boxShadow: `0 2px 8px 0 ${accentColor}33`
+        }}
       >
         <span>Crear Cuenta</span>
       </button>
       {submitted && (
-        <div className="mt-3 text-center text-green-600 font-semibold text-sm">
+        <div className="mt-4 text-center text-green-600 font-semibold">
           ¡Registro enviado!
         </div>
       )}
-      <div className="text-center text-sm mt-4">
-        ¿Ya tiene una cuenta?{' '}
-        <button
-          type="button"
-          className="font-medium text-primary hover:text-primary/80 underline focus:outline-none"
-          onClick={props.onShowLogin}
-        >
-          Inicie sesión aquí
+      <div className="text-center text-sm mt-2">
+        ¿Ya tienes una cuenta?{' '}
+        <button type="button" className="font-medium text-primary hover:text-primary/80" onClick={onShowLogin}>
+          Inicia sesión aquí
         </button>
       </div>
     </form>
   );
 };
 
-export default Unete;
+export default UneteForm;

@@ -31,7 +31,7 @@ const Header = () => {
     { href: "/comunidad", text: t('community', 'Nuestra Comunidad') },
     { href: "/boliviaplay", text: t('play', 'Bolivia Play') },
     { href: "/ranking", text: t('ranking', 'Ranking') },
-    { href: "/tienda", text: t('store', 'Tienda Online') }
+    // Tienda will be rendered separately as a button
   ];
 
   // Selector de idioma
@@ -53,13 +53,20 @@ const Header = () => {
               </a>
             </div>
             {/* Desktop menu */}
-            <div className="hidden md:flex space-x-6" data-aos="fade-left">
+            <div className="hidden md:flex space-x-6 items-center" data-aos="fade-left">
               {navLinks.map((link, index) => (
                 <NavLink key={index} href={link.href}>
                   {link.text}
                 </NavLink>
               ))}
-              
+              {/* Tienda Online as a button */}
+              <NavLink
+                href="/tienda"
+                className="ml-2 px-4 py-2 rounded-lg font-semibold bg-primary text-white shadow transition-all duration-200 hover:bg-primary/90 hover:text-white hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                style={{ fontFamily: "Prototype, sans-serif", letterSpacing: 1 }}
+              >
+                {t('store', 'Tienda Online')}
+              </NavLink>
               <select onChange={e => changeLanguage(e.target.value)} value={i18n.language} className="ml-4 px-2 py-1 rounded">
                 <option value="es">ES</option>
                 <option value="en">EN</option>
@@ -97,7 +104,15 @@ const Header = () => {
               {link.text}
             </NavLink>
           ))}
-          
+          {/* Tienda Online as a button in mobile menu */}
+          <NavLink
+            href="/tienda"
+            onClick={handleMenuClose}
+            className="mb-6 px-4 py-2 rounded-lg font-semibold bg-primary text-white shadow transition-all duration-200 hover:bg-primary/90 hover:text-white hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            style={{ fontFamily: "Prototype, sans-serif", letterSpacing: 1 }}
+          >
+            {t('store', 'Tienda Online')}
+          </NavLink>
           <select onChange={e => changeLanguage(e.target.value)} value={i18n.language} className="mt-2 px-2 py-1 rounded">
             <option value="es">ES</option>
             <option value="en">EN</option>

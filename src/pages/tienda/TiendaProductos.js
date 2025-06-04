@@ -6,6 +6,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'Antikuna',
     departamento: 'Cochabamba',
+    categoria: 'Juegos de Mesa',
+    badge: 'Nuevo',
   },
   {
     nombre: 'Set de Cartas Premium',
@@ -13,6 +15,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'El Mercader Errante',
     departamento: 'Cochabamba',
+    categoria: 'Cartas TCG',
+    badge: 'Popular',
   },
   {
     nombre: 'Ajedrez Profesional',
@@ -20,6 +24,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'Tinkuna Games',
     departamento: 'Cochabamba',
+    categoria: 'Juegos de Mesa',
+    badge: 'En oferta',
   },
   {
     nombre: 'Kit Monopoly Familiar',
@@ -27,6 +33,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'Games Landing',
     departamento: 'Cochabamba',
+    categoria: 'Juegos de Mesa',
+    badge: 'Nuevo',
   },
   {
     nombre: 'Dados y Accesorios',
@@ -34,6 +42,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'Magic Games',
     departamento: 'Cochabamba',
+    categoria: 'Accesorios',
+    badge: 'Popular',
   },
   {
     nombre: 'Póker Set Completo',
@@ -41,6 +51,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'Bros Game Club',
     departamento: 'La Paz',
+    categoria: 'Cartas TCG',
+    badge: 'En oferta',
   },
   {
     nombre: 'Tablero Clásico de Damas',
@@ -48,6 +60,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'Guarida del Goblin',
     departamento: 'La Paz',
+    categoria: 'Juegos de Mesa',
+    badge: 'Nuevo',
   },
   {
     nombre: 'Colección Juegos Familiares',
@@ -55,6 +69,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'Shadow Games',
     departamento: 'La Paz',
+    categoria: 'Juegos de Mesa',
+    badge: 'Popular',
   },
   {
     nombre: 'Set Clásico de Cartas',
@@ -62,6 +78,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'Coffe Arkham',
     departamento: 'Oruro',
+    categoria: 'Cartas TCG',
+    badge: 'En oferta',
   },
   {
     nombre: 'Juegos de Rol Básicos',
@@ -69,6 +87,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'Dados y Dragones',
     departamento: 'Oruro',
+    categoria: 'Juegos de Rol',
+    badge: 'Nuevo',
   },
   {
     nombre: 'Baúl de Juegos',
@@ -76,6 +96,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'El baúl de los juegos',
     departamento: 'Oruro',
+    categoria: 'Juegos de Mesa',
+    badge: 'Popular',
   },
   {
     nombre: 'Pack Familiar de Damas',
@@ -83,6 +105,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'La posada del gato',
     departamento: 'Oruro',
+    categoria: 'Juegos de Mesa',
+    badge: 'En oferta',
   },
   {
     nombre: 'Set de Estrategia',
@@ -90,6 +114,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'Le gato',
     departamento: 'Potosí',
+    categoria: 'Juegos de Estrategia',
+    badge: 'Nuevo',
   },
   {
     nombre: 'Juegos de Mesa Kids',
@@ -97,6 +123,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'Jugate esta',
     departamento: 'Santa Cruz',
+    categoria: 'Juegos de Mesa',
+    badge: 'Popular',
   },
   {
     nombre: 'Mazmorra y Aventuras',
@@ -104,6 +132,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'La Mazmorra del Juasi',
     departamento: 'Santa Cruz',
+    categoria: 'Juegos de Rol',
+    badge: 'En oferta',
   },
   {
     nombre: 'Cartas TCG Pro',
@@ -111,6 +141,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'Sharks TCG',
     departamento: 'Santa Cruz',
+    categoria: 'Cartas TCG',
+    badge: 'Nuevo',
   },
   {
     nombre: 'Set Dragón',
@@ -118,6 +150,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'Uruloki',
     departamento: 'Santa Cruz',
+    categoria: 'Juegos de Estrategia',
+    badge: 'Popular',
   },
   {
     nombre: 'Victoria Total',
@@ -125,6 +159,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'Punto de Victoria',
     departamento: 'Sucre',
+    categoria: 'Juegos de Estrategia',
+    badge: 'En oferta',
   },
   {
     nombre: 'Bazinga Party',
@@ -132,6 +168,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'Bazinga',
     departamento: 'Tarija',
+    categoria: 'Juegos de Mesa',
+    badge: 'Nuevo',
   },
   {
     nombre: 'Mesa Dragon Deluxe',
@@ -139,6 +177,8 @@ const productos = [
     imagen: '/Bolivia-ludica/assets/image/boardgame.jpeg',
     tienda: 'Mesa Dragon',
     departamento: 'Tarija',
+    categoria: 'Juegos de Mesa',
+    badge: 'Popular',
   },
 ];
 
