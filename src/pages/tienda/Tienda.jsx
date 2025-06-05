@@ -41,17 +41,17 @@ const Tienda = () => {
 
   // Filtrado por departamento, categoría y búsqueda
   const productosFiltrados = productos.filter(p => {
-    const coincideDepto = departamentoSeleccionado ? p.departamento === departamentoSeleccionado : true;
-    const coincideCategoria = categoriaSeleccionada ? (p.categoria === categoriaSeleccionada) : true;
+    const coincideDepto = departamentoSeleccionado ? (Array.isArray(p.departamentos) ? p.departamentos.includes(departamentoSeleccionado) : p.departamento === departamentoSeleccionado) : true;
+    const coincideCategoria = categoriaSeleccionada ? (Array.isArray(p.categoria) ? p.categoria.includes(categoriaSeleccionada) : p.categoria === categoriaSeleccionada) : true;
     const coincideBusqueda = p.nombre.toLowerCase().includes(busqueda.toLowerCase());
     return coincideDepto && coincideCategoria && coincideBusqueda;
   });
 
   useEffect(() => {
     const globalHeader = document.querySelector('header.bg-card');
-    if (globalHeader) { globalHeader.style.display = 'none'; }
+    if (globalHeader) globalHeader.style.display = 'none';
     return () => {
-      if (globalHeader) { globalHeader.style.display = ''; }
+      if (globalHeader) globalHeader.style.display = '';
     };
   }, []);
 

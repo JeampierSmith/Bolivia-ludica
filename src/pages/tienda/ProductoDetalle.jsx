@@ -88,12 +88,16 @@ const ProductoDetalle = () => {
             )}
           </h1>
           <div className="text-primary text-2xl font-bold mb-2">{producto.precio}</div>
-          <div className="mb-2 text-gray-600">Tienda: <span className="font-semibold">{producto.tienda}</span></div>
-          <div className="mb-6 text-gray-500">Departamento: {producto.departamento}</div>
+          <div className="mb-2 text-gray-600">Tiendas: <span className="font-semibold">{Array.isArray(producto.tiendas) ? producto.tiendas.join(', ') : producto.tienda}</span></div>
+          <div className="mb-6 text-gray-500">Departamentos: {Array.isArray(producto.departamentos) ? producto.departamentos.join(', ') : producto.departamento}</div>
           {/* Mostrar categoría si existe */}
           {producto.categoria && (
             <div className="mb-4">
-              <span className="inline-block bg-primary/10 text-primary text-xs font-semibold px-2 py-0.5 rounded border border-primary/20">{producto.categoria}</span>
+              {Array.isArray(producto.categoria) ? producto.categoria.map((cat, i) => (
+                <span key={i} className="inline-block bg-primary/10 text-primary text-xs font-semibold px-2 py-0.5 rounded border border-primary/20 mr-2">{cat}</span>
+              )) : (
+                <span className="inline-block bg-primary/10 text-primary text-xs font-semibold px-2 py-0.5 rounded border border-primary/20">{producto.categoria}</span>
+              )}
             </div>
           )}
           <div className="flex items-center gap-2 mb-6">
