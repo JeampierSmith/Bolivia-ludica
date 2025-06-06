@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../components/common/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { TiendaHeader } from './Tienda';
+import productos from './TiendaProductos';
+import Modal from '../../components/common/Modal';
+import LoginForm from '../../components/features/auth/LoginForm';
+import UneteForm from '../../components/features/auth/UneteForm';
 
 const pedidosEjemplo = [
   { fecha: '2025-06-01', numero: '0001', estado: 'Entregado', total: 120, detalle: '/pedido/0001' },
@@ -13,11 +17,15 @@ const favoritosEjemplo = [
 ];
 
 const Perfil = () => {
-  const { user, logout, setUser } = useAuth();
+  const { user, logout, setUser, login } = useAuth();
+  // Modal login/registro state
+  const [showAuth, setShowAuth] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
   const [tab, setTab] = useState('perfil');
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState(user || {});
   const [errors, setErrors] = useState({});
+  const [pedidoDetalle, setPedidoDetalle] = useState(null);
   const navigate = useNavigate();
   useEffect(() => {
     setForm(user || {});
@@ -32,11 +40,12 @@ const Perfil = () => {
   // Redirige si no hay usuario autenticado
   useEffect(() => {
     if (!user) {
-      navigate('/tienda', { replace: true });
+      // Instead of redirecting immediately, show login modal
+      setShowAuth(true);
     }
-  }, [user, navigate]);
-  if (!user) {
-    // Render nothing, redirection will happen
+  }, [user]);
+  if (!user && !showAuth) {
+    // Render nothing, modal will appear if needed
     return null;
   }
   // Validation
@@ -70,9 +79,15 @@ const Perfil = () => {
     setErrors({});
     setEditMode(false);
   };
+  const getProductosPedido = (pedidoNumero) => {
+    // Ejemplo: para demo, retorna todos los productos
+    // En un caso real, deberías asociar productos a cada pedido
+    return productos.slice(0, 2); // Demo: los dos primeros productos
+  };
   return (
     <div className="min-h-screen bg-[#f7f7f9]">
-      <TiendaHeader />
+      <TiendaHeader onLoginClick={() => setShowAuth(true)} />
+      {/* ...existing page content... */}
       <main className="container mx-auto px-2 py-10 max-w-5xl flex flex-col md:flex-row gap-8">
         {/* Sidebar */}
         <aside className="w-full md:w-1/4 mb-6 md:mb-0">
@@ -180,28 +195,63 @@ const Perfil = () => {
             )}
             {tab === 'pedidos' && (
               <div className="overflow-x-auto">
-                <table className="w-full text-sm bg-white">
-                  <thead>
-                    <tr className="text-left border-b">
-                      <th className="py-2">Fecha</th>
-                      <th>N° Pedido</th>
-                      <th>Estado</th>
-                      <th>Total</th>
-                      <th>Detalle</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pedidosEjemplo.map(p => (
-                      <tr key={p.numero} className="border-b hover:bg-gray-50">
-                        <td className="py-2">{p.fecha}</td>
-                        <td>{p.numero}</td>
-                        <td>{p.estado}</td>
-                        <td>Bs {p.total}</td>
-                        <td><Link to={p.detalle} className="text-primary underline">Ver</Link></td>
+                {!pedidoDetalle ? (
+                  <table className="w-full text-sm bg-white">
+                    <thead>
+                      <tr className="text-left border-b">
+                        <th className="py-2">Fecha</th>
+                        <th>N° Pedido</th>
+                        <th>Estado</th>
+                        <th>Total</th>
+                        <th>Detalle</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {pedidosEjemplo.map(p => (
+                        <tr key={p.numero} className="border-b hover:bg-gray-50">
+                          <td className="py-2">{p.fecha}</td>
+                          <td>{p.numero}</td>
+                          <td>{p.estado}</td>
+                          <td>Bs {p.total}</td>
+                          <td>
+                            <button
+                              className="text-primary underline"
+                              onClick={() => setPedidoDetalle(p)}
+                            >
+                              Ver
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="bg-neutral-50 rounded-xl shadow p-6 max-w-md mx-auto">
+                    <h3 className="text-xl font-bold mb-2 text-black">Detalle del pedido #{pedidoDetalle.numero}</h3>
+                    <div className="mb-2"><b>Fecha:</b> {pedidoDetalle.fecha}</div>
+                    <div className="mb-2"><b>Estado:</b> {pedidoDetalle.estado}</div>
+                    <div className="mb-2"><b>Total:</b> Bs {pedidoDetalle.total}</div>
+                    <div className="mb-4">
+                      <b>Productos:</b>
+                      <ul className="mt-2">
+                        {getProductosPedido(pedidoDetalle.numero).map((prod, idx) => (
+                          <li key={idx} className="flex items-center gap-2 mb-2">
+                            <img src={prod.imagen} alt={prod.nombre} className="w-10 h-10 object-contain rounded border" />
+                            <span className="font-semibold text-black">{prod.nombre}</span>
+                            <span className="text-gray-500">{prod.precio}</span>
+                            <Link to={`/tienda/${prod.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`} className="text-primary underline text-xs ml-2">Ver producto</Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <button
+                      className="mt-4 bg-black text-white px-4 py-2 rounded font-bold"
+                      onClick={() => setPedidoDetalle(null)}
+                    >
+                      Volver a la lista
+                    </button>
+                  </div>
+                )}
               </div>
             )}
             {tab === 'favoritos' && (
@@ -211,7 +261,7 @@ const Perfil = () => {
                     <img src={f.imagen} alt={f.nombre} className="w-16 h-16 object-contain mb-2" />
                     <div className="font-semibold text-center text-sm text-black">{f.nombre}</div>
                     <div className="text-xs text-gray-500">{f.precio}</div>
-                    <button className="text-primary underline text-xs mt-1">Ver producto</button>
+                    <Link to={`/tienda/${f.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`} className="text-primary underline text-xs mt-1">Ver producto</Link>
                   </div>
                 ))}
               </div>
@@ -222,6 +272,15 @@ const Perfil = () => {
           </div>
         </section>
       </main>
+      {/* Modal de login/registro unificado */}
+      <Modal isOpen={showAuth} onClose={() => setShowAuth(false)} ariaLabel={showRegister ? 'Registro' : 'Iniciar sesión'}>
+        <h2 className="text-2xl font-bold text-center mb-6 text-gray-900">{showRegister ? 'Crea tu cuenta' : 'Iniciar sesión'}</h2>
+        {showRegister ? (
+          <UneteForm onRegister={data => {login({ email: data.email, nombre: data.nombre || data.email }); setShowAuth(false);}} onShowLogin={() => setShowRegister(false)} />
+        ) : (
+          <LoginForm onLogin={async data => {const ok = await login(data); if (ok) setShowAuth(false); return ok;}} onShowRegister={() => setShowRegister(true)} />
+        )}
+      </Modal>
     </div>
   );
 };

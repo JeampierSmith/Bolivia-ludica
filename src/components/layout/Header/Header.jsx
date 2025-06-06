@@ -43,7 +43,7 @@ const Header = () => {
         <div className="container mx-auto px-4 py-4">
           <nav className="flex items-center justify-between">
             <div className="flex items-center space-x-2" data-aos="fade-right">
-              <a href="/" className="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-primary">
+              <a href="/Bolivia-ludica/" className="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-primary">
                 <img 
                   src={import.meta.env.BASE_URL + 'assets/image/LOGO-BOLIVIA-LUDICA.svg'}
                   alt="Bolivia Ludica Logo" 

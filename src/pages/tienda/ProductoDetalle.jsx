@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import productos from './TiendaProductos';
 import { TiendaHeader } from './Tienda.jsx';
 import { useCart } from '../../components/common/CartContext';
+import Modal from '../../components/common/Modal';
+import LoginForm from '../../components/features/auth/LoginForm';
+import UneteForm from '../../components/features/auth/UneteForm';
+import { useAuth } from '../../components/common/AuthContext';
 
 function slugify(str) {
   return str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -12,6 +16,14 @@ const ProductoDetalle = () => {
   const { productoSlug } = useParams();
   const producto = productos.find(p => slugify(p.nombre) === productoSlug);
   const { addToCart } = useCart();
+  const { login, user } = useAuth();
+  // Modal login/registro state
+  const [showAuth, setShowAuth] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewStars, setReviewStars] = useState(5);
+  const [reviewText, setReviewText] = useState("");
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
   // Ocultar header global y restaurar al salir
   useEffect(() => {
@@ -24,6 +36,10 @@ const ProductoDetalle = () => {
 
   const [tab, setTab] = useState('descripcion');
   const [feedback, setFeedback] = useState(false);
+  const [reviews, setReviews] = useState([
+    { nombre: 'Juan P.', texto: 'Muy buen producto, llegó rápido y en excelente estado.', estrellas: 4 },
+    { nombre: 'María L.', texto: 'Ideal para jugar en familia. ¡Recomendado!', estrellas: 4 },
+  ]);
 
   if (!producto) {
     return (
@@ -46,7 +62,7 @@ const ProductoDetalle = () => {
         setDepartamentoSeleccionado={() => {}}
         busqueda={''}
         setBusqueda={() => {}}
-        onLoginClick={() => {}}
+        onLoginClick={() => setShowAuth(true)}
       />
       <div className="container mx-auto py-10 px-4 flex flex-col md:flex-row gap-10">
         <div className="flex-1 flex flex-col items-center">
@@ -120,8 +136,8 @@ const ProductoDetalle = () => {
           )}
           <div className="flex gap-3 mb-6">
             <button className="bg-gray-100 rounded-full p-2 text-xl hover:bg-gray-200 transition" title="Compartir en Facebook">f</button>
-            <button className="bg-gray-100 rounded-full p-2 text-xl hover:bg-gray-200 transition" title="Compartir en Twitter">t</button>
-            <button className="bg-gray-100 rounded-full p-2 text-xl hover:bg-gray-200 transition" title="Compartir en Pinterest">p</button>
+            <button className="bg-gray-100 rounded-full p-2 text-xl hover:bg-gray-200 transition" title="Compartir en TikTok">t</button>
+            <button className="bg-gray-100 rounded-full p-2 text-xl hover:bg-gray-200 transition" title="Compartir en WhathsApp">w</button>
           </div>
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2 text-orange-500">
@@ -162,16 +178,63 @@ const ProductoDetalle = () => {
           {tab === 'reviews' && (
             <div className="text-gray-700 mb-8">
               <h2 className="text-xl font-bold mb-2">Reseñas de clientes</h2>
-              <div className="mb-4">⭐️⭐️⭐️⭐️☆ (4.0) - 2 reseñas</div>
-              <div className="mb-2 p-3 bg-gray-50 rounded border">
-                <div className="font-semibold">Juan P.</div>
-                <div className="text-sm">Muy buen producto, llegó rápido y en excelente estado.</div>
+              <div className="mb-4 flex items-center gap-2">
+                <span className="text-lg font-bold">
+                  {(() => {
+                    const total = reviews.length;
+                    const avg = total ? (reviews.reduce((a, r) => a + r.estrellas, 0) / total) : 0;
+                    const full = Math.floor(avg);
+                    const half = avg - full >= 0.5;
+                    return (
+                      <>
+                        {[...Array(full)].map((_,i)=>(<span key={i}>⭐</span>))}
+                        {half && <span>⭐</span>}
+                        {[...Array(5-full-(half?1:0))].map((_,i)=>(<span key={i+full+1}>☆</span>))}
+                      </>
+                    );
+                  })()}
+                </span>
+                <span className="text-sm">({(reviews.reduce((a, r) => a + r.estrellas, 0) / reviews.length || 0).toFixed(1)}) - {reviews.length} reseña{reviews.length!==1?'s':''}</span>
               </div>
-              <div className="mb-2 p-3 bg-gray-50 rounded border">
-                <div className="font-semibold">María L.</div>
-                <div className="text-sm">Ideal para jugar en familia. ¡Recomendado!</div>
-              </div>
-              <button className="mt-4 bg-primary text-white px-4 py-2 rounded font-bold hover:bg-primary/90 transition">Escribir reseña</button>
+              {reviews.map((r, idx) => (
+                <div key={idx} className="mb-2 p-3 bg-gray-50 rounded border">
+                  <div className="font-semibold flex items-center gap-2">{r.nombre}
+                    <span className="text-yellow-400 text-base">{[...Array(r.estrellas)].map((_,i)=>(<span key={i}>★</span>))}</span>
+                  </div>
+                  <div className="text-sm">{r.texto}</div>
+                </div>
+              ))}
+              <button
+                className="mt-4 bg-primary text-white px-4 py-2 rounded font-bold hover:bg-primary/90 transition"
+                onClick={() => {
+                  if (!user) {
+                    setShowAuth(true);
+                  } else {
+                    setShowReviewModal(true);
+                  }
+                }}
+              >
+                Escribir reseña
+              </button>
+              {/* Modal para escribir reseña */}
+              <Modal isOpen={showReviewModal} onClose={() => {
+                setShowReviewModal(false);
+                setReviewSubmitted(false);
+                setReviewText("");
+                setReviewStars(5);
+              }} ariaLabel="Escribir reseña">
+                <h3 className="text-xl font-bold mb-4 text-center">Escribe tu reseña</h3>
+                {reviewSubmitted ? (
+                  <div className="text-green-600 font-semibold text-center py-6">¡Gracias por tu reseña!</div>
+                ) : (
+                  <ReviewForm
+                    user={user}
+                    setReviews={setReviews}
+                    setReviewSubmitted={setReviewSubmitted}
+                    setShowReviewModal={setShowReviewModal}
+                  />
+                )}
+              </Modal>
             </div>
           )}
           {tab === 'relacionados' && (
@@ -191,8 +254,76 @@ const ProductoDetalle = () => {
           )}
         </div>
       </div>
+      {/* Modal de login/registro unificado */}
+      <Modal isOpen={showAuth} onClose={() => setShowAuth(false)} ariaLabel={showRegister ? 'Registro' : 'Iniciar sesión'}>
+        <h2 className="text-2xl font-bold text-center mb-6 text-gray-900">{showRegister ? 'Crea tu cuenta' : 'Iniciar sesión'}</h2>
+        {showRegister ? (
+          <UneteForm onRegister={data => {login({ email: data.email, nombre: data.nombre || data.email }); setShowAuth(false);}} onShowLogin={() => setShowRegister(false)} />
+        ) : (
+          <LoginForm onLogin={async data => {const ok = await login(data); if (ok) setShowAuth(false); return ok;}} onShowRegister={() => setShowRegister(true)} />
+        )}
+      </Modal>
     </div>
   );
 };
+
+function ReviewForm({ user, setReviews, setReviewSubmitted, setShowReviewModal }) {
+  const textareaRef = React.useRef(null);
+  const [localText, setLocalText] = React.useState("");
+  const [localStars, setLocalStars] = React.useState(5);
+  React.useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, []);
+  return (
+    <form
+      onSubmit={e => {
+        e.preventDefault();
+        setReviews(prev => [
+          ...prev,
+          { nombre: user?.nombre || user?.email || 'Usuario', texto: localText, estrellas: localStars }
+        ]);
+        setReviewSubmitted(true);
+        setTimeout(() => {
+          setShowReviewModal(false);
+          setReviewSubmitted(false);
+        }, 1500);
+      }}
+      className="space-y-4"
+      autoComplete="off"
+    >
+      <div className="flex items-center justify-center gap-1 mb-2">
+        {[1,2,3,4,5].map(star => (
+          <span
+            key={star}
+            onClick={() => {
+              setLocalStars(star);
+              setTimeout(() => {
+                textareaRef.current?.focus();
+              }, 0);
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label={`Puntuar ${star} estrella${star > 1 ? 's' : ''}`}
+            className={star <= localStars ? "text-yellow-400 text-3xl cursor-pointer" : "text-gray-300 text-3xl cursor-pointer"}
+          >
+            ★
+          </span>
+        ))}
+      </div>
+      <textarea
+        ref={textareaRef}
+        className="w-full border rounded p-2"
+        rows={4}
+        placeholder="¿Qué te pareció el producto?"
+        value={localText}
+        onChange={e => setLocalText(e.target.value)}
+        required
+      />
+      <button type="submit" className="w-full bg-primary text-white py-2 rounded font-bold hover:bg-primary/90 transition">Enviar reseña</button>
+    </form>
+  );
+}
 
 export default ProductoDetalle;

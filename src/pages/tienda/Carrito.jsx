@@ -1,11 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCart } from '../../components/common/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { TiendaHeader } from './Tienda';
+import { useAuth } from '../../components/common/AuthContext';
+import LoginForm from '../../components/features/auth/LoginForm';
+import UneteForm from '../../components/features/auth/UneteForm';
+import Modal from '../../components/common/Modal';
 
 const Carrito = () => {
   const { cart, removeFromCart, clearCart, updateQuantity } = useCart();
+  const { user, login } = useAuth();
   const navigate = useNavigate();
+  const [showAuth, setShowAuth] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
   const total = cart.reduce((sum, p) => sum + (parseFloat(p.precio.replace(/[^\d.]/g, '')) * p.cantidad), 0);
 
   useEffect(() => {
@@ -19,21 +26,30 @@ const Carrito = () => {
   if (cart.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#f7f7f9]">
-        <TiendaHeader />
+        <TiendaHeader onLoginClick={() => setShowAuth(true)} />
         <h2 className="text-2xl font-bold mb-4">Tu carrito está vacío</h2>
         <Link to="/tienda" className="text-primary underline">Volver a la tienda</Link>
+        <Modal isOpen={showAuth} onClose={() => setShowAuth(false)} ariaLabel={showRegister ? 'Registro' : 'Iniciar sesión'}>
+          <h2 className="text-2xl font-bold text-center mb-6 text-gray-900">{showRegister ? 'Crea tu cuenta' : 'Iniciar sesión'}</h2>
+          {showRegister ? (
+            <UneteForm onRegister={data => {login({ email: data.email, nombre: data.nombre || data.email }); setShowAuth(false);}} onShowLogin={() => setShowRegister(false)} />
+          ) : (
+            <LoginForm onLogin={async data => {const ok = await login(data); if (ok) setShowAuth(false); return ok;}} onShowRegister={() => setShowRegister(true)} />
+          )}
+        </Modal>
       </div>
     );
   }
 
   const handlePagar = () => {
+    if (!user) { setShowAuth(true); return; }
     clearCart();
     navigate('/confirmacion');
   };
 
   return (
     <div className="min-h-screen bg-[#f7f7f9]">
-      <TiendaHeader />
+      <TiendaHeader onLoginClick={() => setShowAuth(true)} />
       <main className="container mx-auto px-2 py-8 max-w-3xl">
         <h1 className="text-3xl font-bold mb-6 text-center">Carrito de compras</h1>
         <div className="bg-white rounded shadow p-4 mb-6 overflow-x-auto">
@@ -74,11 +90,29 @@ const Carrito = () => {
         <div className="flex flex-col sm:flex-row justify-between items-center bg-white rounded shadow p-4 mb-6">
           <div className="font-bold text-lg">Total: Bs {total.toFixed(2)}</div>
           <div className="flex gap-2 mt-2 sm:mt-0">
-            <button onClick={handlePagar} className="bg-primary text-white px-6 py-2 rounded font-bold hover:bg-primary/90 transition">Finalizar compra</button>
+            <button
+              onClick={handlePagar}
+              className={`bg-primary text-white px-6 py-2 rounded font-bold hover:bg-primary/90 transition ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={cart.length === 0}
+              title={!user ? 'Debes iniciar sesión para finalizar la compra' : ''}
+            >
+              Finalizar compra
+            </button>
             <Link to="/tienda" className="text-primary underline">Seguir comprando</Link>
           </div>
+          {!user && (
+            <div className="text-xs text-red-500 mt-2 w-full text-center">Debes iniciar sesión para finalizar la compra.</div>
+          )}
         </div>
       </main>
+      <Modal isOpen={showAuth} onClose={() => setShowAuth(false)} ariaLabel={showRegister ? 'Registro' : 'Iniciar sesión'}>
+        <h2 className="text-2xl font-bold text-center mb-6 text-gray-900">{showRegister ? 'Crea tu cuenta' : 'Iniciar sesión'}</h2>
+        {showRegister ? (
+          <UneteForm onRegister={data => {login({ email: data.email, nombre: data.nombre || data.email }); setShowAuth(false);}} onShowLogin={() => setShowRegister(false)} />
+        ) : (
+          <LoginForm onLogin={async data => {const ok = await login(data); if (ok) setShowAuth(false); return ok;}} onShowRegister={() => setShowRegister(true)} />
+        )}
+      </Modal>
     </div>
   );
 };
