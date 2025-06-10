@@ -22,12 +22,19 @@ const ProductoCard = ({ producto, headingLevel = 3 }) => {
     <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center text-center relative group border border-gray-200 hover:shadow-md transition-shadow duration-300 cursor-pointer">
       {/* Badge visual */}
       {producto.badge && (
-        <span className={`absolute left-2 top-2 px-2 py-0.5 rounded-full text-xs font-bold z-10
-          ${producto.badge === 'Nuevo' ? 'bg-green-700 text-white border border-green-900' : ''}
-          ${producto.badge === 'Popular' ? 'bg-blue-700 text-white border border-blue-900' : ''}
-          ${producto.badge === 'En oferta' ? 'bg-red-700 text-white border border-red-900' : ''}
-          bg-white text-black border border-gray-300 shadow-sm
-        `}>
+        <span
+          className={`absolute top-3 left-3 px-3 py-0.5 rounded-full text-xs font-bold border shadow-sm z-10
+            ${producto.badge === 'Nuevo' ? 'bg-[#065f46] text-white border-[#065f46]' : ''}
+            ${producto.badge === 'Popular' ? 'bg-blue-700 text-white border-blue-700' : ''}
+            ${producto.badge === 'En oferta' ? 'bg-red-700 text-white border-yellow-200' : ''}
+            ${!['Nuevo','Popular','En oferta'].includes(producto.badge) ? 'bg-gray-200 text-black border-gray-300' : ''}
+          `}
+          style={{
+            minWidth: 50,
+            textAlign: 'center',
+            ...(producto.badge === 'En oferta' ? { textShadow: '0 1px 2px #000' } : {}),
+          }}
+        >
           {producto.badge}
         </span>
       )}
