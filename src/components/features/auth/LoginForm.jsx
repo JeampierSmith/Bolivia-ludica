@@ -25,19 +25,17 @@ const LoginForm = ({ onLogin, onShowRegister }) => {
     <>
       {/* TEMPORAL: Para probar el frontend, use usuario: admin@gmail.com y contraseña: admin */}
       <div className="mb-2 text-center text-xs text-orange-600 font-semibold bg-orange-50 border border-orange-200 rounded p-2">
-        <strong>Prueba rápida:</strong> Usuario: <span className="font-mono">admin@gmail.com</span> &nbsp; Contraseña: <span className="font-mono">admin</span>
+        <strong>Prueba rápida:</strong> Usuario: <span className="font-mono bg-white text-black px-1 rounded">admin@gmail.com</span> &nbsp; Contraseña: <span className="font-mono bg-white text-black px-1 rounded">admin</span>
       </div>
       {error && (
         <div className="mb-2 text-center text-xs text-red-600 font-semibold bg-red-50 border border-red-200 rounded p-2">
           {error}
         </div>
       )}
-      <form className="space-y-6" onSubmit={handleLogin}>
+      <form className="space-y-6" onSubmit={handleLogin} aria-label="Formulario de inicio de sesión">
         <div className="rounded-md shadow-sm -space-y-px">
           <div>
-            <label htmlFor="email-address" className="block text-sm font-medium text-gray-700">
-              Dirección de correo electrónico
-            </label>
+            <label htmlFor="email-address" className="block text-sm font-medium text-gray-700">Dirección de correo electrónico</label>
             <input
               id="email-address"
               name="email"
@@ -48,12 +46,11 @@ const LoginForm = ({ onLogin, onShowRegister }) => {
               placeholder="Dirección de correo electrónico"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              aria-label="Dirección de correo electrónico"
             />
           </div>
           <div className="mt-4">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Contraseña
-            </label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Contraseña</label>
             <div className="mt-1 relative">
               <input
                 id="password"
@@ -65,11 +62,13 @@ const LoginForm = ({ onLogin, onShowRegister }) => {
                 placeholder="Contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                aria-label="Contraseña"
               />
               <button
                 type="button"
                 className="absolute inset-y-0 right-0 px-3 flex items-center text-sm leading-5 font-medium rounded-r-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               >
                 {showPassword ? 'Ocultar' : 'Mostrar'}
               </button>

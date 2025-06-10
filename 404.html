@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="0; url=./index.html">
+    <title>Página no encontrada - Bolivia Lúdica</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body { background: #f7f7f9; color: #111; font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+      .container { background: #fff; border-radius: 1rem; box-shadow: 0 2px 16px #0001; padding: 2rem 2.5rem; text-align: center; }
+      h1 { font-size: 2.5rem; color: #b91c1c; margin-bottom: 1rem; }
+      p { color: #333; margin-bottom: 2rem; }
+      a { color: #0d9488; text-decoration: underline; font-weight: bold; }
+      @media (max-width: 600px) { .container { padding: 1rem; } h1 { font-size: 2rem; } }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>404</h1>
+      <p>Página no encontrada.<br>Serás redirigido a la página principal.</p>
+      <p><a href="/Bolivia-ludica/index.html">Ir a inicio</a></p>
+    </div>
+    <script>
+      // Redirige a index.html y mantiene la ruta para el router de la SPA
+      var l = window.location;
+      var path = l.pathname.replace(/\/Bolivia-ludica/, '');
+      window.location.replace('/Bolivia-ludica/index.html#' + path + l.search + l.hash);
+    </script>
+  </body>
+</html>

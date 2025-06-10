@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ProductoCard from "../../components/ProductoCard";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import LoginForm from '../../components/features/auth/LoginForm';
 import UneteForm from '../../components/features/auth/UneteForm';
 import Modal from '../../components/common/Modal';
@@ -127,8 +127,8 @@ const Tienda = () => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {productosFiltrados.map((producto, idx) => (
-            <Link key={idx} to={`/tienda/${slugify(producto.nombre)}`}>
-              <ProductoCard producto={producto} />
+            <Link key={idx} to={`/tienda/${slugify(producto.nombre)}`} aria-label={`Ver detalles de ${producto.nombre}`} title={`Ver detalles de ${producto.nombre}`}>
+              <ProductoCard producto={producto} headingLevel={2} />
             </Link>
           ))}
         </div>
@@ -150,6 +150,7 @@ export const TiendaHeader = ({ departamentoSeleccionado, setDepartamentoSeleccio
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, logout } = useAuth();
   const { cart } = useCart();
+  const navigate = useNavigate();
   return (
     <header className="bg-white shadow-sm w-full sticky top-0 z-50 border-b border-gray-100 mb-8">
       <div className="container mx-auto flex items-center justify-between py-4 px-4 relative">
@@ -240,11 +241,12 @@ export const TiendaHeader = ({ departamentoSeleccionado, setDepartamentoSeleccio
           </Link>
           {user ? (
             <>
-              <Link to="/perfil" className="text-gray-600 hover:text-primary transition flex items-center gap-1">
+              <Link to="/perfil" className="relative text-gray-600 hover:text-primary transition flex items-center gap-1" aria-label="Ir a perfil de usuario" title="Perfil">
                 <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                <span className="sr-only">Perfil</span>
                 Perfil
               </Link>
-              <button onClick={logout} className="text-gray-600 hover:text-red-500 transition ml-2">Salir</button>
+              <button onClick={async () => { await logout(); navigate('/tienda'); }} className="text-gray-600 hover:text-red-500 transition ml-2">Salir</button>
             </>
           ) : (
             <button onClick={onLoginClick} className="text-gray-600 hover:text-primary transition flex items-center gap-1">

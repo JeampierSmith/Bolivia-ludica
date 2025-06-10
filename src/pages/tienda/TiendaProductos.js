@@ -3,7 +3,7 @@ const productos = [
   {
     nombre: 'Bolígrafo',
     precio: 'Bs 10',
-    imagen: '/Bolivia-ludica/assets/image/productos/boligrafo.png',
+    imagen: '/Bolivia-ludica/assets/image/productos/boligrafo.webp',
     tiendas: ['Bolivia Lúdica', 'Antikuna'],
     departamentos: ['Cochabamba', 'La Paz'],
     categoria: ['Accesorios'],
@@ -12,7 +12,7 @@ const productos = [
   {
     nombre: 'Bolsa',
     precio: 'Bs 20',
-    imagen: '/Bolivia-ludica/assets/image/productos/bolsas.png',
+    imagen: '/Bolivia-ludica/assets/image/productos/bolsas.webp',
     tiendas: ['Bolivia Lúdica', 'Magic Games'],
     departamentos: ['Cochabamba', 'Oruro'],
     categoria: ['Accesorios'],
@@ -21,7 +21,7 @@ const productos = [
   {
     nombre: 'Camiseta',
     precio: 'Bs 150',
-    imagen: '/Bolivia-ludica/assets/image/productos/camiseta.png',
+    imagen: '/Bolivia-ludica/assets/image/productos/camiseta.webp',
     tiendas: ['Bolivia Lúdica'],
     departamentos: ['Cochabamba'],
     categoria: ['Ropa'],
@@ -30,7 +30,7 @@ const productos = [
   {
     nombre: 'Case',
     precio: 'Bs 35',
-    imagen: '/Bolivia-ludica/assets/image/productos/case.png',
+    imagen: '/Bolivia-ludica/assets/image/productos/case.webp',
     tiendas: ['Bolivia Lúdica', 'Shadow Games'],
     departamentos: ['Cochabamba', 'La Paz'],
     categoria: ['Accesorios'],
@@ -39,7 +39,7 @@ const productos = [
   {
     nombre: 'Gorra',
     precio: 'Bs 40',
-    imagen: '/Bolivia-ludica/assets/image/productos/gorra.png',
+    imagen: '/Bolivia-ludica/assets/image/productos/gorra.webp',
     tiendas: ['Bolivia Lúdica', 'Jugate esta'],
     departamentos: ['Cochabamba', 'Santa Cruz'],
     categoria: ['Ropa'],
@@ -48,7 +48,7 @@ const productos = [
   {
     nombre: 'Popsocket',
     precio: 'Bs 15',
-    imagen: '/Bolivia-ludica/assets/image/productos/popsocket.png',
+    imagen: '/Bolivia-ludica/assets/image/productos/popsocket.webp',
     tiendas: ['Bolivia Lúdica'],
     departamentos: ['Cochabamba'],
     categoria: ['Accesorios'],
@@ -57,7 +57,7 @@ const productos = [
   {
     nombre: 'Taza',
     precio: 'Bs 25',
-    imagen: '/Bolivia-ludica/assets/image/productos/taza.png',
+    imagen: '/Bolivia-ludica/assets/image/productos/taza.webp',
     tiendas: ['Bolivia Lúdica', 'Guarida del Goblin'],
     departamentos: ['Cochabamba', 'La Paz'],
     categoria: ['Accesorios'],
@@ -66,7 +66,7 @@ const productos = [
   {
     nombre: 'Tomatodo',
     precio: 'Bs 40',
-    imagen: '/Bolivia-ludica/assets/image/productos/tomatodo.png',
+    imagen: '/Bolivia-ludica/assets/image/productos/tomatodo.webp',
     tiendas: ['Bolivia Lúdica', 'Mesa Dragon'],
     departamentos: ['Cochabamba', 'Tarija'],
     categoria: ['Accesorios'],
@@ -75,7 +75,7 @@ const productos = [
   {
     nombre: 'Totebag',
     precio: 'Bs 35',
-    imagen: '/Bolivia-ludica/assets/image/productos/totebag.png',
+    imagen: '/Bolivia-ludica/assets/image/productos/totebag.webp',
     tiendas: ['Bolivia Lúdica', 'Bazinga'],
     departamentos: ['Cochabamba', 'Tarija'],
     categoria: ['Accesorios'],

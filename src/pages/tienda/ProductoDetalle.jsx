@@ -66,39 +66,40 @@ const ProductoDetalle = () => {
       />
       <div className="container mx-auto py-10 px-4 flex flex-col md:flex-row gap-10">
         <div className="flex-1 flex flex-col items-center">
-          <div className="bg-gray-100 rounded-xl flex items-center justify-center w-full max-w-md aspect-square mb-4 relative cursor-zoom-in" onClick={() => setZoomAbierto(true)}>
+          <div className="bg-gray-100 rounded-xl flex items-center justify-center w-full max-w-md aspect-square mb-4 relative cursor-zoom-in" onClick={() => setZoomAbierto(true)} aria-label="Abrir zoom de imagen principal">
             <img src={imagenSeleccionada} alt={producto.nombre} className="object-contain max-h-96 w-full transition-transform duration-300 hover:scale-105" />
             <span className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded">Zoom</span>
           </div>
-          <div className="flex gap-2 mt-2">
+          <div className="flex gap-2 mt-2" aria-label="Galería de miniaturas">
             {imagenes.map((img, i) => (
               <img
                 key={i}
                 src={img}
-                alt={producto.nombre + ' miniatura ' + (i+1)}
+                alt={`${producto.nombre} miniatura ${i+1}`}
                 className={`w-20 h-20 object-contain border-2 rounded cursor-pointer transition-all ${img === imagenSeleccionada ? 'border-primary' : 'border-gray-200'}`}
                 onClick={() => setImagenSeleccionada(img)}
+                tabIndex={0}
+                aria-label={`Seleccionar imagen miniatura ${i+1}`}
               />
             ))}
           </div>
           {/* Modal de zoom */}
           {zoomAbierto && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={() => setZoomAbierto(false)}>
-              <img src={imagenSeleccionada} alt={producto.nombre + ' zoom'} className="max-h-[90vh] max-w-[90vw] object-contain rounded-xl shadow-2xl" />
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={() => setZoomAbierto(false)} aria-modal="true" role="dialog">
+              <img src={imagenSeleccionada} alt={`${producto.nombre} zoom`} className="max-h-[90vh] max-w-[90vw] object-contain rounded-xl shadow-2xl" />
               <button className="absolute top-6 right-8 text-white text-3xl font-bold" onClick={() => setZoomAbierto(false)} aria-label="Cerrar zoom">×</button>
             </div>
           )}
         </div>
         <div className="flex-1 max-w-xl">
-          <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-            {producto.nombre}
+          <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">{producto.nombre}
             {/* Badge visual si existe */}
             {producto.badge && (
               <span className={`px-2 py-0.5 rounded-full text-xs font-bold ml-2
-                ${producto.badge === 'Nuevo' ? 'bg-green-500 text-white' : ''}
-                ${producto.badge === 'Popular' ? 'bg-blue-500 text-white' : ''}
-                ${producto.badge === 'En oferta' ? 'bg-red-500 text-white' : ''}
-              `}>
+                ${producto.badge === 'Nuevo' ? 'bg-[#065f46] text-white' : ''}
+                ${producto.badge === 'Popular' ? 'bg-blue-700 text-white' : ''}
+                ${producto.badge === 'En oferta' ? 'bg-red-700 text-white border border-yellow-200 shadow-sm' : ''}
+              `} style={producto.badge === 'En oferta' ? {textShadow:'0 1px 2px #000'} : {}}>
                 {producto.badge}
               </span>
             )}
@@ -118,7 +119,7 @@ const ProductoDetalle = () => {
           )}
           <div className="flex items-center gap-2 mb-6">
             <label htmlFor="cantidad" className="font-medium">Cantidad</label>
-            <input id="cantidad" type="number" min="1" defaultValue="1" className="border rounded px-2 py-1 w-16" />
+            <input id="cantidad" type="number" min="1" defaultValue="1" className="border rounded px-2 py-1 w-16" aria-label="Cantidad" />
             <button
               className="bg-primary text-white px-6 py-2 rounded font-bold hover:bg-primary/90 transition"
               onClick={() => {
@@ -126,8 +127,9 @@ const ProductoDetalle = () => {
                 setFeedback(true);
                 setTimeout(() => setFeedback(false), 1500);
               }}
+              aria-label="Añadir al carrito"
             >Añadir al carrito</button>
-            <button className="ml-2 text-2xl text-gray-400 hover:text-primary transition" title="Favorito">♡</button>
+            <button className="ml-2 text-2xl text-gray-400 hover:text-primary transition" title="Favorito" aria-label="Agregar a favoritos">♡</button>
           </div>
           {feedback && (
             <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-2 rounded shadow-lg font-bold animate-bounce-in">
@@ -140,31 +142,31 @@ const ProductoDetalle = () => {
             <button className="bg-gray-100 rounded-full p-2 text-xl hover:bg-gray-200 transition" title="Compartir en WhathsApp">w</button>
           </div>
           <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2 text-orange-500">
+            <div className="flex items-center gap-2 mb-2 bg-yellow-300 text-black font-semibold px-2 py-1 rounded shadow-sm">
               <span>🔒</span> <span>Página web segura</span>
             </div>
-            <div className="flex items-center gap-2 mb-2 text-orange-500">
+            <div className="flex items-center gap-2 mb-2 bg-yellow-300 text-black font-semibold px-2 py-1 rounded shadow-sm">
               <span>🚚</span> <span>Entrega rápida y en 24 horas</span>
             </div>
-            <div className="flex items-center gap-2 text-orange-500">
+            <div className="flex items-center gap-2 bg-yellow-300 text-black font-semibold px-2 py-1 rounded shadow-sm">
               <span>🛠️</span> <span>¿Tienes algún problema? Nosotros nos encargamos de todo.</span>
             </div>
           </div>
-          <div className="border-b flex gap-8 mb-4">
-            <button className={`py-2 px-4 font-bold transition border-b-2 ${tab === 'descripcion' ? 'border-primary text-primary' : 'border-transparent text-gray-500'}`} onClick={() => setTab('descripcion')}>Descripción</button>
-            <button className={`py-2 px-4 font-bold transition border-b-2 ${tab === 'detalles' ? 'border-primary text-primary' : 'border-transparent text-gray-500'}`} onClick={() => setTab('detalles')}>Detalles del producto</button>
-            <button className={`py-2 px-4 font-bold transition border-b-2 ${tab === 'reviews' ? 'border-primary text-primary' : 'border-transparent text-gray-500'}`} onClick={() => setTab('reviews')}>Reseñas</button>
-            <button className={`py-2 px-4 font-bold transition border-b-2 ${tab === 'relacionados' ? 'border-primary text-primary' : 'border-transparent text-gray-500'}`} onClick={() => setTab('relacionados')}>Relacionados</button>
+          <div className="border-b flex gap-8 mb-4" role="tablist" aria-label="Secciones de producto">
+            <button className={`py-2 px-4 font-bold transition border-b-2 ${tab === 'descripcion' ? 'border-primary text-primary' : 'border-transparent text-gray-500'}`} onClick={() => setTab('descripcion')} role="tab" aria-selected={tab==='descripcion'} aria-controls="tab-descripcion" id="tab-btn-descripcion">Descripción</button>
+            <button className={`py-2 px-4 font-bold transition border-b-2 ${tab === 'detalles' ? 'border-primary text-primary' : 'border-transparent text-gray-500'}`} onClick={() => setTab('detalles')} role="tab" aria-selected={tab==='detalles'} aria-controls="tab-detalles" id="tab-btn-detalles">Detalles del producto</button>
+            <button className={`py-2 px-4 font-bold transition border-b-2 ${tab === 'reviews' ? 'border-primary text-primary' : 'border-transparent text-gray-500'}`} onClick={() => setTab('reviews')} role="tab" aria-selected={tab==='reviews'} aria-controls="tab-reviews" id="tab-btn-reviews">Reseñas</button>
+            <button className={`py-2 px-4 font-bold transition border-b-2 ${tab === 'relacionados' ? 'border-primary text-primary' : 'border-transparent text-gray-500'}`} onClick={() => setTab('relacionados')} role="tab" aria-selected={tab==='relacionados'} aria-controls="tab-relacionados" id="tab-btn-relacionados">Relacionados</button>
           </div>
           {/* Contenido de tabs */}
           {tab === 'descripcion' && (
-            <div className="text-gray-700 mb-8">
+            <div className="text-gray-700 mb-8" id="tab-descripcion" role="tabpanel" aria-labelledby="tab-btn-descripcion">
               <h2 className="text-xl font-bold mb-2">Descripción</h2>
               <p>{producto.descripcion || 'Este producto es ideal para toda la familia y perfecto para tus reuniones lúdicas. ¡Próximamente más detalles!'}</p>
             </div>
           )}
           {tab === 'detalles' && (
-            <div className="text-gray-700 mb-8">
+            <div className="text-gray-700 mb-8" id="tab-detalles" role="tabpanel" aria-labelledby="tab-btn-detalles">
               <h2 className="text-xl font-bold mb-2">Detalles del producto</h2>
               <ul className="list-disc pl-6">
                 <li><b>Precio:</b> {producto.precio}</li>
@@ -176,7 +178,7 @@ const ProductoDetalle = () => {
             </div>
           )}
           {tab === 'reviews' && (
-            <div className="text-gray-700 mb-8">
+            <div className="text-gray-700 mb-8" id="tab-reviews" role="tabpanel" aria-labelledby="tab-btn-reviews">
               <h2 className="text-xl font-bold mb-2">Reseñas de clientes</h2>
               <div className="mb-4 flex items-center gap-2">
                 <span className="text-lg font-bold">
@@ -213,6 +215,7 @@ const ProductoDetalle = () => {
                     setShowReviewModal(true);
                   }
                 }}
+                aria-label="Escribir reseña"
               >
                 Escribir reseña
               </button>
@@ -238,7 +241,7 @@ const ProductoDetalle = () => {
             </div>
           )}
           {tab === 'relacionados' && (
-            <div className="text-gray-700 mb-8">
+            <div className="text-gray-700 mb-8" id="tab-relacionados" role="tabpanel" aria-labelledby="tab-btn-relacionados">
               <h2 className="text-xl font-bold mb-4">Productos relacionados</h2>
               <div className="grid grid-cols-2 gap-4">
                 {productos.filter(p => p.categoria === producto.categoria && p.nombre !== producto.nombre).slice(0, 4).map((rel, i) => (
@@ -246,7 +249,7 @@ const ProductoDetalle = () => {
                     <img src={rel.imagen} alt={rel.nombre} className="w-20 h-20 object-contain mb-2" />
                     <div className="font-semibold text-sm text-center line-clamp-2 mb-1">{rel.nombre}</div>
                     <div className="text-primary font-bold text-sm mb-1">{rel.precio}</div>
-                    <Link to={`/tienda/${slugify(rel.nombre)}`} className="text-xs text-primary underline">Ver detalle</Link>
+                    <Link to={`/tienda/${slugify(rel.nombre)}`} className="text-xs text-primary underline" aria-label={`Ver detalle de ${rel.nombre}`}>Ver detalle</Link>
                   </div>
                 ))}
               </div>

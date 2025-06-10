@@ -48,6 +48,7 @@ const Header = () => {
                   src={import.meta.env.BASE_URL + 'assets/image/LOGO-BOLIVIA-LUDICA.svg'}
                   alt="Bolivia Ludica Logo" 
                   className="h-12 w-auto"
+                  width="48" height="48"
                 />
                 <span className="text-2xl font-bold text-foreground font-['Prototype'] tracking-wider uppercase">Bolivia Ludica</span>
               </a>
@@ -67,7 +68,8 @@ const Header = () => {
               >
                 {t('store', 'Tienda Online')}
               </NavLink>
-              <select onChange={e => changeLanguage(e.target.value)} value={i18n.language} className="ml-4 px-2 py-1 rounded">
+              <label htmlFor="lang-select" className="sr-only">Seleccionar idioma</label>
+              <select id="lang-select" onChange={e => changeLanguage(e.target.value)} value={i18n.language} className="ml-4 px-2 py-1 rounded">
                 <option value="es">ES</option>
                 <option value="en">EN</option>
               </select>
@@ -113,7 +115,8 @@ const Header = () => {
           >
             {t('store', 'Tienda Online')}
           </NavLink>
-          <select onChange={e => changeLanguage(e.target.value)} value={i18n.language} className="mt-2 px-2 py-1 rounded">
+          <label htmlFor="lang-select-mobile" className="sr-only">Seleccionar idioma</label>
+          <select id="lang-select-mobile" onChange={e => changeLanguage(e.target.value)} value={i18n.language} className="mt-2 px-2 py-1 rounded">
             <option value="es">ES</option>
             <option value="en">EN</option>
           </select>

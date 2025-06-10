@@ -68,20 +68,21 @@ const Carrito = () => {
               {cart.map((p, i) => (
                 <tr key={i} className="border-b">
                   <td className="flex items-center gap-2 py-2">
-                    <img src={p.imagen} alt={p.nombre} className="w-12 h-12 object-contain rounded border" />
+                    <img src={p.imagen} alt={p.nombre + ' - imagen'} className="w-12 h-12 object-contain rounded border" />
                     <span className="font-semibold">{p.nombre}</span>
                   </td>
                   <td className="hidden sm:table-cell">{Array.isArray(p.tiendas) ? p.tiendas[0] : p.tienda}</td>
                   <td>Bs {parseFloat(p.precio.replace(/[^\d.]/g, '')).toFixed(2)}</td>
                   <td>
                     <div className="flex items-center gap-1">
-                      <button onClick={() => updateQuantity(p.nombre, Math.max(1, p.cantidad-1))} className="px-2 py-1 bg-gray-200 rounded hover:bg-primary/20">-</button>
-                      <input type="number" min="1" value={p.cantidad} onChange={e => updateQuantity(p.nombre, Math.max(1, parseInt(e.target.value)||1))} className="w-10 text-center border rounded" />
-                      <button onClick={() => updateQuantity(p.nombre, p.cantidad+1)} className="px-2 py-1 bg-gray-200 rounded hover:bg-primary/20">+</button>
+                      <button onClick={() => updateQuantity(p.nombre, Math.max(1, p.cantidad-1))} className="px-2 py-1 bg-gray-200 rounded hover:bg-primary/20" aria-label={`Disminuir cantidad de ${p.nombre}`}>-</button>
+                      <label htmlFor={`cantidad-${i}`} className="sr-only">Cantidad de {p.nombre}</label>
+                      <input id={`cantidad-${i}`} type="number" min="1" value={p.cantidad} onChange={e => updateQuantity(p.nombre, Math.max(1, parseInt(e.target.value)||1))} className="w-10 text-center border rounded" />
+                      <button onClick={() => updateQuantity(p.nombre, p.cantidad+1)} className="px-2 py-1 bg-gray-200 rounded hover:bg-primary/20" aria-label={`Aumentar cantidad de ${p.nombre}`}>+</button>
                     </div>
                   </td>
                   <td>Bs {(parseFloat(p.precio.replace(/[^\d.]/g, '')) * p.cantidad).toFixed(2)}</td>
-                  <td><button onClick={() => removeFromCart(p.nombre)} className="text-red-500 hover:underline">Quitar</button></td>
+                  <td><button onClick={() => removeFromCart(p.nombre)} className="text-red-700 font-semibold underline hover:bg-red-100 px-2 py-1 rounded transition" aria-label={`Quitar ${p.nombre} del carrito`}>Quitar</button></td>
                 </tr>
               ))}
             </tbody>

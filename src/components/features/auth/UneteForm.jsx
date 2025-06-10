@@ -146,22 +146,22 @@ const Unete = (props) => {
           </div>
         </div>
         {/* Requisitos visuales */}
-        <div className="mt-2 p-2 rounded bg-neutral-100 border text-xs">
-          <div className="font-semibold mb-1 flex items-center gap-1 text-black"><span>⏰</span> Requisitos de la contraseña:</div>
+        <div className="mt-2 p-2 rounded bg-white border text-xs">
+          <div className="font-semibold mb-1 flex items-center gap-1 text-black bg-white px-1 rounded"><span>⏰</span> Requisitos de la contraseña:</div>
           <div className="grid grid-cols-2 gap-1">
-            <div className={passwordChecks.length ? 'text-green-600' : 'text-gray-700'}>
+            <div className={passwordChecks.length ? 'text-green-700 bg-white px-1 rounded' : 'text-gray-800 bg-white px-1 rounded'}>
               {passwordChecks.length ? '✔' : '✗'} 8+ caracteres
             </div>
-            <div className={passwordChecks.upper ? 'text-green-600' : 'text-gray-700'}>
+            <div className={passwordChecks.upper ? 'text-green-700 bg-white px-1 rounded' : 'text-gray-800 bg-white px-1 rounded'}>
               {passwordChecks.upper ? '✔' : '✗'} Mayúscula
             </div>
-            <div className={passwordChecks.lower ? 'text-green-600' : 'text-gray-700'}>
+            <div className={passwordChecks.lower ? 'text-green-700 bg-white px-1 rounded' : 'text-gray-800 bg-white px-1 rounded'}>
               {passwordChecks.lower ? '✔' : '✗'} Minúscula
             </div>
-            <div className={passwordChecks.number ? 'text-green-600' : 'text-gray-700'}>
+            <div className={passwordChecks.number ? 'text-green-700 bg-white px-1 rounded' : 'text-gray-800 bg-white px-1 rounded'}>
               {passwordChecks.number ? '✔' : '✗'} Número
             </div>
-            <div className={passwordChecks.special ? 'text-green-600' : 'text-gray-700'}>
+            <div className={passwordChecks.special ? 'text-green-700 bg-white px-1 rounded' : 'text-gray-800 bg-white px-1 rounded'}>
               {passwordChecks.special ? '✔' : '✗'} Especial (!@#$)
             </div>
           </div>
