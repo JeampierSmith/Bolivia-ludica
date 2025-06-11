@@ -12,8 +12,8 @@ const pedidosEjemplo = [
   { fecha: '2025-05-20', numero: '0002', estado: 'Pendiente', total: 80, detalle: '/pedido/0002' },
 ];
 const favoritosEjemplo = [
-  { nombre: 'Bolígrafo', imagen: '/Bolivia-ludica/assets/image/productos/boligrafo.png', precio: 'Bs 10' },
-  { nombre: 'Camiseta', imagen: '/Bolivia-ludica/assets/image/productos/camiseta.png', precio: 'Bs 150' },
+  { nombre: 'Bolígrafo', imagen: '/Bolivia-ludica/assets/image/productos/boligrafo.webp', precio: 'Bs 10' },
+  { nombre: 'Camiseta', imagen: '/Bolivia-ludica/assets/image/productos/camiseta.webp', precio: 'Bs 150' },
 ];
 
 const Perfil = () => {

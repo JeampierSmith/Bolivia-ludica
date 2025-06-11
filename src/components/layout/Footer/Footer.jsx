@@ -26,9 +26,9 @@ const Footer = () => {
           </div>
           <div>
             <h3 className="text-lg font-bold mb-4 text-foreground">{t('contact')}</h3>
-            <p className="text-[#222]">{t('email')}: BOLIVIALUDICA@gmail.com</p>
-            <p className="text-[#222]">{t('phone')}: +591 77958996</p>
-            <p className="text-[#222]">{t('address')}: Av. Villarroel, esq. Beni</p>
+            <p className="text-[#222]"><a href="mailto:BOLIVIALUDICA@gmail.com" className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('email')}: BOLIVIALUDICA@gmail.com</a></p>
+            <p className="text-[#222]"><a href="https://wa.me/59177958996" className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('phone')}: +591 77958996</a></p>
+            <p className="text-[#222]"><a href="https://maps.google.com/?q=Av. Villarroel, esq. Beni, Cochabamba, Bolivia" className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('address')}: Av. Villarroel, esq. Beni</a></p>
             <p className="text-[#222]">Cochabamba-Bolivia</p>
           </div>
           <div>

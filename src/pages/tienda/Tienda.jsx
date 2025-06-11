@@ -224,7 +224,7 @@ export const TiendaHeader = ({ departamentoSeleccionado, setDepartamentoSeleccio
             <div className="flex-1" onClick={() => setMenuOpen(false)} />
           </nav>
         )}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-6">
           <div className="relative flex items-center">
             <input
               type="text"
@@ -232,26 +232,49 @@ export const TiendaHeader = ({ departamentoSeleccionado, setDepartamentoSeleccio
               className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary pl-8 w-40"
               value={busqueda}
               onChange={e => setBusqueda(e.target.value)}
+              aria-label="Buscar producto"
             />
             <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="text-gray-500 absolute left-2 top-1/2 transform -translate-y-1/2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
           </div>
-          <Link to="/carrito" className="relative text-gray-600 hover:text-primary transition">
-            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 6h15l-1.5 9h-13z" /><circle cx="9" cy="21" r="1" /><circle cx="19" cy="21" r="1" /></svg>
-            {cart.length > 0 && <span className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full px-1">{cart.length}</span>}
+          <Link
+            to="/carrito"
+            className="relative group flex items-center justify-center rounded-full p-2 transition focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 hover:bg-primary/10"
+            aria-label="Ver carrito"
+            title="Carrito"
+          >
+            <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" className="text-gray-700 group-hover:text-primary transition"><path d="M6 6h15l-1.5 9h-13z" /><circle cx="9" cy="21" r="1" /><circle cx="19" cy="21" r="1" /></svg>
+            {cart.length > 0 && <span className="absolute -top-1.5 -right-1.5 bg-primary text-white text-xs rounded-full px-1.5 py-0.5 shadow font-bold">{cart.length}</span>}
           </Link>
           {user ? (
             <>
-              <Link to="/perfil" className="relative text-gray-600 hover:text-primary transition flex items-center gap-1" aria-label="Ir a perfil de usuario" title="Perfil">
-                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                <span className="sr-only">Perfil</span>
-                Perfil
+              <Link
+                to="/perfil"
+                className="relative group flex items-center gap-2 rounded-full p-2 transition focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 hover:bg-primary/10"
+                aria-label="Ir a perfil de usuario"
+                title="Perfil"
+              >
+                <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" className="text-gray-700 group-hover:text-primary transition"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                <span className="hidden lg:inline font-semibold text-gray-700 group-hover:text-primary transition">Perfil</span>
               </Link>
-              <button onClick={async () => { await logout(); navigate('/tienda'); }} className="text-gray-600 hover:text-red-500 transition ml-2">Salir</button>
+              <button
+                onClick={async () => { await logout(); navigate('/tienda', { replace: true }); }}
+                className="flex items-center gap-2 rounded-full p-2 ml-1 text-gray-600 hover:text-white hover:bg-red-500 transition focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 font-semibold"
+                aria-label="Cerrar sesión"
+                title="Cerrar sesión"
+              >
+                <svg width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" className="text-gray-600 group-hover:text-white transition"><path d="M16 17l5-5m0 0l-5-5m5 5H9" /><path d="M13 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" /></svg>
+                <span className="hidden lg:inline">Salir</span>
+              </button>
             </>
           ) : (
-            <button onClick={onLoginClick} className="text-gray-600 hover:text-primary transition flex items-center gap-1">
-              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-              Iniciar sesión
+            <button
+              onClick={onLoginClick}
+              className="flex items-center gap-2 rounded-full p-2 text-gray-600 hover:text-primary hover:bg-primary/10 transition focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 font-semibold"
+              aria-label="Iniciar sesión"
+              title="Iniciar sesión"
+            >
+              <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" className="text-gray-700 group-hover:text-primary transition"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+              <span className="hidden lg:inline">Iniciar sesión</span>
             </button>
           )}
         </div>
