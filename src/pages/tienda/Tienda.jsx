@@ -170,9 +170,8 @@ export const TiendaHeader = ({ departamentoSeleccionado, setDepartamentoSeleccio
         </button>
         {/* Menú navegación */}
         <nav className={`hidden md:flex gap-6 text-sm font-medium items-center`}>
-          <a href="/Bolivia-ludica/tienda" className="text-gray-700 hover:text-primary transition">Inicio</a>
-         
-          <a href="#" className="text-gray-700 hover:text-primary transition">Sobre Nosotros</a>
+          <Link to="/tienda" className="text-gray-700 hover:text-primary transition">Inicio</Link>
+          <Link to="/sobre-nosotros" className="text-gray-700 hover:text-primary transition">Sobre Nosotros</Link>
           <div className="relative group">
             <button className="text-gray-700 hover:text-primary transition focus:outline-none flex items-center px-3 py-1 border border-gray-300 rounded-md bg-white shadow-sm">
               {departamentoSeleccionado || 'Departamento'} <span className="ml-1 text-xs">▼</span>
@@ -195,8 +194,8 @@ export const TiendaHeader = ({ departamentoSeleccionado, setDepartamentoSeleccio
         {menuOpen && (
           <nav className="fixed inset-0 bg-black/40 z-40 flex flex-col md:hidden">
             <div className="bg-white shadow-md flex flex-col gap-2 p-6 w-3/4 max-w-xs h-full animate-fadeIn">
-              <a href="/" className="text-gray-700 hover:text-primary transition py-2" onClick={() => setMenuOpen(false)}>Inicio</a>     
-              <a href="#" className="text-gray-700 hover:text-primary transition py-2" onClick={() => setMenuOpen(false)}>Sobre Nosotros</a>
+              <Link to="/tienda" className="text-gray-700 hover:text-primary transition py-2" onClick={() => setMenuOpen(false)}>Inicio</Link>
+              <Link to="/sobre-nosotros" className="text-gray-700 hover:text-primary transition py-2" onClick={() => setMenuOpen(false)}>Sobre Nosotros</Link>
               <div className="border-t my-2" />
               <div className="relative">
                 <button className="text-gray-700 hover:text-primary transition focus:outline-none flex items-center px-3 py-1 border border-gray-300 rounded-md bg-white shadow-sm w-full" onClick={() => setMenuOpen(false)}>

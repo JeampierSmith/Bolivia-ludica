@@ -81,7 +81,7 @@ const Podium = ({ players }) => (
 				>
 					<img
 						src={player.avatar}
-						alt={player.name}
+						alt={`Avatar de ${player.name}`}
 						className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition"
 					/>
 					{idx === 1 && (
@@ -95,7 +95,7 @@ const Podium = ({ players }) => (
 				>
 					{player.name}
 				</span>
-				<span className="text-neutral-400 text-sm">
+				<span className="text-neutral-700 text-sm">
 					{player.points} pts
 				</span>
 				<span
@@ -159,7 +159,7 @@ const RankingTable = ({ data, search }) => (
 							<td className="py-2 px-2 flex items-center gap-2">
 								<img
 									src={player.avatar}
-									alt={player.name}
+									alt={`Avatar de ${player.name}`}
 									className="w-8 h-8 rounded-full border-2 border-black group-hover:ring-2 group-hover:ring-black transition"
 								/>
 								<span className="font-medium text-black">{player.name}</span>
@@ -190,19 +190,19 @@ const RankingTable = ({ data, search }) => (
 							<td className="py-2 px-2 text-black">{player.location}</td>
 							<td className="py-2 px-2">
 								{player.trend > 0 && (
-									<span className="flex items-center text-green-600 font-bold">
+									<span className="flex items-center text-green-900 font-bold">
 										<FaArrowUp className="mr-1 animate-bounce" />
 										+{player.trend}
 									</span>
 								)}
 								{player.trend < 0 && (
-									<span className="flex items-center text-red-600 font-bold">
+									<span className="flex items-center text-red-700 font-bold">
 										<FaArrowDown className="mr-1 animate-bounce" />
 										{player.trend}
 									</span>
 								)}
 								{player.trend === 0 && (
-									<span className="text-neutral-400">-</span>
+									<span className="text-neutral-600">-</span>
 								)}
 							</td>
 						</tr>
@@ -210,7 +210,7 @@ const RankingTable = ({ data, search }) => (
 			</tbody>
 		</table>
 		{data.filter((player) => player.name.toLowerCase().includes(search.toLowerCase())).length === 0 && (
-			<div className="text-center text-neutral-400 py-8 bg-white">
+			<div className="text-center text-neutral-600 py-8 bg-white">
 				No se encontraron jugadores.
 			</div>
 		)}
@@ -296,14 +296,18 @@ const Ranking = () => {
 				{/* Filtros avanzados */}
 				<div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
 					<div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+						<label htmlFor="search-player" className="sr-only">Buscar jugador</label>
 						<input
+							id="search-player"
 							type="text"
 							placeholder="Buscar jugador..."
 							value={search}
 							onChange={handleSearch}
-							className="border border-neutral-300 bg-white text-black rounded-lg px-4 py-2 w-full sm:w-56 focus:outline-none focus:border-black shadow-sm transition placeholder:text-neutral-400"
+							className="border border-neutral-300 bg-white text-black rounded-lg px-4 py-2 w-full sm:w-56 focus:outline-none focus:border-black shadow-sm transition placeholder:text-neutral-500"
 						/>
+						<label htmlFor="level-select" className="sr-only">Filtrar por nivel</label>
 						<select
+							id="level-select"
 							value={level}
 							onChange={handleLevel}
 							className="border border-neutral-300 bg-white text-black rounded-lg px-3 py-2 focus:outline-none focus:border-black shadow-sm"
@@ -312,7 +316,9 @@ const Ranking = () => {
 								<option key={lvl}>{lvl}</option>
 							))}
 						</select>
+						<label htmlFor="location-select" className="sr-only">Filtrar por ubicación</label>
 						<select
+							id="location-select"
 							value={location}
 							onChange={handleLocation}
 							className="border border-neutral-300 bg-white text-black rounded-lg px-3 py-2 focus:outline-none focus:border-black shadow-sm"
@@ -322,7 +328,9 @@ const Ranking = () => {
 							))}
 						</select>
 						<div className="flex items-center gap-1">
+							<label htmlFor="min-points" className="sr-only">Puntos mínimos</label>
 							<input
+								id="min-points"
 								type="number"
 								min={minPoints}
 								max={pointsRange[1]}
@@ -330,8 +338,10 @@ const Ranking = () => {
 								onChange={(e) => handlePointsChange(e, 0)}
 								className="w-16 border border-neutral-300 bg-white text-black rounded px-2 py-1 text-sm focus:outline-none"
 							/>
-							<span className="text-neutral-400">-</span>
+							<span className="text-neutral-600">-</span>
+							<label htmlFor="max-points" className="sr-only">Puntos máximos</label>
 							<input
+								id="max-points"
 								type="number"
 								min={pointsRange[0]}
 								max={maxPoints}

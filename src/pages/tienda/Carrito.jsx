@@ -33,7 +33,7 @@ const Carrito = () => {
           <h2 className="text-2xl font-bold mb-2 text-gray-900 text-center">¡Tu carrito está vacío!</h2>
           <p className="text-gray-600 mb-6 text-center">Parece que aún no has agregado productos. Descubre juegos y juguetes únicos en nuestra tienda.</p>
           <Link to="/tienda" className="bg-primary text-white px-6 py-2 rounded font-semibold shadow hover:bg-primary/90 transition mb-2 w-full text-center">Explorar tienda</Link>
-          <span className="text-xs text-gray-400">¿Buscas algo especial? Usa la búsqueda o explora nuestras categorías.</span>
+          <span className="text-xs text-gray-600">¿Buscas algo especial? Usa la búsqueda o explora nuestras categorías.</span>
         </div>
         <Modal isOpen={showAuth} onClose={() => setShowAuth(false)} ariaLabel={showRegister ? 'Registro' : 'Iniciar sesión'}>
           <h2 className="text-2xl font-bold text-center mb-6 text-gray-900">{showRegister ? 'Crea tu cuenta' : 'Iniciar sesión'}</h2>

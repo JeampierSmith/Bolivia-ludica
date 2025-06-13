@@ -39,13 +39,11 @@ const Perfil = () => {
   }, []);
   // Redirige si no hay usuario autenticado
   useEffect(() => {
-    if (!user) {
-      // Instead of redirecting immediately, show login modal
-      setShowAuth(true);
+    if (!user && !showAuth) {
+      navigate('/tienda', { replace: true });
     }
-  }, [user]);
+  }, [user, showAuth, navigate]);
   if (!user && !showAuth) {
-    // Render nothing, modal will appear if needed
     return null;
   }
   // Validation
@@ -96,8 +94,8 @@ const Perfil = () => {
             <button onClick={() => setTab('direcciones')} className={`w-full text-left px-4 py-3 rounded-lg font-bold transition ${tab==='direcciones' ? 'bg-black text-white' : 'text-black hover:bg-neutral-100'}`} aria-current={tab==='direcciones' ? 'page' : undefined}>Mis direcciones</button>
             <button onClick={() => setTab('pedidos')} className={`w-full text-left px-4 py-3 rounded-lg font-bold transition ${tab==='pedidos' ? 'bg-black text-white' : 'text-black hover:bg-neutral-100'}`} aria-current={tab==='pedidos' ? 'page' : undefined}>Mis pedidos</button>
             <button onClick={() => setTab('favoritos')} className={`w-full text-left px-4 py-3 rounded-lg font-bold transition ${tab==='favoritos' ? 'bg-black text-white' : 'text-black hover:bg-neutral-100'}`} aria-current={tab==='favoritos' ? 'page' : undefined}>Mi lista de deseos</button>
-            <button onClick={() => setTab('cupones')} className={`w-full text-left px-4 py-3 rounded-lg font-bold transition ${tab==='cupones' ? 'bg-black text-white' : 'text-black hover:bg-neutral-100'}`} aria-current={tab==='cupones' ? 'page' : undefined}>Mis cupones</button>
-            <button onClick={logout} className="w-full text-left px-4 py-3 rounded-lg font-bold text-red-500 hover:bg-neutral-100 transition">Cerrar sesión</button>
+            <button onClick={() => setTab('cupones')} className={`w-full text-left px-4 py-3 rounded-lg font-bold transition ${tab==='cupones' ? 'bg-black text-white' : 'text-red-700 hover:bg-neutral-100'}`} aria-current={tab==='cupones' ? 'page' : undefined}>Mis cupones</button>
+            <button onClick={() => { logout(); navigate('/tienda', { replace: true }); }} className="w-full text-left px-4 py-3 rounded-lg font-bold text-white bg-red-700 hover:bg-red-800 transition">Cerrar sesión</button>
           </nav>
         </aside>
         {/* Main content */}
@@ -105,167 +103,182 @@ const Perfil = () => {
           <div className="bg-white rounded-xl shadow p-6 mb-6">
             <h1 className="text-2xl font-bold mb-4 text-black flex items-center gap-2">Hola {user.nombre || user.email} <span>👋</span></h1>
             {tab === 'perfil' && (
-              <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleSave} aria-label="Formulario de perfil">
-                <div className="col-span-2 mb-2 flex flex-col md:flex-row md:items-center gap-2">
-                  <div className="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-900 p-3 rounded flex items-center gap-2 text-sm flex-1">
-                    <strong className="font-bold text-black bg-white px-1 rounded">¿Necesitas actualizar tus datos?</strong> <span className="text-black">Si algunos de tus datos no pueden editarse, contáctanos.</span>
+              <>
+                <h2 className="text-xl font-bold mb-4 text-black">Datos personales</h2>
+                <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleSave} aria-label="Formulario de perfil">
+                  <div className="col-span-2 mb-2 flex flex-col md:flex-row md:items-center gap-2">
+                    <div className="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-900 p-3 rounded flex items-center gap-2 text-sm flex-1">
+                      <strong className="font-bold text-black bg-white px-1 rounded">¿Necesitas actualizar tus datos?</strong> <span className="text-black">Si algunos de tus datos no pueden editarse, contáctanos.</span>
+                    </div>
+                    {!editMode && (
+                      <button type="button" className="bg-black text-white px-4 py-2 rounded font-bold" onClick={() => setEditMode(true)} aria-label="Editar perfil">Editar</button>
+                    )}
                   </div>
-                  {!editMode && (
-                    <button type="button" className="bg-black text-white px-4 py-2 rounded font-bold" onClick={() => setEditMode(true)} aria-label="Editar perfil">Editar</button>
-                  )}
-                </div>
-                <div>
-                  <label htmlFor="nombre" className="block text-xs font-bold mb-1 text-black">Nombre *</label>
-                  <input id="nombre" type="text" name="nombre" className={`w-full border rounded px-3 py-2 bg-neutral-50 ${errors.nombre ? 'border-red-500' : ''}`} value={form.nombre || ''} onChange={handleChange} disabled={!editMode} aria-required="true" />
-                  {errors.nombre && <div className="text-xs text-red-500 mt-1">{errors.nombre}</div>}
-                </div>
-                <div>
-                  <label htmlFor="apellido" className="block text-xs font-bold mb-1 text-black">Primer apellido *</label>
-                  <input id="apellido" type="text" name="apellido" className={`w-full border rounded px-3 py-2 bg-neutral-50 ${errors.apellido ? 'border-red-500' : ''}`} value={form.apellido || ''} onChange={handleChange} disabled={!editMode} aria-required="true" />
-                  {errors.apellido && <div className="text-xs text-red-500 mt-1">{errors.apellido}</div>}
-                </div>
-                <div>
-                  <label htmlFor="segundoApellido" className="block text-xs font-bold mb-1 text-black">Segundo apellido</label>
-                  <input id="segundoApellido" type="text" name="segundoApellido" className="w-full border rounded px-3 py-2 bg-neutral-50" value={form.segundoApellido || ''} onChange={handleChange} disabled={!editMode} />
-                </div>
-                <div>
-                  <label htmlFor="celular" className="block text-xs font-bold mb-1 text-black">Número de teléfono</label>
-                  <input id="celular" type="text" name="celular" className={`w-full border rounded px-3 py-2 bg-neutral-50 ${errors.celular ? 'border-red-500' : ''}`} value={form.celular || ''} onChange={handleChange} disabled={!editMode} />
-                  {errors.celular && <div className="text-xs text-red-500 mt-1">{errors.celular}</div>}
-                </div>
-                <div>
-                  <label htmlFor="nacimiento" className="block text-xs font-bold mb-1 text-black">Fecha de nacimiento</label>
-                  <input id="nacimiento" type="date" name="nacimiento" className={`w-full border rounded px-3 py-2 bg-neutral-50 ${errors.nacimiento ? 'border-red-500' : ''}`} value={form.nacimiento || ''} onChange={handleChange} disabled={!editMode} />
-                  {errors.nacimiento && <div className="text-xs text-red-500 mt-1">{errors.nacimiento}</div>}
-                </div>
-                <div>
-                  <label htmlFor="sexo" className="block text-xs font-bold mb-1 text-black">Sexo</label>
+                  <div>
+                    <label htmlFor="nombre" className="block text-xs font-bold mb-1 text-black">Nombre *</label>
+                    <input id="nombre" type="text" name="nombre" className={`w-full border rounded px-3 py-2 bg-neutral-50 ${errors.nombre ? 'border-red-500' : ''}`} value={form.nombre ?? ''} onChange={handleChange} disabled={!editMode} aria-required="true" />
+                    {errors.nombre && <div className="text-xs text-red-500 mt-1">{errors.nombre}</div>}
+                  </div>
+                  <div>
+                    <label htmlFor="apellido" className="block text-xs font-bold mb-1 text-black">Primer apellido *</label>
+                    <input id="apellido" type="text" name="apellido" className={`w-full border rounded px-3 py-2 bg-neutral-50 ${errors.apellido ? 'border-red-500' : ''}`} value={form.apellido ?? ''} onChange={handleChange} disabled={!editMode} aria-required="true" />
+                    {errors.apellido && <div className="text-xs text-red-500 mt-1">{errors.apellido}</div>}
+                  </div>
+                  <div>
+                    <label htmlFor="segundoApellido" className="block text-xs font-bold mb-1 text-black">Segundo apellido</label>
+                    <input id="segundoApellido" type="text" name="segundoApellido" className="w-full border rounded px-3 py-2 bg-neutral-50" value={form.segundoApellido ?? ''} onChange={handleChange} disabled={!editMode} />
+                  </div>
+                  <div>
+                    <label htmlFor="celular" className="block text-xs font-bold mb-1 text-black">Número de teléfono</label>
+                    <input id="celular" type="text" name="celular" className={`w-full border rounded px-3 py-2 bg-neutral-50 ${errors.celular ? 'border-red-500' : ''}`} value={form.celular ?? ''} onChange={handleChange} disabled={!editMode} />
+                    {errors.celular && <div className="text-xs text-red-500 mt-1">{errors.celular}</div>}
+                  </div>
+                  <div>
+                    <label htmlFor="nacimiento" className="block text-xs font-bold mb-1 text-black">Fecha de nacimiento</label>
+                    <input id="nacimiento" type="date" name="nacimiento" className={`w-full border rounded px-3 py-2 bg-neutral-50 ${errors.nacimiento ? 'border-red-500' : ''}`} value={form.nacimiento ?? ''} onChange={handleChange} disabled={!editMode} />
+                    {errors.nacimiento && <div className="text-xs text-red-500 mt-1">{errors.nacimiento}</div>}
+                  </div>
+                  <div>
+                    <label htmlFor="sexo" className="block text-xs font-bold mb-1 text-black">Sexo</label>
+                    {editMode ? (
+                      <select id="sexo" name="sexo" className={`w-full border rounded px-3 py-2 bg-neutral-50 text-black ${errors.sexo ? 'border-red-500' : ''}`} value={form.sexo || ''} onChange={handleChange} aria-required="true">
+                        <option value="">Selecciona</option>
+                        <option value="M">Masculino</option>
+                        <option value="F">Femenino</option>
+                        <option value="O">Otro</option>
+                      </select>
+                    ) : (
+                      <input id="sexo" name="sexo" type="text" className="w-full border rounded px-3 py-2 bg-neutral-50 text-black" value={form.sexo ?? ''} disabled aria-label="Sexo" />
+                    )}
+                    {errors.sexo && <div className="text-xs font-bold mt-1 text-red-700">{errors.sexo}</div>}
+                  </div>
+                  <div>
+                    <label htmlFor="tipoDocumento" className="block text-xs font-bold mb-1 text-black">Tipo de documento</label>
+                    {editMode ? (
+                      <select id="tipoDocumento" name="tipoDocumento" className={`w-full border rounded px-3 py-2 bg-neutral-50 text-black ${errors.tipoDocumento ? 'border-red-500' : ''}`} value={form.tipoDocumento || ''} onChange={handleChange} aria-required="true">
+                        <option value="">Selecciona</option>
+                        <option value="CI">Cédula de Identidad</option>
+                        <option value="PAS">Pasaporte</option>
+                        <option value="OTRO">Otro</option>
+                      </select>
+                    ) : (
+                      <input id="tipoDocumento" name="tipoDocumento" type="text" className="w-full border rounded px-3 py-2 bg-white text-black" value={form.tipoDocumento ?? 'Carnet de Identidad'} disabled aria-label="Tipo de documento" />
+                    )}
+                    {errors.tipoDocumento && <div className="text-xs font-bold mt-1 text-red-700 bg-white px-1 rounded">{errors.tipoDocumento}</div>}
+                  </div>
+                  <div>
+                    <label htmlFor="nroDocumento" className="block text-xs font-bold mb-1 text-black">Número de documento</label>
+                    <input id="nroDocumento" type="text" name="nroDocumento" className={`w-full border rounded px-3 py-2 bg-white text-black ${errors.nroDocumento ? 'border-red-500' : ''}`} value={form.nroDocumento ?? ''} onChange={handleChange} disabled={!editMode} aria-required="true" />
+                    {errors.nroDocumento && <div className="text-xs font-bold mt-1 text-red-700 bg-white px-1 rounded">{errors.nroDocumento}</div>}
+                  </div>
+                  <div className="col-span-2">
+                    <label htmlFor="email" className="block text-xs font-bold mb-1 text-black">Correo electrónico</label>
+                    <input id="email" type="email" className="w-full border rounded px-3 py-2 bg-white text-black" value={form.email ?? ''} disabled aria-label="Correo electrónico" />
+                  </div>
                   {editMode ? (
-                    <select id="sexo" name="sexo" className={`w-full border rounded px-3 py-2 bg-neutral-50 text-black ${errors.sexo ? 'border-red-500' : ''}`} value={form.sexo || ''} onChange={handleChange} aria-required="true">
-                      <option value="">Selecciona</option>
-                      <option value="M">Masculino</option>
-                      <option value="F">Femenino</option>
-                      <option value="O">Otro</option>
-                    </select>
+                    <div className="col-span-2 flex flex-col md:flex-row gap-2 mt-2">
+                      <button type="submit" className="bg-black text-white px-6 py-2 rounded font-bold w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" aria-label="Guardar cambios de perfil">Guardar</button>
+                      <button type="button" className="text-black font-bold underline w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" onClick={handleCancel} aria-label="Cancelar edición de perfil">Cancelar</button>
+                    </div>
                   ) : (
-                    <input id="sexo" name="sexo" type="text" className="w-full border rounded px-3 py-2 bg-neutral-50 text-black" value={form.sexo || ''} disabled aria-label="Sexo" />
+                    <div className="col-span-2 flex flex-col md:flex-row gap-2 mt-2">
+                      <button type="button" className="bg-black text-white px-6 py-2 rounded font-bold w-full md:w-auto" disabled>Guardar</button>
+                      <button type="button" className="text-black font-bold underline w-full md:w-auto">Cambiar contraseña</button>
+                    </div>
                   )}
-                  {errors.sexo && <div className="text-xs font-bold mt-1 text-red-700">{errors.sexo}</div>}
-                </div>
-                <div>
-                  <label htmlFor="tipoDocumento" className="block text-xs font-bold mb-1 text-black">Tipo de documento</label>
-                  {editMode ? (
-                    <select id="tipoDocumento" name="tipoDocumento" className={`w-full border rounded px-3 py-2 bg-neutral-50 text-black ${errors.tipoDocumento ? 'border-red-500' : ''}`} value={form.tipoDocumento || ''} onChange={handleChange} aria-required="true">
-                      <option value="">Selecciona</option>
-                      <option value="CI">Cédula de Identidad</option>
-                      <option value="PAS">Pasaporte</option>
-                      <option value="OTRO">Otro</option>
-                    </select>
-                  ) : (
-                    <input id="tipoDocumento" name="tipoDocumento" type="text" className="w-full border rounded px-3 py-2 bg-white text-black" value={form.tipoDocumento || 'Carnet de Identidad'} disabled aria-label="Tipo de documento" />
-                  )}
-                  {errors.tipoDocumento && <div className="text-xs font-bold mt-1 text-red-700 bg-white px-1 rounded">{errors.tipoDocumento}</div>}
-                </div>
-                <div>
-                  <label htmlFor="nroDocumento" className="block text-xs font-bold mb-1 text-black">Número de documento</label>
-                  <input id="nroDocumento" type="text" name="nroDocumento" className={`w-full border rounded px-3 py-2 bg-white text-black ${errors.nroDocumento ? 'border-red-500' : ''}`} value={form.nroDocumento || ''} onChange={handleChange} disabled={!editMode} aria-required="true" />
-                  {errors.nroDocumento && <div className="text-xs font-bold mt-1 text-red-700 bg-white px-1 rounded">{errors.nroDocumento}</div>}
-                </div>
-                <div className="col-span-2">
-                  <label htmlFor="email" className="block text-xs font-bold mb-1 text-black">Correo electrónico</label>
-                  <input id="email" type="email" className="w-full border rounded px-3 py-2 bg-white text-black" value={form.email} disabled aria-label="Correo electrónico" />
-                </div>
-                {editMode ? (
-                  <div className="col-span-2 flex flex-col md:flex-row gap-2 mt-2">
-                    <button type="submit" className="bg-black text-white px-6 py-2 rounded font-bold w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" aria-label="Guardar cambios de perfil">Guardar</button>
-                    <button type="button" className="text-black font-bold underline w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" onClick={handleCancel} aria-label="Cancelar edición de perfil">Cancelar</button>
-                  </div>
-                ) : (
-                  <div className="col-span-2 flex flex-col md:flex-row gap-2 mt-2">
-                    <button type="button" className="bg-black text-white px-6 py-2 rounded font-bold w-full md:w-auto" disabled>Guardar</button>
-                    <button type="button" className="text-black font-bold underline w-full md:w-auto">Cambiar contraseña</button>
-                  </div>
-                )}
-              </form>
+                </form>
+              </>
             )}
             {tab === 'direcciones' && (
-              <div className="text-black">Próximamente podrás gestionar tus direcciones de envío aquí.</div>
+              <>
+                <h2 className="text-xl font-bold mb-4 text-black">Mis direcciones</h2>
+                <div className="text-black">Próximamente podrás gestionar tus direcciones de envío aquí.</div>
+              </>
             )}
             {tab === 'pedidos' && (
-              <div className="overflow-x-auto">
-                {!pedidoDetalle ? (
-                  <table className="w-full text-sm bg-white">
-                    <thead>
-                      <tr className="text-left border-b">
-                        <th className="py-2">Fecha</th>
-                        <th>N° Pedido</th>
-                        <th>Estado</th>
-                        <th>Total</th>
-                        <th>Detalle</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {pedidosEjemplo.map(p => (
-                        <tr key={p.numero} className="border-b hover:bg-gray-50">
-                          <td className="py-2">{p.fecha}</td>
-                          <td>{p.numero}</td>
-                          <td><span className="font-bold text-black bg-white px-1 rounded">{p.estado}</span></td>
-                          <td>Bs {p.total}</td>
-                          <td>
-                            <button
-                              className="text-primary underline"
-                              onClick={() => setPedidoDetalle(p)}
-                            >
-                              Ver
-                            </button>
-                          </td>
+              <>
+                <h2 className="text-xl font-bold mb-4 text-black">Mis pedidos</h2>
+                <div className="overflow-x-auto">
+                  {!pedidoDetalle ? (
+                    <table className="w-full text-sm bg-white">
+                      <thead>
+                        <tr className="text-left border-b">
+                          <th className="py-2">Fecha</th>
+                          <th>N° Pedido</th>
+                          <th>Estado</th>
+                          <th>Total</th>
+                          <th>Detalle</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <div className="bg-neutral-50 rounded-xl shadow p-6 max-w-md mx-auto">
-                    <h3 className="text-xl font-bold mb-2 text-black">Detalle del pedido #{pedidoDetalle.numero}</h3>
-                    <div className="mb-2"><b>Fecha:</b> {pedidoDetalle.fecha}</div>
-                    <div className="mb-2"><b>Estado:</b> {pedidoDetalle.estado}</div>
-                    <div className="mb-2"><b>Total:</b> Bs {pedidoDetalle.total}</div>
-                    <div className="mb-4">
-                      <b>Productos:</b>
-                      <ul className="mt-2">
-                        {getProductosPedido(pedidoDetalle.numero).map((prod, idx) => (
-                          <li key={idx} className="flex items-center gap-2 mb-2">
-                            <img src={prod.imagen} alt={prod.nombre} className="w-10 h-10 object-contain rounded border" />
-                            <span className="font-semibold text-black">{prod.nombre}</span>
-                            <span className="text-gray-500">{prod.precio}</span>
-                            <Link to={`/tienda/${prod.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`} className="text-primary underline text-xs ml-2">Ver producto</Link>
-                          </li>
+                      </thead>
+                      <tbody>
+                        {pedidosEjemplo.map(p => (
+                          <tr key={p.numero} className="border-b hover:bg-gray-50">
+                            <td className="py-2">{p.fecha}</td>
+                            <td>{p.numero}</td>
+                            <td><span className="font-bold text-black bg-white px-1 rounded">{p.estado}</span></td>
+                            <td>Bs {p.total}</td>
+                            <td>
+                              <button
+                                className="text-primary underline"
+                                onClick={() => setPedidoDetalle(p)}
+                              >
+                                Ver
+                              </button>
+                            </td>
+                          </tr>
                         ))}
-                      </ul>
+                      </tbody>
+                    </table>
+                  ) : (
+                    <div className="bg-neutral-50 rounded-xl shadow p-6 max-w-md mx-auto">
+                      <h3 className="text-xl font-bold mb-2 text-black">Detalle del pedido #{pedidoDetalle.numero}</h3>
+                      <div className="mb-2"><b>Fecha:</b> {pedidoDetalle.fecha}</div>
+                      <div className="mb-2"><b>Estado:</b> {pedidoDetalle.estado}</div>
+                      <div className="mb-2"><b>Total:</b> Bs {pedidoDetalle.total}</div>
+                      <div className="mb-4">
+                        <b>Productos:</b>
+                        <ul className="mt-2">
+                          {getProductosPedido(pedidoDetalle.numero).map((prod, idx) => (
+                            <li key={idx} className="flex items-center gap-2 mb-2">
+                              <img src={prod.imagen} alt={prod.nombre} className="w-10 h-10 object-contain rounded border" />
+                              <span className="font-semibold text-black">{prod.nombre}</span>
+                              <span className="text-gray-500">{prod.precio}</span>
+                              <Link to={`/tienda/${prod.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`} className="text-primary underline text-xs ml-2">Ver producto</Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <button
+                        className="mt-4 bg-black text-white px-4 py-2 rounded font-bold"
+                        onClick={() => setPedidoDetalle(null)}
+                      >
+                        Volver a la lista
+                      </button>
                     </div>
-                    <button
-                      className="mt-4 bg-black text-white px-4 py-2 rounded font-bold"
-                      onClick={() => setPedidoDetalle(null)}
-                    >
-                      Volver a la lista
-                    </button>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              </>
             )}
             {tab === 'favoritos' && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {favoritosEjemplo.map((f, i) => (
-                  <div key={i} className="bg-neutral-50 rounded shadow p-2 flex flex-col items-center border border-neutral-200">
-                    <img src={f.imagen} alt={f.nombre} className="w-16 h-16 object-contain mb-2" />
-                    <div className="font-semibold text-center text-sm text-black bg-white px-1 rounded">{f.nombre}</div>
-                    <div className="text-xs text-gray-800 bg-white px-1 rounded">{f.precio}</div>
-                    <Link to={`/tienda/${f.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`} className="text-primary underline text-xs mt-1">Ver producto</Link>
-                  </div>
-                ))}
-              </div>
+              <>
+                <h2 className="text-xl font-bold mb-4 text-black">Mi lista de deseos</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {favoritosEjemplo.map((f, i) => (
+                    <div key={i} className="bg-neutral-50 rounded shadow p-2 flex flex-col items-center border border-neutral-200">
+                      <img src={f.imagen} alt={f.nombre} className="w-16 h-16 object-contain mb-2" />
+                      <div className="font-semibold text-center text-sm text-black bg-white px-1 rounded">{f.nombre}</div>
+                      <div className="text-xs text-gray-800 bg-white px-1 rounded">{f.precio}</div>
+                      <Link to={`/tienda/${f.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`} className="text-primary underline text-xs mt-1">Ver producto</Link>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
             {tab === 'cupones' && (
-              <div className="text-black">Próximamente podrás ver tus cupones aquí.</div>
+              <>
+                <h2 className="text-xl font-bold mb-4 text-black">Mis cupones</h2>
+                <div className="text-black">Próximamente podrás ver tus cupones aquí.</div>
+              </>
             )}
           </div>
         </section>

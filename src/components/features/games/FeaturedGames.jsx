@@ -50,6 +50,7 @@ const FeaturedGames = () => {
             modules={[Pagination, Navigation, Autoplay, EffectFade]}
             spaceBetween={30}
             slidesPerView={1}
+            loop={true} // Hacer el carrusel infinito
             pagination={{ 
               clickable: true,
               dynamicBullets: true
@@ -85,4 +86,4 @@ const FeaturedGames = () => {
   );
 };
 
-export default FeaturedGames; 
+export default FeaturedGames;

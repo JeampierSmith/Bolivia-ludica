@@ -248,10 +248,9 @@ const Comunidad = () => {
 								className="relative rounded-2xl shadow-lg overflow-hidden group cursor-pointer border border-neutral-200"
 								onClick={() => setModalDepto(idx)}
 								style={{
-									background: `url(${currentLogo}) center/cover no-repeat`,
+									background: `#222 url(${currentLogo}) center/cover no-repeat`,
 									minHeight: '260px',
 									transition: 'background-image 0.5s ease-in-out',
-									backgroundColor: '#222',
 								}}
 							>
 								<div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition" />

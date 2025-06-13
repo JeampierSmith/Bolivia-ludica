@@ -395,6 +395,7 @@ const StoresSection = () => {
             modules={[Pagination, Navigation, Autoplay]}
             spaceBetween={30}
             slidesPerView={3}
+            loop={true} // Enable infinite/circular carousel
             pagination={{ clickable: true, dynamicBullets: true }}
             navigation
             autoplay={{ delay: 7000, disableOnInteraction: false }}
@@ -414,7 +415,7 @@ const StoresSection = () => {
                   style={{ boxSizing: 'border-box' }}
                 >
                   <h3 className="text-xl sm:text-2xl font-bold mb-4 text-primary text-center">{city}</h3>
-                  <ul className="w-full space-y-4 sm:space-y-6">
+                  <ul className="flex flex-col items-center justify-center h-full w-full space-y-4 sm:space-y-6">
                     {stores.map((store, i) => (
                       <li
                         key={i}
