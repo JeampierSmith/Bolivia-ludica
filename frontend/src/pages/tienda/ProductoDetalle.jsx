@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import productos from './TiendaProductos';
+import productos from './TiendaProductos.js';
 import { TiendaHeader } from './Tienda.jsx';
-import { useCart } from '../../components/common/CartContext';
-import Modal from '../../components/common/Modal';
-import LoginForm from '../../components/features/auth/LoginForm';
-import UneteForm from '../../components/features/auth/UneteForm';
-import { useAuth } from '../../components/common/AuthContext';
+import { useCart } from '../../components/common/CartContext.jsx';
+import Modal from '../../components/common/Modal.jsx';
+import LoginForm from '../../components/features/auth/LoginForm.jsx';
+import UneteForm from '../../components/features/auth/UneteForm.jsx';
+import { useAuth } from '../../components/common/AuthContext.jsx';
 
 function slugify(str) {
   return str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
