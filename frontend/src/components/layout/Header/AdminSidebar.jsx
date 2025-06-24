@@ -7,6 +7,7 @@ const menuItems = [
   { name: 'Pedidos', icon: '🧾', path: `${BASE}/admin/pedidos` },
   { name: 'Tiendas', icon: '🏬', path: `${BASE}/admin/tiendas` },
   { name: 'Usuarios', icon: '👤', path: `${BASE}/admin/usuarios` },
+  { name: 'Clientes', icon: '🧑‍🤝‍🧑', path: `${BASE}/admin/clientes` },
   { name: 'Ranking', icon: '🏆', path: `${BASE}/admin/ranking` },
 ];
 

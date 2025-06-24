@@ -22,14 +22,7 @@ const columns = [
   { label: 'Dirección', key: 'direccion' },
   { label: 'Teléfono', key: 'telefono' },
   { label: 'Correo', key: 'correo' },
-  { label: 'Horarios', key: 'horarios' },
-  { label: 'Ambiente', key: 'ambiente' },
   { label: 'Logo', key: 'logo' },
-  { label: 'Facebook', key: 'facebook' },
-  { label: 'Instagram', key: 'instagram' },
-  { label: 'TikTok', key: 'tiktok' },
-  { label: 'Descripción', key: 'descripcion' },
-  { label: 'Especialidad', key: 'especialidad' },
   { label: 'Editar', key: 'edit', isAction: true },
   { label: 'Eliminar', key: 'delete', isAction: true },
 ];
@@ -37,7 +30,6 @@ const columns = [
 const initialForm = {
   nombre: '',
   ubicacion: '',
-  especialidad: '',
   logo: '',
   descripcion: '',
   direccion: '',
@@ -64,6 +56,7 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit, departamentos, on
     if (open) {
       if (initialData) {
         setForm({
+          ...initialForm,
           ...initialData,
           ambiente: Array.isArray(initialData.ambiente) ? initialData.ambiente : [],
         });
@@ -84,7 +77,8 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit, departamentos, on
   }, [open, initialData, departamentos]);
 
   const handleChange = e => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm(f => ({ ...f, [name]: value ?? '' }));
   };
 
   const handleDeptoChange = e => {
@@ -115,6 +109,10 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit, departamentos, on
     if (!file) return;
     const data = new FormData();
     data.append('file', file);
+    // Si es edición, envía el tiendaId para que el backend elimine el logo anterior
+    if (isEdit && initialData && initialData._id) {
+      data.append('tiendaId', initialData._id);
+    }
     setUploading(true);
     try {
       const res = await fetch(import.meta.env.VITE_API_URL + '/upload/tienda', {
@@ -144,13 +142,14 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit, departamentos, on
           body: data,
         });
         const result = await res.json();
-        newImgs.push(result.url);
+        if (result.url) newImgs.push(result.url);
       } catch (err) {
-        alert('Error subiendo imagen de ambiente');
+        // Puedes mostrar un error si lo deseas
       }
     }
-    setAmbienteImgs(imgs => [...imgs, ...newImgs]);
-    setForm(f => ({ ...f, ambiente: [...(f.ambiente || []), ...newImgs] }));
+    // Reemplaza todas las imágenes de ambiente anteriores por las nuevas
+    setAmbienteImgs(newImgs);
+    setForm(f => ({ ...f, ambiente: newImgs }));
     setAmbienteUploading(false);
   };
 
@@ -183,16 +182,18 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit, departamentos, on
     }
   };
 
+  // Mejor UX/UI para el formulario
   if (!open) return null;
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-8">
-        <h2 className="text-lg font-bold mb-6">{isEdit ? 'Editar Tienda' : 'Nueva Tienda'}</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+        <button onClick={onClose} className="absolute top-2 right-2 text-gray-400 hover:text-black text-2xl">×</button>
+        <h2 className="text-lg font-bold mb-4 text-center">{isEdit ? 'Editar Tienda' : 'Nueva Tienda'}</h2>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold mb-1">Nombre</label>
-              <input name="nombre" value={form.nombre} onChange={handleChange} className="w-full border rounded px-2 py-1" placeholder="Nombre de la tienda" required />
+              <input name="nombre" value={form.nombre || ''} onChange={handleChange} className="w-full border rounded px-2 py-1" placeholder="Nombre de la tienda" required />
             </div>
             <div>
               <label className="block text-xs font-bold mb-1">Ubicación</label>
@@ -223,66 +224,70 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit, departamentos, on
             </div>
             <div>
               <label className="block text-xs font-bold mb-1">Dirección</label>
-              <input name="direccion" value={form.direccion} onChange={handleChange} className="w-full border rounded px-2 py-1" placeholder="Dirección exacta" />
+              <input name="direccion" value={form.direccion || ''} onChange={handleChange} className="w-full border rounded px-2 py-1" placeholder="Dirección exacta" />
             </div>
             <div>
               <label className="block text-xs font-bold mb-1">Teléfono</label>
-              <input name="telefono" value={form.telefono} onChange={handleChange} className="w-full border rounded px-2 py-1" placeholder="Teléfono" />
+              <input name="telefono" value={form.telefono || ''} onChange={handleChange} className="w-full border rounded px-2 py-1" placeholder="Teléfono" />
             </div>
             <div>
               <label className="block text-xs font-bold mb-1">Correo</label>
-              <input name="correo" value={form.correo} onChange={handleChange} className="w-full border rounded px-2 py-1" placeholder="Correo electrónico" />
+              <input name="correo" value={form.correo || ''} onChange={handleChange} className="w-full border rounded px-2 py-1" placeholder="Correo electrónico" />
             </div>
             <div>
               <label className="block text-xs font-bold mb-1">Horarios</label>
-              <input name="horarios" value={form.horarios} onChange={handleChange} className="w-full border rounded px-2 py-1" placeholder="Ej: Lun-Vie 9:00-18:00" />
+              <input name="horarios" value={form.horarios || ''} onChange={handleChange} className="w-full border rounded px-2 py-1" placeholder="Ej: Lun-Vie 9:00-18:00" />
             </div>
-            <div>
-              <label className="block text-xs font-bold mb-1">Logo</label>
-              <input type="file" accept="image/*" onChange={handleFileChange} className="w-full border rounded px-2 py-1" />
-              {uploading && <span className="text-xs text-blue-600">Subiendo logo...</span>}
-              {logoUrl && <img src={logoUrl.startsWith('/uploads') ? UPLOADS_URL + logoUrl : logoUrl} alt="preview" className="mt-2 h-16" />}
+          </div>
+          <div>
+            <label className="block text-xs font-bold mb-1">Logo</label>
+            <div className="flex items-center gap-3">
+              <input type="file" accept="image/*" onChange={handleFileChange} className="border rounded px-2 py-1 w-full" />
+              {uploading && <span className="text-xs text-blue-600">Subiendo...</span>}
             </div>
-            <div className="col-span-2">
-              <label className="block text-xs font-bold mb-1">Imágenes del ambiente</label>
-              <input type="file" accept="image/*" multiple onChange={handleAmbienteChange} className="w-full border rounded px-2 py-1" />
-              {ambienteUploading && <span className="text-xs text-blue-600">Subiendo imágenes...</span>}
-              <div className="flex flex-wrap gap-2 mt-2">
-                {ambienteImgs.map((img, i) => (
-                  <div key={i} className="relative group">
-                    <img src={img.startsWith('/uploads') ? UPLOADS_URL + img : img} alt="ambiente" className="h-16 w-16 object-cover rounded" />
-                    <button type="button" onClick={() => handleRemoveAmbienteImg(img)} className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-80 group-hover:opacity-100">×</button>
-                  </div>
-                ))}
+            {logoUrl && (
+              <div className="flex justify-center mt-2">
+                <img src={logoUrl.startsWith('/uploads') ? UPLOADS_URL + logoUrl : logoUrl} alt="preview" className="h-20 rounded shadow border" />
               </div>
+            )}
+          </div>
+          <div>
+            <label className="block text-xs font-bold mb-1">Imágenes del ambiente</label>
+            <input type="file" accept="image/*" multiple onChange={handleAmbienteChange} className="border rounded px-2 py-1 w-full" />
+            {ambienteUploading && <span className="text-xs text-blue-600 ml-2">Subiendo imágenes...</span>}
+            <div className="flex flex-wrap gap-2 mt-2 justify-center">
+              {ambienteImgs.map((img, i) => (
+                <div key={i} className="relative group">
+                  <img src={img.startsWith('/uploads') ? UPLOADS_URL + img : img} alt="ambiente" className="h-14 w-14 object-cover rounded border" />
+                  <button type="button" onClick={() => handleRemoveAmbienteImg(img)} className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-80 group-hover:opacity-100">×</button>
+                </div>
+              ))}
             </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
               <label className="block text-xs font-bold mb-1">Facebook</label>
-              <input name="facebook" value={form.facebook} onChange={handleChange} className={`w-full border rounded px-2 py-1 ${errors.facebook ? 'border-red-500' : ''}`} placeholder="https://facebook.com/tu-pagina" />
+              <input name="facebook" value={form.facebook || ''} onChange={handleChange} className={`w-full border rounded px-2 py-1 ${errors.facebook ? 'border-red-500' : ''}`} placeholder="https://facebook.com/tu-pagina" />
               {errors.facebook && <span className="text-xs text-red-600">{errors.facebook}</span>}
             </div>
             <div>
               <label className="block text-xs font-bold mb-1">Instagram</label>
-              <input name="instagram" value={form.instagram} onChange={handleChange} className={`w-full border rounded px-2 py-1 ${errors.instagram ? 'border-red-500' : ''}`} placeholder="https://instagram.com/tu-usuario" />
+              <input name="instagram" value={form.instagram || ''} onChange={handleChange} className={`w-full border rounded px-2 py-1 ${errors.instagram ? 'border-red-500' : ''}`} placeholder="https://instagram.com/tu-usuario" />
               {errors.instagram && <span className="text-xs text-red-600">{errors.instagram}</span>}
             </div>
             <div>
               <label className="block text-xs font-bold mb-1">TikTok</label>
-              <input name="tiktok" value={form.tiktok} onChange={handleChange} className={`w-full border rounded px-2 py-1 ${errors.tiktok ? 'border-red-500' : ''}`} placeholder="https://tiktok.com/@tu-usuario" />
+              <input name="tiktok" value={form.tiktok || ''} onChange={handleChange} className={`w-full border rounded px-2 py-1 ${errors.tiktok ? 'border-red-500' : ''}`} placeholder="https://tiktok.com/@tu-usuario" />
               {errors.tiktok && <span className="text-xs text-red-600">{errors.tiktok}</span>}
             </div>
-            <div className="col-span-2">
-              <label className="block text-xs font-bold mb-1">Descripción</label>
-              <textarea name="descripcion" value={form.descripcion} onChange={handleChange} className="w-full border rounded px-2 py-1" placeholder="Descripción" />
-            </div>
-            <div>
-              <label className="block text-xs font-bold mb-1">Especialidad</label>
-              <input name="especialidad" value={form.especialidad} onChange={handleChange} className="w-full border rounded px-2 py-1" placeholder="Especialidad" />
-            </div>
           </div>
-          <div className="flex justify-end gap-2">
+          <div>
+            <label className="block text-xs font-bold mb-1">Descripción</label>
+            <textarea name="descripcion" value={form.descripcion || ''} onChange={handleChange} className="w-full border rounded px-2 py-1" placeholder="Descripción" />
+          </div>
+          <div className="flex justify-end gap-2 mt-2">
             <button type="submit" className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">{isEdit ? 'Guardar Cambios' : 'Registrar'}</button>
-            <button type="button" className="bg-gray-200 px-6 py-2 rounded" onClick={onClose}>Close</button>
+            <button type="button" className="bg-gray-200 px-6 py-2 rounded" onClick={onClose}>Cerrar</button>
           </div>
         </form>
       </div>
@@ -323,13 +328,28 @@ const Tiendas = () => {
     setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 2500);
   };
 
+  // --- MODIFICACIÓN PARA REGISTRO ROBUSTO DE TIENDAS ---
+  // Asegura que el registro y edición de tiendas maneje correctamente logo, ambiente y redes sociales
   const handleRegister = async (form) => {
+    // Normaliza campos para el backend
+    const formData = {
+      ...form,
+      ambiente: Array.isArray(form.ambiente) ? form.ambiente : (form.ambiente ? [form.ambiente] : []),
+      // Agrupa redes sociales en un objeto si es necesario
+      redesSociales: {
+        facebook: form.facebook || '',
+        instagram: form.instagram || ''
+      },
+    };
+    // Elimina campos planos de redes sociales para evitar duplicidad
+    delete formData.facebook;
+    delete formData.instagram;
     try {
       if (isEdit && editData) {
-        await updateTienda(editData._id, form);
+        await updateTienda(editData._id, formData);
         showToast('Tienda actualizada correctamente', 'success');
       } else {
-        await createTienda(form);
+        await createTienda(formData);
         showToast('Tienda creada correctamente', 'success');
       }
       setModalOpen(false);

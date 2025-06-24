@@ -1,63 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaCrown, FaArrowUp, FaArrowDown } from 'react-icons/fa';
-
-const playerRanking = [
-	{
-		name: 'Carlos Mendoza',
-		points: 1250,
-		games: 48,
-		winRate: 78,
-		level: 'Experto',
-		location: 'La Paz',
-		trend: 3,
-		avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-		pro: true,
-	},
-	{
-		name: 'Laura Sánchez',
-		points: 1180,
-		games: 44,
-		winRate: 72,
-		level: 'Avanzado',
-		location: 'Cochabamba',
-		trend: 1,
-		avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-		pro: false,
-	},
-	{
-		name: 'Miguel Ángel Torres',
-		points: 1050,
-		games: 40,
-		winRate: 65,
-		level: 'Intermedio',
-		location: 'Santa Cruz',
-		trend: -2,
-		avatar: 'https://randomuser.me/api/portraits/men/45.jpg',
-		pro: false,
-	},
-	{
-		name: 'Ana Torres',
-		points: 900,
-		games: 35,
-		winRate: 60,
-		level: 'Intermedio',
-		location: 'Oruro',
-		trend: 0,
-		avatar: 'https://randomuser.me/api/portraits/women/46.jpg',
-		pro: false,
-	},
-	{
-		name: 'Luis Rojas',
-		points: 850,
-		games: 30,
-		winRate: 55,
-		level: 'Principiante',
-		location: 'Tarija',
-		trend: 0,
-		avatar: 'https://randomuser.me/api/portraits/men/47.jpg',
-		pro: false,
-	},
-];
+import { getRanking } from '../services/api';
 
 const stats = [
 	{ label: 'Jugadores clasificados', value: 12 },
@@ -147,69 +90,63 @@ const RankingTable = ({ data, search }) => (
 			</thead>
 			<tbody>
 				{data
-					.filter((player) => player.name.toLowerCase().includes(search.toLowerCase()))
-					.map((player, idx) => (
-						<tr
-							key={player.name}
-							className="border-b border-neutral-200 hover:bg-neutral-100 transition-colors group"
-						>
-							<td className="py-2 px-2 font-semibold text-center text-black">
-								{idx + 1}
-							</td>
-							<td className="py-2 px-2 flex items-center gap-2">
-								<img
-									src={player.avatar}
-									alt={`Avatar de ${player.name}`}
-									className="w-8 h-8 rounded-full border-2 border-black group-hover:ring-2 group-hover:ring-black transition"
-								/>
-								<span className="font-medium text-black">{player.name}</span>
-								{player.pro && (
-									<span className="ml-2 px-2 py-0.5 text-xs bg-black text-white rounded">
-										PRO
+					.filter((player) => player.jugador.toLowerCase().includes(search.toLowerCase()))
+					.map((player, idx) => {
+						let posBg = '';
+						let posIcon = null;
+						if (player.posicion === 1) {
+							posBg = 'bg-yellow-300 text-yellow-900 font-bold';
+							posIcon = <span title="Oro" className="mr-1">🥇</span>;
+						} else if (player.posicion === 2) {
+							posBg = 'bg-gray-300 text-gray-800 font-bold';
+							posIcon = <span title="Plata" className="mr-1">🥈</span>;
+						} else if (player.posicion === 3) {
+							posBg = 'bg-amber-700 text-white font-bold';
+							posIcon = <span title="Bronce" className="mr-1">🥉</span>;
+						}
+						return (
+							<tr key={player._id} className="border-b border-neutral-200 hover:bg-neutral-100 transition-colors group">
+								<td className={`py-2 px-2 font-semibold text-center ${posBg}`}>{posIcon}{player.posicion}</td>
+								<td className="py-2 px-2 flex items-center gap-2">
+									<img
+										src={player.avatar}
+										alt={`Avatar de ${player.jugador}`}
+										className="w-8 h-8 rounded-full border-2 border-black group-hover:ring-2 group-hover:ring-black transition"
+									/>
+									<span className="font-medium text-black">{player.jugador}</span>
+								</td>
+								<td className="py-2 px-2 text-black">{player.puntos}</td>
+								<td className="py-2 px-2 text-black">{player.partidasJugadas}</td>
+								<td className="py-2 px-2">
+									<span className="inline-block px-2 py-0.5 rounded bg-black text-white font-semibold text-xs">
+										{player.porcentajeVictoria}%
 									</span>
-								)}
-							</td>
-							<td className="py-2 px-2 text-black">{player.points}</td>
-							<td className="py-2 px-2 text-black">{player.games}</td>
-							<td className="py-2 px-2">
-								<span className="inline-block px-2 py-0.5 rounded bg-black text-white font-semibold text-xs">
-									{player.winRate}%
-								</span>
-							</td>
-							<td className="py-2 px-2">
-								<span
-									className={`px-2 py-0.5 rounded text-xs font-bold ${
-										player.level === 'Experto'
-											? 'bg-black text-white'
-											: 'bg-neutral-200 text-black'
-									}`}
-								>
-									{player.level}
-								</span>
-							</td>
-							<td className="py-2 px-2 text-black">{player.location}</td>
-							<td className="py-2 px-2">
-								{player.trend > 0 && (
-									<span className="flex items-center text-green-900 font-bold">
-										<FaArrowUp className="mr-1 animate-bounce" />
-										+{player.trend}
-									</span>
-								)}
-								{player.trend < 0 && (
-									<span className="flex items-center text-red-700 font-bold">
-										<FaArrowDown className="mr-1 animate-bounce" />
-										{player.trend}
-									</span>
-								)}
-								{player.trend === 0 && (
-									<span className="text-neutral-600">-</span>
-								)}
-							</td>
-						</tr>
-					))}
+								</td>
+								<td className="py-2 px-2">
+									<span className={`px-2 py-0.5 rounded text-xs font-bold ${player.nivel === 'Experto' ? 'bg-black text-white' : 'bg-neutral-200 text-black'}`}>{player.nivel}</span>
+								</td>
+								<td className="py-2 px-2 text-black">{player.ciudad}</td>
+								<td className="py-2 px-2">
+									{player.tendencia > 0 && (
+										<span className="flex items-center text-green-900 font-bold">
+											<FaArrowUp className="mr-1 animate-bounce" />+{player.tendencia}
+										</span>
+									)}
+									{player.tendencia < 0 && (
+										<span className="flex items-center text-red-700 font-bold">
+											<FaArrowDown className="mr-1 animate-bounce" />{player.tendencia}
+										</span>
+									)}
+									{player.tendencia === 0 && (
+										<span className="text-neutral-600">-</span>
+									)}
+								</td>
+							</tr>
+						);
+					})}
 			</tbody>
 		</table>
-		{data.filter((player) => player.name.toLowerCase().includes(search.toLowerCase())).length === 0 && (
+		{data.filter((player) => player.jugador.toLowerCase().includes(search.toLowerCase())).length === 0 && (
 			<div className="text-center text-neutral-600 py-8 bg-white">
 				No se encontraron jugadores.
 			</div>
@@ -217,35 +154,52 @@ const RankingTable = ({ data, search }) => (
 	</div>
 );
 
-const levels = [
-	'Todos',
-	...Array.from(new Set(playerRanking.map((p) => p.level))),
-];
-const locations = [
-	'Todos',
-	...Array.from(new Set(playerRanking.map((p) => p.location))),
-];
-const minPoints = Math.min(...playerRanking.map((p) => p.points));
-const maxPoints = Math.max(...playerRanking.map((p) => p.points));
-
-const PAGE_SIZE = 3;
+const PAGE_SIZE = 10;
 
 const Ranking = () => {
 	const [search, setSearch] = useState('');
 	const [level, setLevel] = useState('Todos');
 	const [location, setLocation] = useState('Todos');
-	const [pointsRange, setPointsRange] = useState([minPoints, maxPoints]);
+	const [pointsRange, setPointsRange] = useState([0, 0]);
 	const [page, setPage] = useState(1);
+	const [players, setPlayers] = useState([]);
+	const [loading, setLoading] = useState(true);
+
+	// Mueve aquí las variables dependientes de players
+	const levels = [
+		'Todos',
+		...Array.from(new Set(players.map((p) => p.nivel))),
+	];
+	const locations = [
+		'Todos',
+		...Array.from(new Set(players.map((p) => p.ciudad))),
+	];
+	const minPoints = players.length > 0 ? Math.min(...players.map((p) => p.puntos)) : 0;
+	const maxPoints = players.length > 0 ? Math.max(...players.map((p) => p.puntos)) : 0;
+
+	useEffect(() => {
+		setLoading(true);
+		getRanking()
+			.then(data => {
+				setPlayers(data);
+				if (data.length > 0) {
+					const min = Math.min(...data.map(p => p.puntos));
+					const max = Math.max(...data.map(p => p.puntos));
+					setPointsRange([min, max]);
+				}
+			})
+			.finally(() => setLoading(false));
+	}, []);
 
 	// Filtrado avanzado
-	const filtered = playerRanking.filter((player) => {
-		const matchesSearch = player.name
+	const filtered = players.filter((player) => {
+		const matchesSearch = player.jugador
 			.toLowerCase()
 			.includes(search.toLowerCase());
-		const matchesLevel = level === 'Todos' || player.level === level;
-		const matchesLocation = location === 'Todos' || player.location === location;
+		const matchesLevel = level === 'Todos' || player.nivel === level;
+		const matchesLocation = location === 'Todos' || player.ciudad === location;
 		const matchesPoints =
-			player.points >= pointsRange[0] && player.points <= pointsRange[1];
+			player.puntos >= pointsRange[0] && player.puntos <= pointsRange[1];
 		return (
 			matchesSearch && matchesLevel && matchesLocation && matchesPoints
 		);
@@ -291,7 +245,10 @@ const Ranking = () => {
 				</div>
 			</div>
 			<div className="w-full max-w-5xl mx-auto px-2 sm:px-0">
-				<Podium players={[playerRanking[1], playerRanking[0], playerRanking[2]]} />
+				{/* Renderizar Podium solo si hay al menos 3 jugadores */}
+				{players && players.length >= 3 && (
+					<Podium players={[players[1], players[0], players[2]].filter(Boolean)} />
+				)}
 				<StatsCards stats={stats} />
 				{/* Filtros avanzados */}
 				<div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -352,7 +309,7 @@ const Ranking = () => {
 						</div>
 					</div>
 				</div>
-				<RankingTable data={paginated} search={''} />
+				<RankingTable data={paginated} search={search} />
 				{/* Paginación */}
 				<div className="flex justify-center items-center gap-2 mt-6">
 					<button

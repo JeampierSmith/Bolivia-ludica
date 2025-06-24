@@ -5,9 +5,13 @@ import fs from 'fs';
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/Bolivia-ludica/', // Necesario para GitHub Pages
+  base: '/Bolivia-ludica/', 
   plugins: [react()],
   server: {
+    proxy: {
+      '/api': 'http://localhost:3000',      // Proxy para API backend
+      '/uploads': 'http://localhost:3000',  // Proxy para imágenes y archivos subidos
+    },
     setupMiddlewares(middlewares, devServer) {
       middlewares.use('/uploads', (req, res, next) => {
         const filePath = path.join(__dirname, '../backend/uploads', req.url);

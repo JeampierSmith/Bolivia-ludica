@@ -23,3 +23,26 @@ exports.adminOnly = (req, res, next) => {
   }
   next();
 };
+
+exports.requireRole = (...roles) => (req, res, next) => {
+  if (!req.usuario || !roles.includes(req.usuario.rol)) {
+    return res.status(403).json({ msg: 'Acceso restringido: se requiere uno de los siguientes roles: ' + roles.join(', ') });
+  }
+  next();
+};
+
+// Middleware para requerir superadmin
+exports.requireSuperAdmin = (req, res, next) => {
+  if (!req.usuario || req.usuario.rol !== 'superadmin') {
+    return res.status(403).json({ msg: 'Acceso restringido solo para superadministradores' });
+  }
+  next();
+};
+
+// Middleware para requerir admin o superadmin
+exports.requireAdminOrSuperAdmin = (req, res, next) => {
+  if (!req.usuario || (req.usuario.rol !== 'admin' && req.usuario.rol !== 'superadmin')) {
+    return res.status(403).json({ msg: 'Acceso restringido solo para administradores o superadministradores' });
+  }
+  next();
+};

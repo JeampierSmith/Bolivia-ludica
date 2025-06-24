@@ -4,14 +4,17 @@ import { getDepartamentos, createDepartamento } from '../../services/departament
 import { uploadRankingAvatar } from '../../services/api';
 
 const columns = [
+  { label: 'Posición', key: 'posicion' },
   { label: 'Id', key: '_id' },
   { label: 'Jugador', key: 'jugador' },
   { label: 'Avatar', key: 'avatar', isImage: true },
   { label: 'Puntos', key: 'puntos' },
   { label: 'Partidas Jugadas', key: 'partidasJugadas' },
   { label: 'Victorias', key: 'victorias' },
+  { label: '% Victoria', key: 'porcentajeVictoria' },
   { label: 'Nivel', key: 'nivel' },
   { label: 'Ubicación', key: 'ciudad' },
+  { label: 'Tendencia', key: 'tendencia' },
   { label: 'Editar', key: 'edit', isAction: true },
   { label: 'Eliminar', key: 'delete', isAction: true },
 ];
@@ -33,6 +36,7 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit, departamentos, on
   const [showDeptoInput, setShowDeptoInput] = useState(false);
   const [customDepto, setCustomDepto] = useState('');
   const [avatarPreview, setAvatarPreview] = useState('');
+  const [errorVictorias, setErrorVictorias] = useState('');
 
   useEffect(() => {
     if (open) {
@@ -57,7 +61,17 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit, departamentos, on
   }, [open, initialData, departamentos]);
 
   const handleChange = e => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    if (name === 'victorias' || name === 'partidasJugadas') {
+      const victorias = name === 'victorias' ? Number(value) : Number(form.victorias);
+      const partidas = name === 'partidasJugadas' ? Number(value) : Number(form.partidasJugadas);
+      if (victorias > partidas) {
+        setErrorVictorias('El número de victorias no puede ser mayor que el de partidas jugadas');
+      } else {
+        setErrorVictorias('');
+      }
+    }
   };
 
   const handleAvatarChange = async (e) => {
@@ -75,7 +89,17 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit, departamentos, on
       }
       setAvatarPreview(URL.createObjectURL(file));
       try {
-        const result = await uploadRankingAvatar(file);
+        const data = new FormData();
+        data.append('file', file);
+        // Si es edición, envía el rankingId para que el backend elimine el avatar anterior
+        if (isEdit && initialData && initialData._id) {
+          data.append('rankingId', initialData._id);
+        }
+        const res = await fetch(import.meta.env.VITE_API_URL + '/upload/ranking', {
+          method: 'POST',
+          body: data,
+        });
+        const result = await res.json();
         setForm(f => ({ ...f, avatar: result.url }));
       } catch (err) {
         alert('Error al subir la imagen de avatar');
@@ -106,6 +130,11 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit, departamentos, on
 
   const handleSubmit = e => {
     e.preventDefault();
+    if (Number(form.victorias) > Number(form.partidasJugadas)) {
+      setErrorVictorias('El número de victorias no puede ser mayor que el de partidas jugadas');
+      return;
+    }
+    setErrorVictorias('');
     // Asegura que puntos, partidasJugadas y victorias sean números
     const parsedForm = {
       ...form,
@@ -144,6 +173,7 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit, departamentos, on
             <div>
               <label className="block text-xs font-bold mb-1">Victorias</label>
               <input name="victorias" type="number" value={form.victorias} onChange={handleChange} className="w-full border rounded px-2 py-1" placeholder="Número de victorias" />
+              {errorVictorias && <div className="text-red-600 text-xs mt-1">{errorVictorias}</div>}
             </div>
             <div>
               <label className="block text-xs font-bold mb-1">Nivel</label>
@@ -201,6 +231,8 @@ const Ranking = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const [departamentos, setDepartamentos] = useState([]);
+  const [filtroCiudad, setFiltroCiudad] = useState('Todos');
+  const [filtroNivel, setFiltroNivel] = useState('Todos');
 
   useEffect(() => {
     setLoading(true);
@@ -281,6 +313,14 @@ const Ranking = () => {
     return nuevo;
   };
 
+  const ciudades = ['Todos', ...Array.from(new Set(rankings.map(r => r.ciudad)))];
+  const nivelesUnicos = ['Todos', ...Array.from(new Set(rankings.map(r => r.nivel)))];
+
+  const rankingsFiltrados = rankings.filter(r =>
+    (filtroCiudad === 'Todos' || r.ciudad === filtroCiudad) &&
+    (filtroNivel === 'Todos' || r.nivel === filtroNivel)
+  );
+
   return (
     <div className="p-6">
       {toast.show && (
@@ -307,6 +347,24 @@ const Ranking = () => {
           <input className="border rounded px-2 py-1 text-sm" />
         </div>
       </div>
+      <div className="flex gap-4 mb-4">
+        <div>
+          <label className="mr-2">Filtrar por ubicación:</label>
+          <select value={filtroCiudad} onChange={e => setFiltroCiudad(e.target.value)} className="border rounded px-2 py-1">
+            {ciudades.map(ciudad => (
+              <option key={ciudad} value={ciudad}>{ciudad}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="mr-2">Filtrar por nivel:</label>
+          <select value={filtroNivel} onChange={e => setFiltroNivel(e.target.value)} className="border rounded px-2 py-1">
+            {nivelesUnicos.map(nivel => (
+              <option key={nivel} value={nivel}>{nivel}</option>
+            ))}
+          </select>
+        </div>
+      </div>
       <div className="bg-white rounded-lg shadow p-4">
         <table className="min-w-full text-sm">
           <thead>
@@ -321,12 +379,12 @@ const Ranking = () => {
               <tr>
                 <td colSpan={columns.length} className="text-center py-6">Loading...</td>
               </tr>
-            ) : rankings.length === 0 ? (
+            ) : rankingsFiltrados.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="text-center py-6">No hay rankings</td>
               </tr>
             ) : (
-              rankings.map(ranking => (
+              rankingsFiltrados.map((ranking, idx) => (
                 <tr key={ranking._id}>
                   {columns.map(col => {
                     if (col.isAction && col.key === 'edit') {
@@ -362,6 +420,43 @@ const Ranking = () => {
                             <img src={ranking.avatar} alt="avatar" className="h-10 w-10 rounded-full mx-auto" />
                           ) : (
                             <span className="text-gray-400">Sin foto</span>
+                          )}
+                        </td>
+                      );
+                    }
+                    if (col.key === 'posicion') {
+                      let posBg = '';
+                      let posIcon = null;
+                      if (idx === 0) {
+                        posBg = 'bg-yellow-300 text-yellow-900 font-bold';
+                        posIcon = <span title="Oro" className="mr-1">🥇</span>;
+                      } else if (idx === 1) {
+                        posBg = 'bg-gray-300 text-gray-800 font-bold';
+                        posIcon = <span title="Plata" className="mr-1">🥈</span>;
+                      } else if (idx === 2) {
+                        posBg = 'bg-amber-700 text-white font-bold';
+                        posIcon = <span title="Bronce" className="mr-1">🥉</span>;
+                      }
+                      return (
+                        <td key="posicion" className={`px-4 py-2 border-b text-center ${posBg}`}>
+                          {posIcon}{idx + 1}
+                        </td>
+                      );
+                    }
+                    if (col.key === 'tendencia') {
+                      return (
+                        <td key="tendencia" className="px-4 py-2 border-b whitespace-nowrap">
+                          {ranking.tendencia > 0 && (
+                            <span style={{ color: 'green', fontWeight: 'bold' }}>▲ +{ranking.tendencia}</span>
+                          )}
+                          {ranking.tendencia < 0 && (
+                            <span style={{ color: 'red', fontWeight: 'bold' }}>▼ {ranking.tendencia}</span>
+                          )}
+                          {ranking.tendencia === 0 && (
+                            <span style={{ color: '#888' }}>-</span>
+                          )}
+                          {ranking.tendencia === null && (
+                            <span style={{ color: '#888' }}>-</span>
                           )}
                         </td>
                       );

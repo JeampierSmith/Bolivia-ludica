@@ -10,13 +10,20 @@ export async function getProductos() {
 
 export async function createProducto(data) {
   const token = getToken();
+  // Siempre enviar JSON, nunca FormData aquí
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
+  };
+  // Asegura que imagenes sea array de string
+  const body = JSON.stringify({
+    ...data,
+    imagenes: Array.isArray(data.imagenes) ? data.imagenes : (data.imagenes ? [data.imagenes] : [])
+  });
   const res = await fetch(API_URL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
-    },
-    body: JSON.stringify(data)
+    headers,
+    body
   });
   let errorMsg = 'Error al crear producto';
   let errorBody = null;
@@ -48,7 +55,10 @@ export async function updateProducto(id, data) {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {})
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify({
+      ...data,
+      imagenes: Array.isArray(data.imagenes) ? data.imagenes : (data.imagenes ? [data.imagenes] : [])
+    })
   });
   if (!res.ok) throw new Error('Error al actualizar producto');
   return res.json();

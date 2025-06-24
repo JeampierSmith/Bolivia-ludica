@@ -30,19 +30,24 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit }) => {
   const [form, setForm] = useState(initialForm);
   const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (open) {
       if (initialData) {
         setForm({
+          ...initialForm,
           ...initialData,
-          imagenes: Array.isArray(initialData.imagenes) ? (initialData.imagenes[0] || '') : (initialData.imagenes || '')
+          precio: initialData.precio || '',
+          stock: initialData.stock || '',
+          imagenes: initialData.imagenes && initialData.imagenes.length > 0 ? initialData.imagenes[0] : '',
         });
-        setImageUrl(Array.isArray(initialData.imagenes) ? (initialData.imagenes[0] || '') : (initialData.imagenes || ''));
+        setImageUrl(initialData.imagenes && initialData.imagenes.length > 0 ? initialData.imagenes[0] : '');
       } else {
         setForm(initialForm);
         setImageUrl('');
       }
+      setError('');
     }
   }, [open, initialData]);
 
@@ -55,25 +60,36 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit }) => {
     if (!file) return;
     const data = new FormData();
     data.append('file', file);
+    // DEBUG: log productoId que se enviará
+    if (isEdit && initialData && initialData._id) {
+      console.log('Enviando productoId:', initialData._id);
+      data.append('productoId', initialData._id);
+    }
     setUploading(true);
     try {
-      const token = getToken();
+      const token = getToken && getToken();
       const res = await fetch(`${API_URL}/upload/producto`, {
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: data,
       });
       const result = await res.json();
+      if (!res.ok) throw new Error(result.message || 'Error subiendo la imagen');
       setImageUrl(result.url);
       setForm(f => ({ ...f, imagenes: result.url }));
     } catch (err) {
-      alert('Error subiendo la imagen');
+      setError('Error subiendo la imagen');
     }
     setUploading(false);
   };
 
   const handleSubmit = e => {
     e.preventDefault();
+    setError('');
+    if (!form.nombre || !form.precio) {
+      setError('Nombre y precio son obligatorios');
+      return;
+    }
     // Asegura que precio y stock sean números
     const parsedForm = {
       ...form,
@@ -125,6 +141,7 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit }) => {
               </select>
             </div>
           </div>
+          {error && <div className="text-red-600 text-sm mb-2">{error}</div>}
           <div className="flex justify-end gap-2">
             <button type="submit" className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">
               {isEdit ? 'Guardar Cambios' : 'Registrar'}

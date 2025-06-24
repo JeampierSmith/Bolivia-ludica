@@ -6,11 +6,12 @@ const usuarioSchema = new mongoose.Schema({
   contraseña: { type: String, required: true },
   rol: {
     type: String,
-    enum: ['cliente', 'admin'],
+    enum: ['cliente', 'admin', 'superadmin'],
     default: 'cliente'
   },
   direccion: { type: String },
-  telefono: { type: String }
+  telefono: { type: String },
+  estado: { type: String, enum: ['activo', 'inactivo'], default: 'activo' }
 }, { timestamps: true });
 
 

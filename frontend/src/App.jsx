@@ -25,6 +25,7 @@ import Usuarios from "./pages/admin/Usuarios.jsx";
 import Productos from "./pages/admin/Productos.jsx";
 import Pedidos from "./pages/admin/Pedidos.jsx";
 import Tiendas from "./pages/admin/Tiendas.jsx";
+import Clientes from "./pages/admin/Clientes.jsx";
 import PrivateRoute from './routes/PrivateRoutes';
 import AdminLogin from './pages/admin/login.jsx';
 import PerfilAdmin from './pages/admin/perfilAdmin.jsx';
@@ -67,6 +68,11 @@ const App = () => {
             <Route path="/admin/usuarios" element={
               <PrivateRoute>
                 <Dashboard><Usuarios /></Dashboard>
+              </PrivateRoute>
+            } />
+            <Route path="/admin/clientes" element={
+              <PrivateRoute>
+                <Dashboard><Clientes /></Dashboard>
               </PrivateRoute>
             } />
             <Route path="/admin/productos" element={
