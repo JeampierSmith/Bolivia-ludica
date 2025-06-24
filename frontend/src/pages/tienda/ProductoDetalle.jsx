@@ -41,6 +41,11 @@ const ProductoDetalle = () => {
     { nombre: 'María L.', texto: 'Ideal para jugar en familia. ¡Recomendado!', estrellas: 4 },
   ]);
 
+  const uploadsUrl = import.meta.env.VITE_UPLOADS_URL;
+  const imagenes = (producto.imagenes || [producto.imagen]).map(img => img?.startsWith('/uploads') ? uploadsUrl + img : img);
+  const [imagenSeleccionada, setImagenSeleccionada] = useState(imagenes[0]);
+  const [zoomAbierto, setZoomAbierto] = useState(false);
+
   if (!producto) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
@@ -49,11 +54,6 @@ const ProductoDetalle = () => {
       </div>
     );
   }
-
-  // Demo: galería de imágenes (en el futuro, producto.imagenes sería un array)
-  const imagenes = producto.imagenes || [producto.imagen];
-  const [imagenSeleccionada, setImagenSeleccionada] = useState(imagenes[0]);
-  const [zoomAbierto, setZoomAbierto] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#f7f7f9]">

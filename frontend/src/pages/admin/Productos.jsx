@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { getProductos, createProducto, updateProducto, deleteProducto } from '../../services/productoService';
+import { getToken } from '../../utils/auth';
 
 const API_URL = import.meta.env.VITE_API_URL;
+const UPLOADS_URL = import.meta.env.VITE_UPLOADS_URL;
 
 const columns = [
   { label: 'Id', key: '_id' },
+  { label: 'Imagen', key: 'imagenes', isImage: true },
   { label: 'Nombre', key: 'nombre' },
   { label: 'Descripción', key: 'descripcion' },
   { label: 'Precio', key: 'precio' },
@@ -31,8 +34,11 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit }) => {
   useEffect(() => {
     if (open) {
       if (initialData) {
-        setForm(initialData);
-        setImageUrl(initialData.imagenes || '');
+        setForm({
+          ...initialData,
+          imagenes: Array.isArray(initialData.imagenes) ? (initialData.imagenes[0] || '') : (initialData.imagenes || '')
+        });
+        setImageUrl(Array.isArray(initialData.imagenes) ? (initialData.imagenes[0] || '') : (initialData.imagenes || ''));
       } else {
         setForm(initialForm);
         setImageUrl('');
@@ -51,8 +57,10 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit }) => {
     data.append('file', file);
     setUploading(true);
     try {
+      const token = getToken();
       const res = await fetch(`${API_URL}/upload/producto`, {
         method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: data,
       });
       const result = await res.json();
@@ -66,7 +74,13 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit }) => {
 
   const handleSubmit = e => {
     e.preventDefault();
-    onSubmit(form);
+    // Asegura que precio y stock sean números
+    const parsedForm = {
+      ...form,
+      precio: Number(form.precio),
+      stock: Number(form.stock)
+    };
+    onSubmit(parsedForm);
   };
 
   if (!open) return null;
@@ -96,7 +110,9 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit }) => {
               <label className="block text-xs font-bold mb-1">Imagen</label>
               <input type="file" accept="image/*" onChange={handleFileChange} className="w-full border rounded px-2 py-1" />
               {uploading && <span className="text-xs text-blue-600">Subiendo imagen...</span>}
-              {imageUrl && <img src={imageUrl} alt="preview" className="mt-2 h-20" />}
+              {imageUrl && (
+                <img src={imageUrl.startsWith('/uploads') ? UPLOADS_URL + imageUrl : imageUrl} alt="preview" className="mt-2 h-20" />
+              )}
             </div>
             <div className="col-span-2">
               <label className="block text-xs font-bold mb-1">Categoría</label>
@@ -145,12 +161,14 @@ const Productos = () => {
   };
 
   const handleRegister = async (form) => {
+    // Asegura que imagenes sea siempre un array
+    const formData = { ...form, imagenes: form.imagenes ? [form.imagenes] : [] };
     try {
       if (isEdit && editData) {
-        await updateProducto(editData._id, form);
+        await updateProducto(editData._id, formData);
         showToast('Producto actualizado correctamente', 'success');
       } else {
-        await createProducto(form);
+        await createProducto(formData);
         showToast('Producto creado correctamente', 'success');
       }
       setModalOpen(false);
@@ -160,7 +178,10 @@ const Productos = () => {
       const data = await getProductos();
       setProductos(data);
     } catch (err) {
-      showToast(isEdit ? 'Error al actualizar producto' : 'Error al crear producto', 'error');
+      // Muestra el mensaje de error del backend si existe
+      let msg = isEdit ? 'Error al actualizar producto' : 'Error al crear producto';
+      if (err && err.message) msg += ': ' + err.message;
+      showToast(msg, 'error');
     } finally {
       setLoading(false);
     }
@@ -203,6 +224,14 @@ const Productos = () => {
 
   return (
     <div className="p-6">
+      {toast.show && (
+        <div className={`fixed top-6 right-6 z-[100] px-6 py-3 rounded shadow-lg text-white font-semibold transition-all ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
+          {toast.message}
+        </div>
+      )}
+      {!loading && productos.length === 0 && (
+        <div className="bg-yellow-100 text-yellow-800 p-3 rounded mb-4 text-center font-semibold">No se encontraron productos en la base de datos.</div>
+      )}
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center space-x-2">
           <span>Show</span>
@@ -267,6 +296,18 @@ const Productos = () => {
                         </td>
                       );
                     }
+                    if (col.isImage) {
+                      // Muestra la primera imagen si existe
+                      return (
+                        <td key="imagenes" className="px-4 py-2 border-b text-center">
+                          {producto.imagenes && producto.imagenes.length > 0 ? (
+                            <img src={(producto.imagenes[0]?.startsWith('/uploads') ? UPLOADS_URL + producto.imagenes[0] : producto.imagenes[0])} alt="img" className="h-12 mx-auto rounded shadow" />
+                          ) : (
+                            <span className="text-gray-400">Sin imagen</span>
+                          )}
+                        </td>
+                      );
+                    }
                     return (
                       <td key={col.key} className="px-4 py-2 border-b whitespace-nowrap">{producto[col.key]}</td>
                     );
@@ -306,11 +347,6 @@ const Productos = () => {
             </svg>
             <span className="text-blue-600 font-semibold">Cargando...</span>
           </div>
-        </div>
-      )}
-      {toast.show && (
-        <div className={`fixed top-6 right-6 z-[100] px-6 py-3 rounded shadow-lg text-white font-semibold transition-all ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
-          {toast.message}
         </div>
       )}
     </div>

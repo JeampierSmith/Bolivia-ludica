@@ -3,23 +3,35 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    // Inicializa el usuario desde localStorage si existe
+    const stored = localStorage.getItem('bludica_user');
+    return stored ? JSON.parse(stored) : null;
+  });
 
   useEffect(() => {
-    const stored = localStorage.getItem('bludica_user');
-    if (stored) setUser(JSON.parse(stored));
+    // Sincroniza el usuario si cambia localStorage (por ejemplo, en otra pestaña)
+    const syncUser = () => {
+      const stored = localStorage.getItem('bludica_user');
+      setUser(stored ? JSON.parse(stored) : null);
+    };
+    window.addEventListener('storage', syncUser);
+    return () => window.removeEventListener('storage', syncUser);
   }, []);
 
   const login = (data) => {
-    // TEMPORAL: Solo permite usuario 'admin@gmail.com' y contraseña 'admin' para probar el frontend
-    if ((data.email === 'admin@gmail.com' || data.usuario === 'admin@gmail.com') && data.password === 'admin') {
-      setUser({ email: 'admin@gmail.com', nombre: 'Admin' });
-      localStorage.setItem('bludica_user', JSON.stringify({ email: 'admin@gmail.com', nombre: 'Admin' }));
-      return true;
+    // Permite guardar tanto data.usuario+token como solo usuario
+    if (data && (data.token || data.rol)) {
+      setUser(data);
+      localStorage.setItem('bludica_user', JSON.stringify(data));
+    } else if (data && data.usuario) {
+      setUser(data.usuario);
+      localStorage.setItem('bludica_user', JSON.stringify(data.usuario));
     } else {
-      alert('Usuario o contraseña incorrectos. Use admin@gmail.com/admin para probar.');
-      return false;
+      setUser(null);
+      localStorage.removeItem('bludica_user');
     }
+    return true;
   };
   const logout = () => {
     setUser(null);

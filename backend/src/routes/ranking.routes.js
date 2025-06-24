@@ -1,10 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth.middleware');
-const { obtenerRanking, crearRegistroRanking, eliminarRanking } = require('../controllers/ranking.controller');
+const { 
+  obtenerRankings, 
+  obtenerRanking, 
+  crearRanking, 
+  actualizarRanking, 
+  eliminarRanking 
+} = require('../controllers/ranking.controller');
 
-router.get('/', obtenerRanking);
-router.post('/', auth.auth, auth.adminOnly, crearRegistroRanking);
-router.delete('/:id', auth.auth, auth.adminOnly, eliminarRanking);
+// Rutas para rankings
+router.get('/', obtenerRankings);
+router.get('/:id', obtenerRanking);
+router.post('/', crearRanking);
+router.put('/:id', actualizarRanking);
+router.delete('/:id', eliminarRanking);
 
 module.exports = router;

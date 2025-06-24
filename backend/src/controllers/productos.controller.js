@@ -1,4 +1,6 @@
 const Producto = require('../models/Producto');
+const fs = require('fs');
+const path = require('path');
 
 exports.obtenerProductos = async (req, res) => {
   const productos = await Producto.find(); // Ya no se hace populate
@@ -25,6 +27,24 @@ exports.actualizarProducto = async (req, res) => {
 };
 
 exports.eliminarProducto = async (req, res) => {
-  await Producto.findByIdAndDelete(req.params.id);
-  res.json({ msg: 'Producto eliminado' });
+  try {
+    const producto = await Producto.findById(req.params.id);
+    if (!producto) return res.status(404).json({ msg: 'Producto no encontrado' });
+    // Eliminar imágenes físicas
+    if (producto.imagenes && producto.imagenes.length > 0) {
+      producto.imagenes.forEach(imgPath => {
+        if (imgPath.startsWith('/uploads/')) {
+          const relativePath = imgPath.replace(/^\\|^\//, '');
+          const filePath = path.join(__dirname, '../../', relativePath);
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+        }
+      });
+    }
+    await Producto.findByIdAndDelete(req.params.id);
+    res.json({ msg: 'Producto eliminado' });
+  } catch (err) {
+    res.status(500).json({ msg: 'Error al eliminar producto', error: err.message });
+  }
 };

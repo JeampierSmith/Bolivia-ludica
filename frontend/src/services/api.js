@@ -139,4 +139,15 @@ export async function uploadTiendaLogo(file) {
   return res.json();
 }
 
+export async function uploadRankingAvatar(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await fetch(`${API_URL}/upload/ranking`, {
+    method: 'POST',
+    body: formData
+  });
+  if (!res.ok) throw new Error('Error al subir avatar de jugador');
+  return res.json();
+}
+
 // Puedes agregar servicios similares para otras entidades si es necesario.

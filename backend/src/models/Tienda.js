@@ -6,10 +6,15 @@ const tiendaSchema = new mongoose.Schema({
   especialidad: { type: String },
   logo: { type: String }, // Ruta o URL al logo
   descripcion: { type: String },
+  direccion: { type: String },
+  ambiente: [{ type: String }], // imágenes del ambiente
+  telefono: { type: String },
+  correo: { type: String },
+  horarios: { type: String },
+  tiktok: { type: String },
   redesSociales: {
     facebook: { type: String },
-    instagram: { type: String },
-    sitioWeb: { type: String }
+    instagram: { type: String }
   }
 }, { timestamps: true });
 

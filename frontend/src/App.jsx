@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from "./components/layout/Header/Header.jsx";
 import Footer from "./components/layout/Footer/Footer.jsx";
@@ -10,6 +10,7 @@ import Unete from "./components/features/pasaporte/Unete.jsx";
 import Comunidad from "./pages/Comunidad.jsx";
 import BoliviaPlay from "./pages/BoliviaPlay.jsx";
 import Ranking from "./pages/Ranking.jsx";
+import RankingAdmin from './pages/admin/Ranking.jsx';
 import ComunidadTienda from "./pages/ComunidadTienda.jsx";
 import Tienda from "./pages/tienda/Tienda.jsx";
 import Login from "./pages/tienda/Login.jsx";
@@ -24,16 +25,30 @@ import Usuarios from "./pages/admin/Usuarios.jsx";
 import Productos from "./pages/admin/Productos.jsx";
 import Pedidos from "./pages/admin/Pedidos.jsx";
 import Tiendas from "./pages/admin/Tiendas.jsx";
+import PrivateRoute from './routes/PrivateRoutes';
+import AdminLogin from './pages/admin/login.jsx';
+import PerfilAdmin from './pages/admin/perfilAdmin.jsx';
 
 
 const App = () => {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const [apiStatus, setApiStatus] = useState(null);
+
+  useEffect(() => {
+    fetch(import.meta.env.VITE_API_URL + '/productos')
+      .then(res => res.ok ? setApiStatus('ok') : setApiStatus('error'))
+      .catch(() => setApiStatus('error'));
+  }, []);
+
   return (
     <AuthProvider>
       <CartProvider>
         <div>
           {!isAdminRoute && <Header />}
+          {apiStatus === 'error' && (
+            <div className="bg-red-100 text-red-700 p-2 text-center font-bold">No se pudo conectar con el backend</div>
+          )}
           <Routes>
             <Route path="/" element={
               <>
@@ -43,12 +58,42 @@ const App = () => {
                 <FeaturedGames />
               </>
             } />
-            <Route path="/admin" element={<Dashboard />} />
-            <Route path="/admin/usuarios" element={<Dashboard><Usuarios /></Dashboard>} />
-            <Route path="/admin/productos" element={<Dashboard><Productos /></Dashboard>} />
-            <Route path="/admin/pedidos" element={<Dashboard><Pedidos /></Dashboard>} />
-            <Route path="/admin/tiendas" element={<Dashboard><Tiendas /></Dashboard>} />
-            <Route path="/admin/ranking" element={<Dashboard><Ranking /></Dashboard>} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            } />
+            <Route path="/admin/usuarios" element={
+              <PrivateRoute>
+                <Dashboard><Usuarios /></Dashboard>
+              </PrivateRoute>
+            } />
+            <Route path="/admin/productos" element={
+              <PrivateRoute>
+                <Dashboard><Productos /></Dashboard>
+              </PrivateRoute>
+            } />
+            <Route path="/admin/pedidos" element={
+              <PrivateRoute>
+                <Dashboard><Pedidos /></Dashboard>
+              </PrivateRoute>
+            } />
+            <Route path="/admin/tiendas" element={
+              <PrivateRoute>
+                <Dashboard><Tiendas /></Dashboard>
+              </PrivateRoute>
+            } />
+            <Route path="/admin/ranking" element={
+              <PrivateRoute>
+                <Dashboard><RankingAdmin /></Dashboard>
+              </PrivateRoute>
+            } />
+            <Route path="/admin/perfil" element={
+              <PrivateRoute>
+                <Dashboard><PerfilAdmin /></Dashboard>
+              </PrivateRoute>
+            } />
             <Route path="/unete" element={<Unete />} />
             <Route path="/comunidad" element={<Comunidad />} />
             <Route path="/comunidad/:tiendaSlug" element={<ComunidadTienda />} />

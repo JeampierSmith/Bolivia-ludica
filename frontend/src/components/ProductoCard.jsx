@@ -7,6 +7,9 @@ const ProductoCard = ({ producto, headingLevel = 3 }) => {
   const navigate = useNavigate();
   const [feedback, setFeedback] = React.useState(false);
 
+  const uploadsUrl = import.meta.env.VITE_UPLOADS_URL;
+  const imageUrl = producto.imagen?.startsWith('/uploads') ? uploadsUrl + producto.imagen : producto.imagen;
+
   const handleAdd = (e) => {
     e.preventDefault();
     addToCart(producto, 1);
@@ -46,7 +49,7 @@ const ProductoCard = ({ producto, headingLevel = 3 }) => {
         <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="text-gray-400 group-hover:text-red-500"><path d="M12 21C12 21 4 13.5 4 8.5C4 5.42 6.42 3 9.5 3C11.24 3 12.91 3.81 14 5.08C15.09 3.81 16.76 3 18.5 3C21.58 3 24 5.42 24 8.5C24 13.5 16 21 16 21H12Z" /></svg>
       </button>
       <div className="w-full aspect-square mb-4 rounded overflow-hidden flex items-center justify-center bg-gray-100">
-        <img src={producto.imagen} alt={producto.nombre} className="object-contain w-full h-full transition-transform group-hover:scale-105 duration-500 ease-in-out" />
+        <img src={imageUrl} alt={producto.nombre} className="object-contain w-full h-full transition-transform group-hover:scale-105 duration-500 ease-in-out" />
       </div>
       <Heading className="text-sm font-semibold text-black mb-1 line-clamp-2 min-h-[36px] bg-white px-1 rounded">{producto.nombre}</Heading>
       <p className="text-primary font-bold text-lg bg-white px-1 rounded text-black">{producto.precio}</p>

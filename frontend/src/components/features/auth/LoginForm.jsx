@@ -13,7 +13,8 @@ const LoginForm = ({ onLogin, onShowRegister }) => {
     setLoading(true);
     setError('');
     if (onLogin) {
-      const result = await onLogin({ email, password });
+      // Cambia los nombres de los campos para coincidir con el backend
+      const result = await onLogin({ correo: email, contraseña: password });
       if (result === false) {
         setError('Usuario o contraseña incorrectos.');
       }
@@ -23,7 +24,7 @@ const LoginForm = ({ onLogin, onShowRegister }) => {
 
   return (
     <>
-      {/* TEMPORAL: Para probar el frontend, use usuario: admin@gmail.com y contraseña: admin */}
+    
       <div className="mb-2 text-center text-xs text-orange-600 font-semibold bg-orange-50 border border-orange-200 rounded p-2">
         <strong>Prueba rápida:</strong> Usuario: <span className="font-mono bg-white text-black px-1 rounded">admin@gmail.com</span> &nbsp; Contraseña: <span className="font-mono bg-white text-black px-1 rounded">admin</span>
       </div>
