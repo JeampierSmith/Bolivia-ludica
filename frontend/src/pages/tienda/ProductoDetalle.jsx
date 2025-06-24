@@ -1,6 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import productos from './TiendaProductos.js';
 import { TiendaHeader } from './Tienda.jsx';
 import { useCart } from '../../components/common/CartContext.jsx';
 import Modal from '../../components/common/Modal.jsx';
@@ -12,18 +11,20 @@ function slugify(str) {
   return str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 }
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
 const ProductoDetalle = () => {
   const { productoSlug } = useParams();
-  const producto = productos.find(p => slugify(p.nombre) === productoSlug);
   const { addToCart } = useCart();
   const { login, user } = useAuth();
   // Modal login/registro state
   const [showAuth, setShowAuth] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
-  const [showReviewModal, setShowReviewModal] = useState(false);
-  const [reviewStars, setReviewStars] = useState(5);
-  const [reviewText, setReviewText] = useState("");
-  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [tab, setTab] = useState('descripcion');
+  const [feedback, setFeedback] = useState(false);
+  const [producto, setProducto] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [productosRelacionados, setProductosRelacionados] = useState([]);
 
   // Ocultar header global y restaurar al salir
   useEffect(() => {
@@ -34,18 +35,50 @@ const ProductoDetalle = () => {
     };
   }, []);
 
-  const [tab, setTab] = useState('descripcion');
-  const [feedback, setFeedback] = useState(false);
-  const [reviews, setReviews] = useState([
-    { nombre: 'Juan P.', texto: 'Muy buen producto, llegó rápido y en excelente estado.', estrellas: 4 },
-    { nombre: 'María L.', texto: 'Ideal para jugar en familia. ¡Recomendado!', estrellas: 4 },
-  ]);
+  useEffect(() => {
+    // Cargar productos y buscar el producto por slug
+    const fetchProducto = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/productos`);
+        const data = await res.json();
+        const prod = data.find(p => slugify(p.nombre) === productoSlug);
+        setProducto(prod || null);
+        // Relacionados: misma categoría, distinto nombre
+        setProductosRelacionados(
+          prod && prod.categoria
+            ? data.filter(p => p.categoria === prod.categoria && p.nombre !== prod.nombre).slice(0, 4)
+            : []
+        );
+      } catch (err) {
+        setProducto(null);
+        setProductosRelacionados([]);
+      }
+      setLoading(false);
+    };
+    fetchProducto();
+  }, [productoSlug]);
 
-  const uploadsUrl = import.meta.env.VITE_UPLOADS_URL;
-  const imagenes = (producto.imagenes || [producto.imagen]).map(img => img?.startsWith('/uploads') ? uploadsUrl + img : img);
+  const uploadsUrl = import.meta.env.VITE_UPLOADS_URL || '';
+  let imagenes = [];
+  if (producto) {
+    if (producto.imagenes && Array.isArray(producto.imagenes) && producto.imagenes.length > 0) {
+      imagenes = producto.imagenes.map(img => img?.startsWith('/uploads') ? uploadsUrl + img : img);
+    } else if (producto.imagen) {
+      imagenes = [producto.imagen.startsWith('/uploads') ? uploadsUrl + producto.imagen : producto.imagen];
+    } else {
+      imagenes = ["/assets/image/placeholder-product.png"];
+    }
+  }
   const [imagenSeleccionada, setImagenSeleccionada] = useState(imagenes[0]);
+  useEffect(() => {
+    setImagenSeleccionada(imagenes[0]);
+  }, [productoSlug, producto]);
   const [zoomAbierto, setZoomAbierto] = useState(false);
 
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-500">Cargando producto...</div>;
+  }
   if (!producto) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
@@ -104,9 +137,7 @@ const ProductoDetalle = () => {
               </span>
             )}
           </h1>
-          <div className="text-primary text-2xl font-bold mb-2">{producto.precio}</div>
-          <div className="mb-2 text-gray-600">Tiendas: <span className="font-semibold">{Array.isArray(producto.tiendas) ? producto.tiendas.join(', ') : producto.tienda}</span></div>
-          <div className="mb-6 text-gray-500">Departamentos: {Array.isArray(producto.departamentos) ? producto.departamentos.join(', ') : producto.departamento}</div>
+          <div className="text-primary text-2xl font-bold mb-2">{producto.precio} Bs</div>
           {/* Mostrar categoría si existe */}
           {producto.categoria && (
             <div className="mb-4">
@@ -155,7 +186,6 @@ const ProductoDetalle = () => {
           <div className="border-b flex gap-8 mb-4" role="tablist" aria-label="Secciones de producto">
             <button className={`py-2 px-4 font-bold transition border-b-2 ${tab === 'descripcion' ? 'border-primary text-primary' : 'border-transparent text-gray-500'}`} onClick={() => setTab('descripcion')} role="tab" aria-selected={tab==='descripcion'} aria-controls="tab-descripcion" id="tab-btn-descripcion">Descripción</button>
             <button className={`py-2 px-4 font-bold transition border-b-2 ${tab === 'detalles' ? 'border-primary text-primary' : 'border-transparent text-gray-500'}`} onClick={() => setTab('detalles')} role="tab" aria-selected={tab==='detalles'} aria-controls="tab-detalles" id="tab-btn-detalles">Detalles del producto</button>
-            <button className={`py-2 px-4 font-bold transition border-b-2 ${tab === 'reviews' ? 'border-primary text-primary' : 'border-transparent text-gray-500'}`} onClick={() => setTab('reviews')} role="tab" aria-selected={tab==='reviews'} aria-controls="tab-reviews" id="tab-btn-reviews">Reseñas</button>
             <button className={`py-2 px-4 font-bold transition border-b-2 ${tab === 'relacionados' ? 'border-primary text-primary' : 'border-transparent text-gray-500'}`} onClick={() => setTab('relacionados')} role="tab" aria-selected={tab==='relacionados'} aria-controls="tab-relacionados" id="tab-btn-relacionados">Relacionados</button>
           </div>
           {/* Contenido de tabs */}
@@ -169,89 +199,32 @@ const ProductoDetalle = () => {
             <div className="text-gray-700 mb-8" id="tab-detalles" role="tabpanel" aria-labelledby="tab-btn-detalles">
               <h2 className="text-xl font-bold mb-2">Detalles del producto</h2>
               <ul className="list-disc pl-6">
-                <li><b>Precio:</b> {producto.precio}</li>
-                <li><b>Tienda:</b> {producto.tienda}</li>
-                <li><b>Departamento:</b> {producto.departamento}</li>
+                <li><b>Precio:</b> {producto.precio} Bs</li>
                 {producto.categoria && <li><b>Categoría:</b> {producto.categoria}</li>}
                 {/* Puedes agregar más detalles técnicos aquí */}
               </ul>
-            </div>
-          )}
-          {tab === 'reviews' && (
-            <div className="text-gray-700 mb-8" id="tab-reviews" role="tabpanel" aria-labelledby="tab-btn-reviews">
-              <h2 className="text-xl font-bold mb-2">Reseñas de clientes</h2>
-              <div className="mb-4 flex items-center gap-2">
-                <span className="text-lg font-bold">
-                  {(() => {
-                    const total = reviews.length;
-                    const avg = total ? (reviews.reduce((a, r) => a + r.estrellas, 0) / total) : 0;
-                    const full = Math.floor(avg);
-                    const half = avg - full >= 0.5;
-                    return (
-                      <>
-                        {[...Array(full)].map((_,i)=>(<span key={i}>⭐</span>))}
-                        {half && <span>⭐</span>}
-                        {[...Array(5-full-(half?1:0))].map((_,i)=>(<span key={i+full+1}>☆</span>))}
-                      </>
-                    );
-                  })()}
-                </span>
-                <span className="text-sm">({(reviews.reduce((a, r) => a + r.estrellas, 0) / reviews.length || 0).toFixed(1)}) - {reviews.length} reseña{reviews.length!==1?'s':''}</span>
-              </div>
-              {reviews.map((r, idx) => (
-                <div key={idx} className="mb-2 p-3 bg-gray-50 rounded border">
-                  <div className="font-semibold flex items-center gap-2">{r.nombre}
-                    <span className="text-yellow-400 text-base">{[...Array(r.estrellas)].map((_,i)=>(<span key={i}>★</span>))}</span>
-                  </div>
-                  <div className="text-sm">{r.texto}</div>
-                </div>
-              ))}
-              <button
-                className="mt-4 bg-primary text-white px-4 py-2 rounded font-bold hover:bg-primary/90 transition"
-                onClick={() => {
-                  if (!user) {
-                    setShowAuth(true);
-                  } else {
-                    setShowReviewModal(true);
-                  }
-                }}
-                aria-label="Escribir reseña"
-              >
-                Escribir reseña
-              </button>
-              {/* Modal para escribir reseña */}
-              <Modal isOpen={showReviewModal} onClose={() => {
-                setShowReviewModal(false);
-                setReviewSubmitted(false);
-                setReviewText("");
-                setReviewStars(5);
-              }} ariaLabel="Escribir reseña">
-                <h3 className="text-xl font-bold mb-4 text-center">Escribe tu reseña</h3>
-                {reviewSubmitted ? (
-                  <div className="text-green-600 font-semibold text-center py-6">¡Gracias por tu reseña!</div>
-                ) : (
-                  <ReviewForm
-                    user={user}
-                    setReviews={setReviews}
-                    setReviewSubmitted={setReviewSubmitted}
-                    setShowReviewModal={setShowReviewModal}
-                  />
-                )}
-              </Modal>
             </div>
           )}
           {tab === 'relacionados' && (
             <div className="text-gray-700 mb-8" id="tab-relacionados" role="tabpanel" aria-labelledby="tab-btn-relacionados">
               <h2 className="text-xl font-bold mb-4">Productos relacionados</h2>
               <div className="grid grid-cols-2 gap-4">
-                {productos.filter(p => p.categoria === producto.categoria && p.nombre !== producto.nombre).slice(0, 4).map((rel, i) => (
-                  <div key={i} className="bg-white rounded shadow p-2 flex flex-col items-center border border-gray-100">
-                    <img src={rel.imagen} alt={rel.nombre} className="w-20 h-20 object-contain mb-2" />
-                    <div className="font-semibold text-sm text-center line-clamp-2 mb-1">{rel.nombre}</div>
-                    <div className="text-primary font-bold text-sm mb-1">{rel.precio}</div>
-                    <Link to={`/tienda/${slugify(rel.nombre)}`} className="text-xs text-primary underline" aria-label={`Ver detalle de ${rel.nombre}`}>Ver detalle</Link>
-                  </div>
-                ))}
+                {productosRelacionados.map((rel, i) => {
+                  let relImg = "/assets/image/placeholder-product.png";
+                  if (rel.imagenes && Array.isArray(rel.imagenes) && rel.imagenes.length > 0) {
+                    relImg = rel.imagenes[0]?.startsWith('/uploads') ? uploadsUrl + rel.imagenes[0] : rel.imagenes[0];
+                  } else if (rel.imagen) {
+                    relImg = rel.imagen.startsWith('/uploads') ? uploadsUrl + rel.imagen : rel.imagen;
+                  }
+                  return (
+                    <div key={i} className="bg-white rounded shadow p-2 flex flex-col items-center border border-gray-100">
+                      <img src={relImg} alt={rel.nombre} className="w-20 h-20 object-contain mb-2" />
+                      <div className="font-semibold text-sm text-center line-clamp-2 mb-1">{rel.nombre}</div>
+                      <div className="text-primary font-bold text-sm mb-1">{rel.precio} Bs</div>
+                      <Link to={`/tienda/${slugify(rel.nombre)}`} className="text-xs text-primary underline" aria-label={`Ver detalle de ${rel.nombre}`}>Ver detalle</Link>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -269,64 +242,5 @@ const ProductoDetalle = () => {
     </div>
   );
 };
-
-function ReviewForm({ user, setReviews, setReviewSubmitted, setShowReviewModal }) {
-  const textareaRef = React.useRef(null);
-  const [localText, setLocalText] = React.useState("");
-  const [localStars, setLocalStars] = React.useState(5);
-  React.useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  }, []);
-  return (
-    <form
-      onSubmit={e => {
-        e.preventDefault();
-        setReviews(prev => [
-          ...prev,
-          { nombre: user?.nombre || user?.email || 'Usuario', texto: localText, estrellas: localStars }
-        ]);
-        setReviewSubmitted(true);
-        setTimeout(() => {
-          setShowReviewModal(false);
-          setReviewSubmitted(false);
-        }, 1500);
-      }}
-      className="space-y-4"
-      autoComplete="off"
-    >
-      <div className="flex items-center justify-center gap-1 mb-2">
-        {[1,2,3,4,5].map(star => (
-          <span
-            key={star}
-            onClick={() => {
-              setLocalStars(star);
-              setTimeout(() => {
-                textareaRef.current?.focus();
-              }, 0);
-            }}
-            role="button"
-            tabIndex={0}
-            aria-label={`Puntuar ${star} estrella${star > 1 ? 's' : ''}`}
-            className={star <= localStars ? "text-yellow-400 text-3xl cursor-pointer" : "text-gray-300 text-3xl cursor-pointer"}
-          >
-            ★
-          </span>
-        ))}
-      </div>
-      <textarea
-        ref={textareaRef}
-        className="w-full border rounded p-2"
-        rows={4}
-        placeholder="¿Qué te pareció el producto?"
-        value={localText}
-        onChange={e => setLocalText(e.target.value)}
-        required
-      />
-      <button type="submit" className="w-full bg-primary text-white py-2 rounded font-bold hover:bg-primary/90 transition">Enviar reseña</button>
-    </form>
-  );
-}
 
 export default ProductoDetalle;

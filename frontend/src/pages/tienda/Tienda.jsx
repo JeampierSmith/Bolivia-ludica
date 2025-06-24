@@ -4,15 +4,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import LoginForm from '../../components/features/auth/LoginForm';
 import UneteForm from '../../components/features/auth/UneteForm';
 import Modal from '../../components/common/Modal';
-import productos from './TiendaProductos';
 import { useAuth } from '../../components/common/AuthContext';
 import { useCart } from '../../components/common/CartContext';
+
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 function slugify(str) {
   return str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 }
 
-// Productos de ejemplo con tiendas y departamentos reales
 const departamentos = [
   'Cochabamba',
   'La Paz',
@@ -33,18 +33,44 @@ const categorias = [
   'Otros',
 ];
 
+// Normaliza texto para búsqueda insensible a mayúsculas/minúsculas y acentos
+function normalizeText(str) {
+  return str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/[^a-z0-9\s-]/g, '');
+}
+
 const Tienda = () => {
   const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState('');
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('');
   const [busqueda, setBusqueda] = useState('');
   const [showAuth, setShowAuth] = useState(false); // Mostrar modal login/registro
   const [showRegister, setShowRegister] = useState(false);
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Cargar productos desde la API
+    const fetchProductos = async () => {
+      try {
+        const res = await fetch(`${API_URL}/productos`);
+        const data = await res.json();
+        setProductos(data);
+      } catch (err) {
+        setProductos([]);
+      }
+      setLoading(false);
+    };
+    fetchProductos();
+  }, []);
 
   // Filtrado por departamento, categoría y búsqueda
   const productosFiltrados = productos.filter(p => {
     const coincideDepto = departamentoSeleccionado ? (Array.isArray(p.departamentos) ? p.departamentos.includes(departamentoSeleccionado) : p.departamento === departamentoSeleccionado) : true;
     const coincideCategoria = categoriaSeleccionada ? (Array.isArray(p.categoria) ? p.categoria.includes(categoriaSeleccionada) : p.categoria === categoriaSeleccionada) : true;
-    const coincideBusqueda = p.nombre.toLowerCase().includes(busqueda.toLowerCase());
+    const coincideBusqueda = normalizeText(p.nombre).includes(normalizeText(busqueda));
     return coincideDepto && coincideCategoria && coincideBusqueda;
   });
 
@@ -58,19 +84,67 @@ const Tienda = () => {
 
   // Opcional: manejar login/register
   const { login } = useAuth();
+  const [authError, setAuthError] = useState('');
+  const [authSuccess, setAuthSuccess] = useState('');
+
   const handleLogin = async (data) => {
-    // TEMPORAL: Solo permite usuario y contraseña 'admin@gmail.com' para probar el frontend
-    const ok = await login(data);
-    if (ok) {
-      setShowAuth(false);
-      return true;
+    setAuthError('');
+    setAuthSuccess('');
+    try {
+      // Llamada real al backend para login
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correo: data.correo, contraseña: data.contraseña })
+      });
+      const result = await res.json();
+      if (res.ok && result.usuario && result.usuario.rol === 'cliente') {
+        login({ ...result.usuario, token: result.token });
+        setShowAuth(false);
+        setAuthSuccess('¡Bienvenido!');
+        return true;
+      } else if (res.ok && result.usuario) {
+        setAuthError('Solo los clientes pueden iniciar sesión en la tienda.');
+      } else {
+        setAuthError(result.msg || 'Usuario o contraseña incorrectos.');
+      }
+    } catch (err) {
+      setAuthError('Error de red al iniciar sesión.');
     }
     return false;
   };
-  const handleRegister = (data) => {
-    // Simulación de registro: guardar usuario en contexto
-    login({ email: data.email, nombre: data.nombre || data.email });
-    setShowAuth(false);
+
+  const handleRegister = async (data) => {
+    setAuthError('');
+    setAuthSuccess('');
+    try {
+      // Registro real en backend, forzando rol cliente (ruta pública)
+      const res = await fetch(`${API_URL}/usuarios/registro`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...data,
+          rol: 'cliente',
+          contraseña: data.password || data.contraseña // compatibilidad con ambos nombres
+        })
+      });
+      const result = await res.json();
+      if (res.ok) {
+        setAuthSuccess('¡Registro exitoso! Ahora puedes iniciar sesión.');
+        setShowRegister(false); // Cambia al formulario de login
+      } else {
+        setAuthError(result.msg || 'Error al registrar usuario');
+      }
+    } catch (err) {
+      setAuthError('Error de red al registrar usuario');
+    }
+  };
+
+  const handleShowAuth = (register = false) => {
+    setShowRegister(register);
+    setShowAuth(true);
+    setAuthError('');
+    setAuthSuccess('');
   };
 
   return (
@@ -80,62 +154,45 @@ const Tienda = () => {
         setDepartamentoSeleccionado={setDepartamentoSeleccionado}
         busqueda={busqueda}
         setBusqueda={setBusqueda}
-        onLoginClick={() => setShowAuth(true)}
+        onLoginClick={handleShowAuth}
       />
       <main className="container mx-auto px-4 py-10">
         <h1 className="text-4xl font-bold text-center mb-10 text-gray-900 tracking-wide">PRODUCTOS DESTACADOS</h1>
-        {/* Filtros visibles */}
-        <div className="flex flex-wrap gap-2 mb-8 justify-center">
-          {/* Filtros de departamento */}
-          <div className="flex flex-wrap gap-2">
-            <span className="font-semibold text-gray-700 mr-2">Departamento:</span>
-            <button
-              className={`px-3 py-1 rounded-full border text-sm font-medium transition ${!departamentoSeleccionado ? 'bg-primary text-white border-primary' : 'bg-white text-gray-700 border-gray-300 hover:bg-primary/10'}`}
-              onClick={() => setDepartamentoSeleccionado('')}
-            >
-              Todos
-            </button>
-            {departamentos.map(d => (
-              <button
-                key={d}
-                className={`px-3 py-1 rounded-full border text-sm font-medium transition ${departamentoSeleccionado === d ? 'bg-primary text-white border-primary' : 'bg-white text-gray-700 border-gray-300 hover:bg-primary/10'}`}
-                onClick={() => setDepartamentoSeleccionado(d)}
-              >
-                {d}
-              </button>
+        {/* Filtros de categoría */}
+        <div className="flex flex-wrap gap-2 justify-center mb-8">
+          <select
+            className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+            value={categoriaSeleccionada}
+            onChange={e => setCategoriaSeleccionada(e.target.value)}
+            aria-label="Filtrar por categoría"
+          >
+            <option value="">Todas las categorías</option>
+            {categorias.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
+        {loading ? (
+          <div className="text-center text-gray-500 py-10">Cargando productos...</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            {productosFiltrados.map((producto, idx) => (
+              <Link key={producto._id || idx} to={`/tienda/${slugify(producto.nombre)}`} aria-label={`Ver detalles de ${producto.nombre}`} title={`Ver detalles de ${producto.nombre}`}>
+                <ProductoCard producto={producto} headingLevel={2} />
+              </Link>
             ))}
           </div>
-          {/* Filtros de categoría */}
-          <div className="flex flex-wrap gap-2 ml-6">
-            <span className="font-semibold text-gray-700 mr-2">Categoría:</span>
-            <button
-              className={`px-3 py-1 rounded-full border text-sm font-medium transition ${!categoriaSeleccionada ? 'bg-primary text-white border-primary' : 'bg-white text-gray-700 border-gray-300 hover:bg-primary/10'}`}
-              onClick={() => setCategoriaSeleccionada('')}
-            >
-              Todas
-            </button>
-            {categorias.map(c => (
-              <button
-                key={c}
-                className={`px-3 py-1 rounded-full border text-sm font-medium transition ${categoriaSeleccionada === c ? 'bg-primary text-white border-primary' : 'bg-white text-gray-700 border-gray-300 hover:bg-primary/10'}`}
-                onClick={() => setCategoriaSeleccionada(c)}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {productosFiltrados.map((producto, idx) => (
-            <Link key={idx} to={`/tienda/${slugify(producto.nombre)}`} aria-label={`Ver detalles de ${producto.nombre}`} title={`Ver detalles de ${producto.nombre}`}>
-              <ProductoCard producto={producto} headingLevel={2} />
-            </Link>
-          ))}
-        </div>
+        )}
       </main>
       {/* Modal de login/registro */}
       <Modal isOpen={showAuth} onClose={() => setShowAuth(false)} ariaLabel={showRegister ? 'Registro' : 'Iniciar sesión'}>
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-900">{showRegister ? 'Crea tu cuenta' : 'Iniciar sesión'}</h2>
+        {authError && (
+          <div className="mb-2 text-center text-xs text-red-600 font-semibold bg-red-50 border border-red-200 rounded p-2">{authError}</div>
+        )}
+        {authSuccess && (
+          <div className="mb-2 text-center text-xs text-green-700 font-semibold bg-green-50 border border-green-200 rounded p-2">{authSuccess}</div>
+        )}
         {showRegister ? (
           <UneteForm onRegister={handleRegister} onShowLogin={() => setShowRegister(false)} />
         ) : (
@@ -266,15 +323,26 @@ export const TiendaHeader = ({ departamentoSeleccionado, setDepartamentoSeleccio
               </button>
             </>
           ) : (
-            <button
-              onClick={onLoginClick}
-              className="flex items-center gap-2 rounded-full p-2 text-gray-600 hover:text-primary hover:bg-primary/10 transition focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 font-semibold"
-              aria-label="Iniciar sesión"
-              title="Iniciar sesión"
-            >
-              <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" className="text-gray-700 group-hover:text-primary transition"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-              <span className="hidden lg:inline">Iniciar sesión</span>
-            </button>
+            <>
+              <button
+                onClick={() => onLoginClick(false)}
+                className="flex items-center gap-2 rounded-full p-2 text-gray-600 hover:text-primary hover:bg-primary/10 transition focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 font-semibold"
+                aria-label="Iniciar sesión"
+                title="Iniciar sesión"
+              >
+                <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" className="text-gray-700 group-hover:text-primary transition"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                <span className="hidden lg:inline">Iniciar sesión</span>
+              </button>
+              <button
+                onClick={() => onLoginClick(true)}
+                className="flex items-center gap-2 rounded-full p-2 text-gray-600 hover:text-green-600 hover:bg-green-100 transition focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 font-semibold ml-2"
+                aria-label="Registrarse"
+                title="Registrarse"
+              >
+                <svg width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" className="text-gray-700 group-hover:text-green-600 transition"><circle cx="12" cy="7" r="4" /><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><line x1="12" y1="11" x2="12" y2="17" /><line x1="9" y1="14" x2="15" y2="14" /></svg>
+                <span className="hidden lg:inline">Registrarse</span>
+              </button>
+            </>
           )}
         </div>
       </div>

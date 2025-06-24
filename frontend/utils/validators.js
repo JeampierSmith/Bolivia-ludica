@@ -18,7 +18,7 @@ export function minLength(value, length) {
   return value && value.length >= length;
 }
 
-// Valida que dos campos coincidan (ej: contraseña y confirmar)
+
 export function matches(value, other) {
   return value === other;
 }

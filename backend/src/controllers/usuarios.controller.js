@@ -21,11 +21,18 @@ exports.obtenerUsuarios = async (req, res) => {
 
 // Crear usuario
 exports.crearUsuario = async (req, res) => {
-  const { nombre, correo, contraseña, rol } = req.body;
+  const { nombre, correo, contraseña, rol, direccion, telefono } = req.body;
 
-  // Solo superadmin puede crear admin o superadmin
-  if ((rol === 'admin' || rol === 'superadmin') && req.usuario.rol !== 'superadmin') {
-    return res.status(403).json({ msg: 'Solo el superadmin puede crear usuarios admin o superadmin.' });
+  // Si no hay usuario autenticado, solo se permite crear clientes
+  if (!req.usuario) {
+    if (rol && rol !== 'cliente') {
+      return res.status(403).json({ msg: 'No autorizado para crear este tipo de usuario.' });
+    }
+  } else {
+    // Solo superadmin puede crear admin o superadmin
+    if ((rol === 'admin' || rol === 'superadmin') && req.usuario.rol !== 'superadmin') {
+      return res.status(403).json({ msg: 'Solo el superadmin puede crear usuarios admin o superadmin.' });
+    }
   }
 
   const existe = await Usuario.findOne({ correo });
@@ -35,10 +42,10 @@ exports.crearUsuario = async (req, res) => {
 
   const hash = await bcrypt.hash(contraseña, 10);
 
-  const nuevo = new Usuario({ nombre, correo, contraseña: hash, rol });
+  const nuevo = new Usuario({ nombre, correo, contraseña: hash, rol: rol || 'cliente', direccion, telefono });
   await nuevo.save();
 
-  res.status(201).json({ msg: 'Usuario creado.', usuario: { nombre, correo, rol } });
+  res.status(201).json({ msg: 'Usuario creado.', usuario: { nombre, correo, rol: rol || 'cliente' } });
 };
 
 // Eliminar usuario

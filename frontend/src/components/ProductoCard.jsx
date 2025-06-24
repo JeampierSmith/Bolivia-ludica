@@ -2,13 +2,34 @@ import React from 'react';
 import { useCart } from './common/CartContext';
 import { useNavigate } from 'react-router-dom';
 
+const placeholderImg = "/assets/image/placeholder-product.png"; // Usa un placeholder local o de dominio público
+
 const ProductoCard = ({ producto, headingLevel = 3 }) => {
   const { addToCart } = useCart();
   const navigate = useNavigate();
   const [feedback, setFeedback] = React.useState(false);
 
-  const uploadsUrl = import.meta.env.VITE_UPLOADS_URL;
-  const imageUrl = producto.imagen?.startsWith('/uploads') ? uploadsUrl + producto.imagen : producto.imagen;
+  const uploadsUrl = import.meta.env.VITE_UPLOADS_URL || '';
+  // SOPORTE PARA ARRAY DE IMÁGENES
+  let imageUrl = placeholderImg;
+  if (producto.imagenes && Array.isArray(producto.imagenes) && producto.imagenes.length > 0) {
+    const img = producto.imagenes[0];
+    if (img.startsWith('/uploads')) {
+      imageUrl = uploadsUrl + img;
+    } else if (img.startsWith('http')) {
+      imageUrl = img;
+    } else {
+      imageUrl = uploadsUrl + '/productos/' + img;
+    }
+  } else if (producto.imagen) {
+    if (producto.imagen.startsWith('/uploads')) {
+      imageUrl = uploadsUrl + producto.imagen;
+    } else if (producto.imagen.startsWith('http')) {
+      imageUrl = producto.imagen;
+    } else {
+      imageUrl = uploadsUrl + '/productos/' + producto.imagen;
+    }
+  }
 
   const handleAdd = (e) => {
     e.preventDefault();
@@ -49,10 +70,10 @@ const ProductoCard = ({ producto, headingLevel = 3 }) => {
         <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="text-gray-400 group-hover:text-red-500"><path d="M12 21C12 21 4 13.5 4 8.5C4 5.42 6.42 3 9.5 3C11.24 3 12.91 3.81 14 5.08C15.09 3.81 16.76 3 18.5 3C21.58 3 24 5.42 24 8.5C24 13.5 16 21 16 21H12Z" /></svg>
       </button>
       <div className="w-full aspect-square mb-4 rounded overflow-hidden flex items-center justify-center bg-gray-100">
-        <img src={imageUrl} alt={producto.nombre} className="object-contain w-full h-full transition-transform group-hover:scale-105 duration-500 ease-in-out" />
+        <img src={imageUrl} alt={producto.nombre} className="object-contain w-full h-full transition-transform group-hover:scale-105 duration-500 ease-in-out" onError={e => { e.target.onerror = null; e.target.src = placeholderImg; }} />
       </div>
       <Heading className="text-sm font-semibold text-black mb-1 line-clamp-2 min-h-[36px] bg-white px-1 rounded">{producto.nombre}</Heading>
-      <p className="text-primary font-bold text-lg bg-white px-1 rounded text-black">{producto.precio}</p>
+      <p className="text-primary font-bold text-lg bg-white px-1 rounded text-black">{producto.precio} Bs</p>
       {/* Botones de acción */}
       <div className="flex gap-2 mt-3 w-full justify-center">
         <button className="bg-primary text-white px-3 py-1 rounded font-semibold text-sm hover:bg-primary/90 transition" onClick={handleAdd}>Añadir al carrito</button>

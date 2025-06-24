@@ -13,16 +13,14 @@ const Confirmacion = () => {
   const [redirecting, setRedirecting] = React.useState(false);
   const [cancelRedirect, setCancelRedirect] = React.useState(false);
 
-  // Simulación de datos de pedido
-  const pedido = {
-    numero: 'BL-20250610-001',
-    productos: [
-      { nombre: 'Bolsa', cantidad: 2 },
-      { nombre: 'Camiseta', cantidad: 1 }
-    ],
-    total: 190,
-    email: 'usuario@ejemplo.com'
-  };
+  // Obtener datos del pedido desde localStorage (o puedes usar context/props si lo prefieres)
+  const pedido = React.useMemo(() => {
+    try {
+      const data = JSON.parse(localStorage.getItem('ultimoPedido'));
+      if (data && Array.isArray(data.productos) && data.total) return data;
+    } catch {}
+    return { numero: 'N/A', productos: [], total: 0, email: '' };
+  }, []);
 
   useEffect(() => {
     const globalHeader = document.querySelector('header.bg-card');
@@ -60,7 +58,7 @@ const Confirmacion = () => {
             ))}
           </ul>
           <div className="text-base font-bold text-green-700 mb-1">Total: Bs {pedido.total}</div>
-          <div className="text-xs text-gray-500">Confirmación enviada a <span className="font-mono">{pedido.email}</span></div>
+          {pedido.email && <div className="text-xs text-gray-500">Confirmación enviada a <span className="font-mono">{pedido.email}</span></div>}
         </div>
         <p className="mb-2">Gracias por tu compra. Pronto recibirás un correo con los detalles de tu pedido.</p>
         <p className="mb-2">Puedes seguir comprando o revisar tu perfil.</p>

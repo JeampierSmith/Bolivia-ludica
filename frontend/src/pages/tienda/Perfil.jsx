@@ -2,19 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../components/common/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { TiendaHeader } from './Tienda';
-import productos from './TiendaProductos';
 import Modal from '../../components/common/Modal';
 import LoginForm from '../../components/features/auth/LoginForm';
 import UneteForm from '../../components/features/auth/UneteForm';
 
-const pedidosEjemplo = [
-  { fecha: '2025-06-01', numero: '0001', estado: 'Entregado', total: 120, detalle: '/pedido/0001' },
-  { fecha: '2025-05-20', numero: '0002', estado: 'Pendiente', total: 80, detalle: '/pedido/0002' },
-];
-const favoritosEjemplo = [
-  { nombre: 'Bolígrafo', imagen: '/Bolivia-ludica/assets/image/productos/boligrafo.webp', precio: 'Bs 10' },
-  { nombre: 'Camiseta', imagen: '/Bolivia-ludica/assets/image/productos/camiseta.webp', precio: 'Bs 150' },
-];
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const Perfil = () => {
   const { user, logout, setUser, login } = useAuth();
@@ -43,6 +35,25 @@ const Perfil = () => {
       navigate('/tienda', { replace: true });
     }
   }, [user, showAuth, navigate]);
+  // Si hay usuario autenticado, obtener datos reales del backend
+  useEffect(() => {
+    const fetchPerfil = async () => {
+      if (!user || !user.token) return;
+      try {
+        const res = await fetch(`${API_URL}/usuarios/perfil`, {
+          headers: { 'Authorization': `Bearer ${user.token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setForm(data);
+          setUser && setUser({ ...user, ...data });
+        }
+      } catch (err) {
+        // Error al obtener perfil
+      }
+    };
+    fetchPerfil();
+  }, [user]);
   if (!user && !showAuth) {
     return null;
   }
@@ -50,12 +61,9 @@ const Perfil = () => {
   const validate = () => {
     const newErrors = {};
     if (!form.nombre?.trim()) newErrors.nombre = 'El nombre es obligatorio';
-    if (!form.apellido?.trim()) newErrors.apellido = 'El primer apellido es obligatorio';
-    if (!form.celular?.trim() || !/^\d{8}$/.test(form.celular)) newErrors.celular = 'Celular inválido (8 dígitos)';
-    if (!form.nacimiento) newErrors.nacimiento = 'Fecha de nacimiento obligatoria';
-    if (!form.sexo) newErrors.sexo = 'Selecciona tu sexo';
-    if (!form.tipoDocumento) newErrors.tipoDocumento = 'Selecciona tipo de documento';
-    if (!form.nroDocumento?.trim()) newErrors.nroDocumento = 'Número de documento obligatorio';
+    if (!form.correo?.trim()) newErrors.correo = 'El correo es obligatorio';
+    if (form.telefono && !/^\d{7,15}$/.test(form.telefono)) newErrors.telefono = 'Teléfono inválido';
+    if (editMode && form.nuevaContraseña && form.nuevaContraseña.length < 6) newErrors.nuevaContraseña = 'La contraseña debe tener al menos 6 caracteres';
     return newErrors;
   };
   const handleChange = e => {
@@ -63,13 +71,33 @@ const Perfil = () => {
     setForm(f => ({ ...f, [name]: value }));
     setErrors({ ...errors, [name]: undefined });
   };
-  const handleSave = e => {
+  const handleSave = async e => {
     e.preventDefault();
     const newErrors = validate();
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) {
-      setUser && setUser({ ...user, ...form });
-      setEditMode(false);
+      // Actualizar usuario en backend
+      try {
+        const res = await fetch(`${API_URL}/usuarios/${user._id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user.token}`
+          },
+          body: JSON.stringify(form)
+        });
+        if (res.ok) {
+          const updated = await res.json();
+          setUser && setUser({ ...user, ...updated });
+          setForm(updated);
+          setEditMode(false);
+        } else {
+          const errData = await res.json();
+          setErrors({ general: errData.msg || 'Error al actualizar perfil' });
+        }
+      } catch (err) {
+        setErrors({ general: 'Error de red al actualizar perfil' });
+      }
     }
   };
   const handleCancel = () => {
@@ -120,72 +148,38 @@ const Perfil = () => {
                     {errors.nombre && <div className="text-xs text-red-500 mt-1">{errors.nombre}</div>}
                   </div>
                   <div>
-                    <label htmlFor="apellido" className="block text-xs font-bold mb-1 text-black">Primer apellido *</label>
-                    <input id="apellido" type="text" name="apellido" className={`w-full border rounded px-3 py-2 bg-neutral-50 ${errors.apellido ? 'border-red-500' : ''}`} value={form.apellido ?? ''} onChange={handleChange} disabled={!editMode} aria-required="true" />
-                    {errors.apellido && <div className="text-xs text-red-500 mt-1">{errors.apellido}</div>}
+                    <label htmlFor="correo" className="block text-xs font-bold mb-1 text-black">Correo electrónico</label>
+                    <input id="correo" type="email" name="correo" className="w-full border rounded px-3 py-2 bg-white text-black" value={form.correo ?? ''} disabled aria-label="Correo electrónico" />
                   </div>
                   <div>
-                    <label htmlFor="segundoApellido" className="block text-xs font-bold mb-1 text-black">Segundo apellido</label>
-                    <input id="segundoApellido" type="text" name="segundoApellido" className="w-full border rounded px-3 py-2 bg-neutral-50" value={form.segundoApellido ?? ''} onChange={handleChange} disabled={!editMode} />
+                    <label htmlFor="telefono" className="block text-xs font-bold mb-1 text-black">Teléfono</label>
+                    <input id="telefono" type="text" name="telefono" className={`w-full border rounded px-3 py-2 bg-neutral-50 ${errors.telefono ? 'border-red-500' : ''}`} value={form.telefono ?? ''} onChange={handleChange} disabled={!editMode} />
+                    {errors.telefono && <div className="text-xs text-red-500 mt-1">{errors.telefono}</div>}
                   </div>
-                  <div>
-                    <label htmlFor="celular" className="block text-xs font-bold mb-1 text-black">Número de teléfono</label>
-                    <input id="celular" type="text" name="celular" className={`w-full border rounded px-3 py-2 bg-neutral-50 ${errors.celular ? 'border-red-500' : ''}`} value={form.celular ?? ''} onChange={handleChange} disabled={!editMode} />
-                    {errors.celular && <div className="text-xs text-red-500 mt-1">{errors.celular}</div>}
+                  <div className="md:col-span-2">
+                    <label htmlFor="direccion" className="block text-xs font-bold mb-1 text-black">Dirección</label>
+                    <input id="direccion" type="text" name="direccion" className="w-full border rounded px-3 py-2 bg-neutral-50" value={form.direccion ?? ''} onChange={handleChange} disabled={!editMode} />
                   </div>
-                  <div>
-                    <label htmlFor="nacimiento" className="block text-xs font-bold mb-1 text-black">Fecha de nacimiento</label>
-                    <input id="nacimiento" type="date" name="nacimiento" className={`w-full border rounded px-3 py-2 bg-neutral-50 ${errors.nacimiento ? 'border-red-500' : ''}`} value={form.nacimiento ?? ''} onChange={handleChange} disabled={!editMode} />
-                    {errors.nacimiento && <div className="text-xs text-red-500 mt-1">{errors.nacimiento}</div>}
-                  </div>
-                  <div>
-                    <label htmlFor="sexo" className="block text-xs font-bold mb-1 text-black">Sexo</label>
-                    {editMode ? (
-                      <select id="sexo" name="sexo" className={`w-full border rounded px-3 py-2 bg-neutral-50 text-black ${errors.sexo ? 'border-red-500' : ''}`} value={form.sexo || ''} onChange={handleChange} aria-required="true">
-                        <option value="">Selecciona</option>
-                        <option value="M">Masculino</option>
-                        <option value="F">Femenino</option>
-                        <option value="O">Otro</option>
-                      </select>
-                    ) : (
-                      <input id="sexo" name="sexo" type="text" className="w-full border rounded px-3 py-2 bg-neutral-50 text-black" value={form.sexo ?? ''} disabled aria-label="Sexo" />
-                    )}
-                    {errors.sexo && <div className="text-xs font-bold mt-1 text-red-700">{errors.sexo}</div>}
-                  </div>
-                  <div>
-                    <label htmlFor="tipoDocumento" className="block text-xs font-bold mb-1 text-black">Tipo de documento</label>
-                    {editMode ? (
-                      <select id="tipoDocumento" name="tipoDocumento" className={`w-full border rounded px-3 py-2 bg-neutral-50 text-black ${errors.tipoDocumento ? 'border-red-500' : ''}`} value={form.tipoDocumento || ''} onChange={handleChange} aria-required="true">
-                        <option value="">Selecciona</option>
-                        <option value="CI">Cédula de Identidad</option>
-                        <option value="PAS">Pasaporte</option>
-                        <option value="OTRO">Otro</option>
-                      </select>
-                    ) : (
-                      <input id="tipoDocumento" name="tipoDocumento" type="text" className="w-full border rounded px-3 py-2 bg-white text-black" value={form.tipoDocumento ?? 'Carnet de Identidad'} disabled aria-label="Tipo de documento" />
-                    )}
-                    {errors.tipoDocumento && <div className="text-xs font-bold mt-1 text-red-700 bg-white px-1 rounded">{errors.tipoDocumento}</div>}
-                  </div>
-                  <div>
-                    <label htmlFor="nroDocumento" className="block text-xs font-bold mb-1 text-black">Número de documento</label>
-                    <input id="nroDocumento" type="text" name="nroDocumento" className={`w-full border rounded px-3 py-2 bg-white text-black ${errors.nroDocumento ? 'border-red-500' : ''}`} value={form.nroDocumento ?? ''} onChange={handleChange} disabled={!editMode} aria-required="true" />
-                    {errors.nroDocumento && <div className="text-xs font-bold mt-1 text-red-700 bg-white px-1 rounded">{errors.nroDocumento}</div>}
-                  </div>
-                  <div className="col-span-2">
-                    <label htmlFor="email" className="block text-xs font-bold mb-1 text-black">Correo electrónico</label>
-                    <input id="email" type="email" className="w-full border rounded px-3 py-2 bg-white text-black" value={form.email ?? ''} disabled aria-label="Correo electrónico" />
-                  </div>
-                  {editMode ? (
-                    <div className="col-span-2 flex flex-col md:flex-row gap-2 mt-2">
-                      <button type="submit" className="bg-black text-white px-6 py-2 rounded font-bold w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" aria-label="Guardar cambios de perfil">Guardar</button>
-                      <button type="button" className="text-black font-bold underline w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" onClick={handleCancel} aria-label="Cancelar edición de perfil">Cancelar</button>
-                    </div>
-                  ) : (
-                    <div className="col-span-2 flex flex-col md:flex-row gap-2 mt-2">
-                      <button type="button" className="bg-black text-white px-6 py-2 rounded font-bold w-full md:w-auto" disabled>Guardar</button>
-                      <button type="button" className="text-black font-bold underline w-full md:w-auto">Cambiar contraseña</button>
+                  {editMode && (
+                    <div className="md:col-span-2">
+                      <label htmlFor="nuevaContraseña" className="block text-xs font-bold mb-1 text-black">Nueva contraseña (opcional)</label>
+                      <input id="nuevaContraseña" type="password" name="nuevaContraseña" className={`w-full border rounded px-3 py-2 bg-neutral-50 ${errors.nuevaContraseña ? 'border-red-500' : ''}`} value={form.nuevaContraseña ?? ''} onChange={handleChange} autoComplete="new-password" />
+                      {errors.nuevaContraseña && <div className="text-xs text-red-500 mt-1">{errors.nuevaContraseña}</div>}
                     </div>
                   )}
+                  <div className="col-span-2 flex flex-col md:flex-row gap-2 mt-2">
+                    {editMode ? (
+                      <>
+                        <button type="submit" className="bg-black text-white px-6 py-2 rounded font-bold w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" aria-label="Guardar cambios de perfil">Guardar</button>
+                        <button type="button" className="text-black font-bold underline w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" onClick={handleCancel} aria-label="Cancelar edición de perfil">Cancelar</button>
+                      </>
+                    ) : (
+                      <>
+                        <button type="button" className="bg-black text-white px-6 py-2 rounded font-bold w-full md:w-auto" disabled>Guardar</button>
+                        <button type="button" className="text-black font-bold underline w-full md:w-auto" onClick={() => setEditMode(true)}>Cambiar contraseña</button>
+                      </>
+                    )}
+                  </div>
                 </form>
               </>
             )}

@@ -12,13 +12,16 @@ export function CartProvider({ children }) {
 
   const addToCart = (producto, cantidad = 1) => {
     setCart(prev => {
-      const idx = prev.findIndex(p => p.nombre === producto.nombre);
+      const idx = prev.findIndex(p => p._id === producto._id);
       let nuevo;
       if (idx >= 0) {
         nuevo = [...prev];
         nuevo[idx].cantidad += cantidad;
       } else {
-        nuevo = [...prev, { ...producto, cantidad }];
+        // Asegura que el producto tenga _id
+        const prodConId = { ...producto };
+        if (!prodConId._id && producto.id) prodConId._id = producto.id;
+        nuevo = [...prev, { ...prodConId, cantidad }];
       }
       localStorage.setItem('bludica_cart', JSON.stringify(nuevo));
       return nuevo;
@@ -35,9 +38,18 @@ export function CartProvider({ children }) {
     setCart([]);
     localStorage.removeItem('bludica_cart');
   };
+  const updateQuantity = (nombre, cantidad) => {
+    setCart(prev => {
+      const nuevo = prev.map(p =>
+        p.nombre === nombre ? { ...p, cantidad: Math.max(1, cantidad) } : p
+      );
+      localStorage.setItem('bludica_cart', JSON.stringify(nuevo));
+      return nuevo;
+    });
+  };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart, updateQuantity }}>
       {children}
     </CartContext.Provider>
   );

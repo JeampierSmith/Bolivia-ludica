@@ -10,6 +10,14 @@ const {
   editarUsuario
 } = require('../controllers/usuarios.controller');
 
+// Registro público de clientes
+router.post('/registro', async (req, res) => {
+  // Solo permite rol cliente
+  req.body.rol = 'cliente';
+  // Llama directamente a la función importada crearUsuario
+  await crearUsuario(req, res);
+});
+
 // Usuario autenticado puede ver su perfil
 router.get('/perfil', auth.auth, obtenerPerfil);
 
