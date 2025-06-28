@@ -13,16 +13,6 @@ function slugify(str) {
   return str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 }
 
-const departamentos = [
-  'Cochabamba',
-  'La Paz',
-  'Santa Cruz',
-  'Oruro',
-  'Potosí',
-  'Sucre',
-  'Tarija',
-];
-
 const categorias = [
   'Juegos de Mesa',
   'Cartas TCG',
@@ -43,7 +33,6 @@ function normalizeText(str) {
 }
 
 const Tienda = () => {
-  const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState('');
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('');
   const [busqueda, setBusqueda] = useState('');
   const [showAuth, setShowAuth] = useState(false); // Mostrar modal login/registro
@@ -66,17 +55,13 @@ const Tienda = () => {
     fetchProductos();
   }, []);
 
-  // Filtrado por departamento, categoría y búsqueda
+  // Filtrado solo por categoría y búsqueda
   const productosFiltrados = productos.filter(p => {
-    const coincideDepto = departamentoSeleccionado ? (Array.isArray(p.departamentos) ? p.departamentos.includes(departamentoSeleccionado) : p.departamento === departamentoSeleccionado) : true;
     const coincideCategoria = categoriaSeleccionada ? (Array.isArray(p.categoria) ? p.categoria.includes(categoriaSeleccionada) : p.categoria === categoriaSeleccionada) : true;
     const coincideBusqueda = normalizeText(p.nombre).includes(normalizeText(busqueda));
-    return coincideDepto && coincideCategoria && coincideBusqueda;
+    return coincideCategoria && coincideBusqueda;
   });
 
- 
-
-  // Opcional: manejar login/register
   const { login } = useAuth();
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
@@ -144,8 +129,7 @@ const Tienda = () => {
   return (
     <div className="min-h-screen bg-[#f7f7f9]">
       <TiendaHeader 
-        departamentoSeleccionado={departamentoSeleccionado}
-        setDepartamentoSeleccionado={setDepartamentoSeleccionado}
+        
         busqueda={busqueda}
         setBusqueda={setBusqueda}
         onLoginClick={handleShowAuth}
@@ -197,7 +181,7 @@ const Tienda = () => {
   );
 };
 
-export const TiendaHeader = ({ departamentoSeleccionado, setDepartamentoSeleccionado, busqueda, setBusqueda, onLoginClick }) => {
+export const TiendaHeader = ({ busqueda, setBusqueda, onLoginClick }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, logout } = useAuth();
   const { cart } = useCart();
@@ -223,23 +207,6 @@ export const TiendaHeader = ({ departamentoSeleccionado, setDepartamentoSeleccio
         <nav className={`hidden md:flex gap-6 text-sm font-medium items-center`}>
           <Link to="/tienda" className="text-gray-700 hover:text-primary transition">Inicio</Link>
           <Link to="/sobre-nosotros" className="text-gray-700 hover:text-primary transition">Sobre Nosotros</Link>
-          <div className="relative group">
-            <button className="text-gray-700 hover:text-primary transition focus:outline-none flex items-center px-3 py-1 border border-gray-300 rounded-md bg-white shadow-sm">
-              {departamentoSeleccionado || 'Departamento'} <span className="ml-1 text-xs">▼</span>
-            </button>
-            <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 z-20 max-h-60 overflow-y-auto">
-              <button onClick={() => setDepartamentoSeleccionado('')} className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${!departamentoSeleccionado ? 'font-bold text-primary' : 'text-gray-700'}`}>Todos</button>
-              {departamentos.map((d) => (
-                <button
-                  key={d}
-                  onClick={() => setDepartamentoSeleccionado(d)}
-                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${departamentoSeleccionado === d ? 'font-bold text-primary' : 'text-gray-700'}`}
-                >
-                  {d}
-                </button>
-              ))}
-            </div>
-          </div>
         </nav>
         {/* Menú móvil */}
         {menuOpen && (
@@ -248,23 +215,6 @@ export const TiendaHeader = ({ departamentoSeleccionado, setDepartamentoSeleccio
               <Link to="/tienda" className="text-gray-700 hover:text-primary transition py-2" onClick={() => setMenuOpen(false)}>Inicio</Link>
               <Link to="/sobre-nosotros" className="text-gray-700 hover:text-primary transition py-2" onClick={() => setMenuOpen(false)}>Sobre Nosotros</Link>
               <div className="border-t my-2" />
-              <div className="relative">
-                <button className="text-gray-700 hover:text-primary transition focus:outline-none flex items-center px-3 py-1 border border-gray-300 rounded-md bg-white shadow-sm w-full" onClick={() => setMenuOpen(false)}>
-                  {departamentoSeleccionado || 'Departamento'} <span className="ml-1 text-xs">▼</span>
-                </button>
-                <div className="mt-2 w-full bg-white border border-gray-200 rounded shadow-lg max-h-60 overflow-y-auto">
-                  <button onClick={() => { setDepartamentoSeleccionado(''); setMenuOpen(false); }} className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${!departamentoSeleccionado ? 'font-bold text-primary' : 'text-gray-700'}`}>Todos</button>
-                  {departamentos.map((d) => (
-                    <button
-                      key={d}
-                      onClick={() => { setDepartamentoSeleccionado(d); setMenuOpen(false); }}
-                      className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${departamentoSeleccionado === d ? 'font-bold text-primary' : 'text-gray-700'}`}
-                    >
-                      {d}
-                    </button>
-                  ))}
-                </div>
-              </div>
               <div className="border-t my-2" />
               <button onClick={() => { setMenuOpen(false); onLoginClick(); }} className="text-gray-700 hover:text-primary transition flex items-center gap-1 py-2">
                 <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>

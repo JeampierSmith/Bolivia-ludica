@@ -37,3 +37,15 @@ exports.eliminarPedido = async (req, res) => {
     res.status(500).json({ msg: 'Error al eliminar pedido', error: err.message });
   }
 };
+
+// Obtener solo los pedidos del usuario autenticado
+exports.obtenerPedidosUsuario = async (req, res) => {
+  try {
+    const pedidos = await Pedido.find({ usuario: req.usuario.id })
+      .populate('usuario', 'nombre correo')
+      .populate('productos.producto', 'nombre precio imagen');
+    res.json(pedidos);
+  } catch (err) {
+    res.status(500).json({ msg: 'Error al obtener pedidos del usuario', error: err.message });
+  }
+};

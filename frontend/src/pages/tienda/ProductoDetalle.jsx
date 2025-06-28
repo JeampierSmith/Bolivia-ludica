@@ -25,6 +25,8 @@ const ProductoDetalle = () => {
   const [producto, setProducto] = useState(null);
   const [loading, setLoading] = useState(true);
   const [productosRelacionados, setProductosRelacionados] = useState([]);
+  const [authError, setAuthError] = useState('');
+  const [authSuccess, setAuthSuccess] = useState('');
 
   useEffect(() => {
     // Cargar productos y buscar el producto por slug
@@ -66,6 +68,57 @@ const ProductoDetalle = () => {
     setImagenSeleccionada(imagenes[0]);
   }, [productoSlug, producto]);
   const [zoomAbierto, setZoomAbierto] = useState(false);
+
+  const handleLogin = async (data) => {
+    setAuthError('');
+    setAuthSuccess('');
+    try {
+      const res = await fetch(`/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correo: data.correo, contraseña: data.contraseña })
+      });
+      const result = await res.json();
+      if (res.ok && result.usuario && result.usuario.rol === 'cliente') {
+        login({ ...result.usuario, token: result.token });
+        setShowAuth(false);
+        setAuthSuccess('¡Bienvenido!');
+        return true;
+      } else if (res.ok && result.usuario) {
+        setAuthError('Solo los clientes pueden iniciar sesión en la tienda.');
+      } else {
+        setAuthError(result.msg || 'Usuario o contraseña incorrectos.');
+      }
+    } catch (err) {
+      setAuthError('Error de red al iniciar sesión.');
+    }
+    return false;
+  };
+
+  const handleRegister = async (data) => {
+    setAuthError('');
+    setAuthSuccess('');
+    try {
+      const res = await fetch(`/api/usuarios/registro`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...data,
+          rol: 'cliente',
+          contraseña: data.password || data.contraseña
+        })
+      });
+      const result = await res.json();
+      if (res.ok) {
+        setAuthSuccess('¡Registro exitoso! Ahora puedes iniciar sesión.');
+        setShowRegister(false);
+      } else {
+        setAuthError(result.msg || 'Error al registrar usuario');
+      }
+    } catch (err) {
+      setAuthError('Error de red al registrar usuario');
+    }
+  };
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center text-gray-500">Cargando producto...</div>;
@@ -224,10 +277,16 @@ const ProductoDetalle = () => {
       {/* Modal de login/registro unificado */}
       <Modal isOpen={showAuth} onClose={() => setShowAuth(false)} ariaLabel={showRegister ? 'Registro' : 'Iniciar sesión'}>
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-900">{showRegister ? 'Crea tu cuenta' : 'Iniciar sesión'}</h2>
+        {authError && (
+          <div className="mb-2 text-center text-xs text-red-600 font-semibold bg-red-50 border border-red-200 rounded p-2">{authError}</div>
+        )}
+        {authSuccess && (
+          <div className="mb-2 text-center text-xs text-green-700 font-semibold bg-green-50 border border-green-200 rounded p-2">{authSuccess}</div>
+        )}
         {showRegister ? (
-          <UneteForm onRegister={data => {login({ email: data.email, nombre: data.nombre || data.email }); setShowAuth(false);}} onShowLogin={() => setShowRegister(false)} />
+          <UneteForm onRegister={handleRegister} onShowLogin={() => setShowRegister(false)} />
         ) : (
-          <LoginForm onLogin={async data => {const ok = await login(data); if (ok) setShowAuth(false); return ok;}} onShowRegister={() => setShowRegister(true)} />
+          <LoginForm onLogin={handleLogin} onShowRegister={() => setShowRegister(true)} />
         )}
       </Modal>
     </div>

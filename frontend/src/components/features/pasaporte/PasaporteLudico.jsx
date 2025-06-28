@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import UneteForm from '../auth/UneteForm.jsx';
 
 const PasaporteLudico = () => {
   const { t } = useTranslation();
+  const [showModal, setShowModal] = useState(false);
+
   return (
     <section className="py-16 relative overflow-hidden">
       <img
@@ -22,12 +24,28 @@ const PasaporteLudico = () => {
           </p>
         </div>
         <div className="flex justify-center" data-aos="zoom-in" data-aos-delay="200">
-          <Link to="/unete">
-            <button className="bg-primary text-primary-foreground px-8 py-3 rounded-md transition-all duration-300 animate-pulse hover:animate-none hover:scale-105 hover:shadow-lg hover:bg-primary/90 focus:animate-none">
-              {t('join')}
-            </button>
-          </Link>
+          <button
+            className="bg-primary text-primary-foreground px-8 py-3 rounded-md transition-all duration-300 animate-pulse hover:animate-none hover:scale-105 hover:shadow-lg hover:bg-primary/90 focus:animate-none"
+            onClick={() => setShowModal(true)}
+          >
+            {t('join')}
+          </button>
         </div>
+        {/* Modal */}
+        {showModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+            <div className="bg-white rounded-lg shadow-lg p-0 w-full max-w-md relative">
+              <button
+                className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-2xl"
+                onClick={() => setShowModal(false)}
+                aria-label="Cerrar"
+              >
+                &times;
+              </button>
+              <UneteForm onRegister={() => setShowModal(false)} />
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

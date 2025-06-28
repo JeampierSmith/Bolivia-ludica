@@ -8,6 +8,7 @@ services:
       - "27017:27017"
     volumes:
       - ./backend/mongo-data:/data/db
+      - ./mongo-dump:/docker-entrypoint-initdb.d
   backend:
     build: ./backend
     container_name: bolivialudica-backend
@@ -27,6 +28,6 @@ services:
     env_file:
       - ./frontend/.env
     ports:
-      - "8080:80"
+      - "5173:80"
     depends_on:
-      - backend 
+      - backend

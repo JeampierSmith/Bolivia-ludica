@@ -18,6 +18,9 @@ const Perfil = () => {
   const [form, setForm] = useState(user || {});
   const [errors, setErrors] = useState({});
   const [pedidoDetalle, setPedidoDetalle] = useState(null);
+  const [authError, setAuthError] = useState('');
+  const [authSuccess, setAuthSuccess] = useState('');
+  const [pedidos, setPedidos] = useState([]);
   const navigate = useNavigate();
   useEffect(() => {
     setForm(user || {});
@@ -54,6 +57,24 @@ const Perfil = () => {
       }
     };
     fetchPerfil();
+  }, [user]);
+  // Obtener pedidos del usuario autenticado
+  useEffect(() => {
+    const fetchPedidos = async () => {
+      if (!user || !user.token) return;
+      try {
+        const res = await fetch(`${API_URL}/pedidos/mis-pedidos`, {
+          headers: { 'Authorization': `Bearer ${user.token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setPedidos(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        setPedidos([]);
+      }
+    };
+    fetchPedidos();
   }, [user]);
   if (!user && !showAuth) {
     return null;
@@ -110,6 +131,56 @@ const Perfil = () => {
     // Ejemplo: para demo, retorna todos los productos
     // En un caso real, deberías asociar productos a cada pedido
     return productos.slice(0, 2); // Demo: los dos primeros productos
+  };
+  const handleLogin = async (data) => {
+    setAuthError('');
+    setAuthSuccess('');
+    try {
+      const res = await fetch(`/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correo: data.correo, contraseña: data.contraseña })
+      });
+      const result = await res.json();
+      if (res.ok && result.usuario && result.usuario.rol === 'cliente') {
+        login({ ...result.usuario, token: result.token });
+        setShowAuth(false);
+        setAuthSuccess('¡Bienvenido!');
+        return true;
+      } else if (res.ok && result.usuario) {
+        setAuthError('Solo los clientes pueden iniciar sesión en la tienda.');
+      } else {
+        setAuthError(result.msg || 'Usuario o contraseña incorrectos.');
+      }
+    } catch (err) {
+      setAuthError('Error de red al iniciar sesión.');
+    }
+    return false;
+  };
+
+  const handleRegister = async (data) => {
+    setAuthError('');
+    setAuthSuccess('');
+    try {
+      const res = await fetch(`/api/usuarios/registro`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...data,
+          rol: 'cliente',
+          contraseña: data.password || data.contraseña
+        })
+      });
+      const result = await res.json();
+      if (res.ok) {
+        setAuthSuccess('¡Registro exitoso! Ahora puedes iniciar sesión.');
+        setShowRegister(false);
+      } else {
+        setAuthError(result.msg || 'Error al registrar usuario');
+      }
+    } catch (err) {
+      setAuthError('Error de red al registrar usuario');
+    }
   };
   return (
     <div className="min-h-screen bg-[#f7f7f9]">
@@ -198,47 +269,62 @@ const Perfil = () => {
                     <table className="w-full text-sm bg-white">
                       <thead>
                         <tr className="text-left border-b">
-                          <th className="py-2">Fecha</th>
-                          <th>N° Pedido</th>
-                          <th>Estado</th>
+                          <th className="py-2">Usuario</th>
+                          <th>Productos</th>
                           <th>Total</th>
+                          <th>Estado</th>
+                          <th>Dirección</th>
+                          <th>Fecha</th>
                           <th>Detalle</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {pedidosEjemplo.map(p => (
-                          <tr key={p.numero} className="border-b hover:bg-gray-50">
-                            <td className="py-2">{p.fecha}</td>
-                            <td>{p.numero}</td>
-                            <td><span className="font-bold text-black bg-white px-1 rounded">{p.estado}</span></td>
-                            <td>Bs {p.total}</td>
-                            <td>
-                              <button
-                                className="text-primary underline"
-                                onClick={() => setPedidoDetalle(p)}
-                              >
-                                Ver
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
+                        {pedidos.length === 0 ? (
+                          <tr><td colSpan={7} className="text-center py-4 text-gray-500">No tienes pedidos registrados.</td></tr>
+                        ) : (
+                          pedidos.map(p => (
+                            <tr key={p._id || p.numero} className="border-b hover:bg-gray-50">
+                              <td>{p.usuario?.nombre || '-'}</td>
+                              <td>
+                                <ul className="list-disc pl-4">
+                                  {(p.productos || []).map((prod, i) => (
+                                    <li key={i}>
+                                      {prod.producto?.nombre || '-'} x{prod.cantidad}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </td>
+                              <td>Bs {p.total}</td>
+                              <td><span className="font-bold text-black bg-white px-1 rounded">{p.estado || '-'}</span></td>
+                              <td>{p.direccionEntrega || '-'}</td>
+                              <td>{p.fechaPedido ? new Date(p.fechaPedido).toLocaleDateString() : (p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '-')}</td>
+                              <td>
+                                <button
+                                  className="text-primary underline"
+                                  onClick={() => setPedidoDetalle(p)}
+                                >
+                                  Ver
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   ) : (
                     <div className="bg-neutral-50 rounded-xl shadow p-6 max-w-md mx-auto">
-                      <h3 className="text-xl font-bold mb-2 text-black">Detalle del pedido #{pedidoDetalle.numero}</h3>
-                      <div className="mb-2"><b>Fecha:</b> {pedidoDetalle.fecha}</div>
-                      <div className="mb-2"><b>Estado:</b> {pedidoDetalle.estado}</div>
+                      <h3 className="text-xl font-bold mb-2 text-black">Detalle del pedido #{pedidoDetalle.numero || pedidoDetalle._id?.slice(-6) || '-'}</h3>
+                      <div className="mb-2"><b>Fecha:</b> {pedidoDetalle.fecha ? new Date(pedidoDetalle.fecha).toLocaleDateString() : '-'}</div>
+                      <div className="mb-2"><b>Estado:</b> {pedidoDetalle.estado || '-'}</div>
                       <div className="mb-2"><b>Total:</b> Bs {pedidoDetalle.total}</div>
                       <div className="mb-4">
                         <b>Productos:</b>
                         <ul className="mt-2">
-                          {getProductosPedido(pedidoDetalle.numero).map((prod, idx) => (
+                          {(pedidoDetalle.productos || []).map((prod, idx) => (
                             <li key={idx} className="flex items-center gap-2 mb-2">
-                              <img src={prod.imagen} alt={prod.nombre} className="w-10 h-10 object-contain rounded border" />
-                              <span className="font-semibold text-black">{prod.nombre}</span>
-                              <span className="text-gray-500">{prod.precio}</span>
-                              <Link to={`/tienda/${prod.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`} className="text-primary underline text-xs ml-2">Ver producto</Link>
+                              <img src={prod.imagen || '/assets/image/placeholder-product.png'} alt={prod.nombre || 'Producto'} className="w-10 h-10 object-contain rounded border" />
+                              <span className="font-semibold text-black">{prod.nombre || '-'}</span>
+                              <span className="text-gray-500">{prod.precio ? `Bs ${prod.precio}` : ''}</span>
                             </li>
                           ))}
                         </ul>
@@ -256,16 +342,44 @@ const Perfil = () => {
             )}
             {tab === 'favoritos' && (
               <>
-                <h2 className="text-xl font-bold mb-4 text-black">Mi lista de deseos</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {favoritosEjemplo.map((f, i) => (
-                    <div key={i} className="bg-neutral-50 rounded shadow p-2 flex flex-col items-center border border-neutral-200">
-                      <img src={f.imagen} alt={f.nombre} className="w-16 h-16 object-contain mb-2" />
-                      <div className="font-semibold text-center text-sm text-black bg-white px-1 rounded">{f.nombre}</div>
-                      <div className="text-xs text-gray-800 bg-white px-1 rounded">{f.precio}</div>
-                      <Link to={`/tienda/${f.nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`} className="text-primary underline text-xs mt-1">Ver producto</Link>
-                    </div>
-                  ))}
+                <h2 className="text-xl font-bold mb-4 text-black">Mis pedidos (resumen)</h2>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm bg-white">
+                    <thead>
+                      <tr className="text-left border-b">
+                        <th className="py-2">Usuario</th>
+                        <th>Productos</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Dirección</th>
+                        <th>Fecha</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pedidos.length === 0 ? (
+                        <tr><td colSpan={6} className="text-center py-4 text-gray-500">No tienes pedidos registrados.</td></tr>
+                      ) : (
+                        pedidos.map((p, idx) => (
+                          <tr key={p._id || idx} className="border-b hover:bg-gray-50">
+                            <td>{p.usuario?.nombre || '-'}</td>
+                            <td>
+                              <ul className="list-disc pl-4">
+                                {(p.productos || []).map((prod, i) => (
+                                  <li key={i}>
+                                    {prod.producto?.nombre || '-'} x{prod.cantidad}
+                                  </li>
+                                ))}
+                              </ul>
+                            </td>
+                            <td>Bs {p.total}</td>
+                            <td><span className="font-bold text-black bg-white px-1 rounded">{p.estado || '-'}</span></td>
+                            <td>{p.direccionEntrega || '-'}</td>
+                            <td>{p.fechaPedido ? new Date(p.fechaPedido).toLocaleDateString() : (p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '-')}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </>
             )}
@@ -281,10 +395,16 @@ const Perfil = () => {
       {/* Modal de login/registro unificado */}
       <Modal isOpen={showAuth} onClose={() => setShowAuth(false)} ariaLabel={showRegister ? 'Registro' : 'Iniciar sesión'}>
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-900">{showRegister ? 'Crea tu cuenta' : 'Iniciar sesión'}</h2>
+        {authError && (
+          <div className="mb-2 text-center text-xs text-red-600 font-semibold bg-red-50 border border-red-200 rounded p-2">{authError}</div>
+        )}
+        {authSuccess && (
+          <div className="mb-2 text-center text-xs text-green-700 font-semibold bg-green-50 border border-green-200 rounded p-2">{authSuccess}</div>
+        )}
         {showRegister ? (
-          <UneteForm onRegister={data => {login({ email: data.email, nombre: data.nombre || data.email }); setShowAuth(false);}} onShowLogin={() => setShowRegister(false)} />
+          <UneteForm onRegister={handleRegister} onShowLogin={() => setShowRegister(false)} />
         ) : (
-          <LoginForm onLogin={async data => {const ok = await login(data); if (ok) setShowAuth(false); return ok;}} onShowRegister={() => setShowRegister(true)} />
+          <LoginForm onLogin={handleLogin} onShowRegister={() => setShowRegister(true)} />
         )}
       </Modal>
     </div>

@@ -1,4 +1,4 @@
-// Devuelve el token JWT guardado en localStorage (si existe)
+
 export function getToken() {
   try {
     const stored = localStorage.getItem('bludica_user');

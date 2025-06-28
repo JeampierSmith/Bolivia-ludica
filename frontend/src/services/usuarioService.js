@@ -1,21 +1,11 @@
 const API_URL = import.meta.env.VITE_API_URL + '/usuarios';
 
-function ensureArray(val) {
-  if (Array.isArray(val)) return val;
-  if (val && typeof val === 'object') {
-    if (Array.isArray(val.data)) return val.data;
-    return Object.values(val);
-  }
-  return [];
-}
-
 export async function getUsuarios() {
   const res = await fetch(API_URL, {
     credentials: 'include'
   });
   if (!res.ok) throw new Error('Error al obtener usuarios');
-  const data = await res.json();
-  return ensureArray(data);
+  return res.json();
 }
 
 export async function createUsuario(data) {

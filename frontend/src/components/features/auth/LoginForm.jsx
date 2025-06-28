@@ -24,10 +24,6 @@ const LoginForm = ({ onLogin, onShowRegister }) => {
 
   return (
     <>
-    
-      <div className="mb-2 text-center text-xs text-orange-600 font-semibold bg-orange-50 border border-orange-200 rounded p-2">
-        <strong>Prueba rápida:</strong> Usuario: <span className="font-mono bg-white text-black px-1 rounded">admin@gmail.com</span> &nbsp; Contraseña: <span className="font-mono bg-white text-black px-1 rounded">admin</span>
-      </div>
       {error && (
         <div className="mb-2 text-center text-xs text-red-600 font-semibold bg-red-50 border border-red-200 rounded p-2">
           {error}

@@ -38,9 +38,9 @@ const Footer = () => {
             <h3 className="text-lg font-bold mb-4 text-foreground">{t('contact')}</h3>
             {empresa ? (
               <>
-                <p className="text-[#222]"><a href={`mailto:${empresa.correo}`} className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('email')}: {empresa.correo}</a></p>
-                <p className="text-[#222]"><a href={`https://wa.me/${empresa.telefono.replace(/[^\d]/g, '')}`} className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('phone')}: {empresa.telefono}</a></p>
-                <p className="text-[#222]"><a href={`https://maps.google.com/?q=${encodeURIComponent(empresa.direccion)}`} className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('address')}: {empresa.direccion}</a></p>
+                <p className="text-[#222]"><a href={`mailto:${empresa.correo || ''}`} className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('email')}: {empresa.correo || 'N/A'}</a></p>
+                <p className="text-[#222]"><a href={`https://wa.me/${(empresa.telefono || '').replace ? empresa.telefono.replace(/[^\d]/g, '') : ''}`} className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('phone')}: {empresa.telefono || 'N/A'}</a></p>
+                <p className="text-[#222]"><a href={`https://maps.google.com/?q=${encodeURIComponent(empresa.direccion || '')}`} className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('address')}: {empresa.direccion || 'N/A'}</a></p>
                 {empresa.mensaje && <p className="text-[#222]">{empresa.mensaje}</p>}
               </>
             ) : (

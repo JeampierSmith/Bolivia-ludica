@@ -6,7 +6,6 @@ import Hero from "./components/features/Hero.jsx";
 import FeaturedGames from "./components/features/games/FeaturedGames.jsx";
 import StoresSection from "./components/features/stores/StoresSection.jsx";
 import PasaporteLudico from "./components/features/pasaporte/PasaporteLudico.jsx";
-import Unete from "./components/features/pasaporte/Unete.jsx";
 import Comunidad from "./pages/Comunidad.jsx";
 import BoliviaPlay from "./pages/BoliviaPlay.jsx";
 import Ranking from "./pages/Ranking.jsx";
@@ -111,7 +110,7 @@ const App = () => {
                 <Dashboard><Contactos /></Dashboard>
               </PrivateRoute>
             } />
-            <Route path="/unete" element={<Unete />} />
+       
             <Route path="/comunidad" element={<Comunidad />} />
             <Route path="/comunidad/:tiendaSlug" element={<ComunidadTienda />} />
             <Route path="/boliviaplay" element={<BoliviaPlay />} />
