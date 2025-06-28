@@ -29,11 +29,17 @@ import Clientes from "./pages/admin/Clientes.jsx";
 import PrivateRoute from './routes/PrivateRoutes';
 import AdminLogin from './pages/admin/login.jsx';
 import PerfilAdmin from './pages/admin/perfilAdmin.jsx';
+import Contactos from './pages/admin/Contactos.jsx';
 
 
 const App = () => {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isTiendaHeaderRoute = location.pathname.startsWith('/tienda') ||
+    location.pathname === '/carrito' ||
+    location.pathname === '/perfil' ||
+    location.pathname === '/login' ||
+    location.pathname === '/confirmacion';
   const [apiStatus, setApiStatus] = useState(null);
 
   useEffect(() => {
@@ -46,7 +52,7 @@ const App = () => {
     <AuthProvider>
       <CartProvider>
         <div>
-          {!isAdminRoute && <Header />}
+          {!isAdminRoute && !isTiendaHeaderRoute && <Header />}
           {apiStatus === 'error' && (
             <div className="bg-red-100 text-red-700 p-2 text-center font-bold">No se pudo conectar con el backend</div>
           )}
@@ -98,6 +104,11 @@ const App = () => {
             <Route path="/admin/perfil" element={
               <PrivateRoute>
                 <Dashboard><PerfilAdmin /></Dashboard>
+              </PrivateRoute>
+            } />
+            <Route path="/admin/contactos" element={
+              <PrivateRoute>
+                <Dashboard><Contactos /></Dashboard>
               </PrivateRoute>
             } />
             <Route path="/unete" element={<Unete />} />

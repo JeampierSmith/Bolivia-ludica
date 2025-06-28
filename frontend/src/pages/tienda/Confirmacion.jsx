@@ -23,10 +23,11 @@ const Confirmacion = () => {
   }, []);
 
   useEffect(() => {
+    // Eliminar el header global de la app al entrar a la página
     const globalHeader = document.querySelector('header.bg-card');
-    if (globalHeader) globalHeader.style.display = 'none';
+    if (globalHeader) globalHeader.remove();
     return () => {
-      if (globalHeader) globalHeader.style.display = '';
+      // No restaurar el header global al salir
     };
   }, []);
 

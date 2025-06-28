@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
     const stored = localStorage.getItem('bludica_user');
     return stored ? JSON.parse(stored) : null;
   });
+  const [logoutError, setLogoutError] = useState(null); // Nuevo estado para feedback
 
   useEffect(() => {
     // Sincroniza el usuario si cambia localStorage (por ejemplo, en otra pestaña)
@@ -33,13 +34,24 @@ export function AuthProvider({ children }) {
     }
     return true;
   };
-  const logout = () => {
+
+  // Logout seguro: borra cookie en backend y limpia usuario, con feedback visual
+  const logout = async () => {
     setUser(null);
     localStorage.removeItem('bludica_user');
+    setLogoutError(null);
+    try {
+      const res = await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      if (!res.ok) {
+        setLogoutError('Error al cerrar sesión. Intenta de nuevo.');
+      }
+    } catch (e) {
+      setLogoutError('Error de red al cerrar sesión.');
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, logoutError }}>
       {children}
     </AuthContext.Provider>
   );

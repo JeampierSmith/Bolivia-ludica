@@ -1,21 +1,20 @@
-import { getToken } from '../utils/auth';
-
 const API_URL = import.meta.env.VITE_API_URL + '/tiendas';
 const DEPT_API_URL = import.meta.env.VITE_API_URL + '/departamentos';
 
 export async function getTiendas() {
-  const res = await fetch(API_URL);
+  const res = await fetch(API_URL, {
+    credentials: 'include'
+  });
   if (!res.ok) throw new Error('Error al obtener tiendas');
   return res.json();
 }
 
 export async function createTienda(data) {
-  const token = getToken();
   const res = await fetch(API_URL, {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
     },
     body: JSON.stringify(data)
   });
@@ -32,22 +31,20 @@ export async function createTienda(data) {
 }
 
 export async function deleteTienda(id) {
-  const token = getToken();
   const res = await fetch(`${API_URL}/${id}`, {
     method: 'DELETE',
-    headers: token ? { Authorization: `Bearer ${token}` } : {}
+    credentials: 'include'
   });
   if (!res.ok) throw new Error('Error al eliminar tienda');
   return res.json();
 }
 
 export async function updateTienda(id, data) {
-  const token = getToken();
   const res = await fetch(`${API_URL}/${id}`, {
     method: 'PUT',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
     },
     body: JSON.stringify(data)
   });
@@ -56,7 +53,9 @@ export async function updateTienda(id, data) {
 }
 
 export async function getDepartamentos() {
-  const res = await fetch(DEPT_API_URL);
+  const res = await fetch(DEPT_API_URL, {
+    credentials: 'include'
+  });
   if (!res.ok) throw new Error('Error al obtener departamentos');
   return res.json();
 }

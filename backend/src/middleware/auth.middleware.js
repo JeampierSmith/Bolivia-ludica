@@ -46,3 +46,51 @@ exports.requireAdminOrSuperAdmin = (req, res, next) => {
   }
   next();
 };
+
+// Middleware para clientes (token en cookie bludica_cliente)
+exports.requireCliente = (req, res, next) => {
+  const token = req.cookies?.bludica_cliente;
+  if (!token) return res.status(403).json({ msg: 'Token de cliente requerido' });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.rol !== 'cliente') return res.status(403).json({ msg: 'Acceso solo para clientes' });
+    req.usuario = decoded;
+    next();
+  } catch (err) {
+    res.status(401).json({ msg: 'Token inválido o expirado' });
+  }
+};
+
+// Middleware para admin/superadmin (token en cookie bludica_admin)
+exports.requireAdmin = (req, res, next) => {
+  const token = req.cookies?.bludica_admin;
+  console.log('Middleware requireAdmin: cookie bludica_admin:', token);
+  if (!token) return res.status(403).json({ msg: 'Token de admin requerido' });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Middleware requireAdmin: payload decodificado:', decoded);
+    if (decoded.rol !== 'admin' && decoded.rol !== 'superadmin') {
+      console.log('Middleware requireAdmin: rol inválido:', decoded.rol);
+      return res.status(403).json({ msg: 'Acceso solo para administradores' });
+    }
+    req.usuario = decoded;
+    next();
+  } catch (err) {
+    console.log('Middleware requireAdmin: error al verificar token:', err);
+    res.status(401).json({ msg: 'Token inválido o expirado' });
+  }
+};
+
+// Middleware solo para superadmin (token en cookie bludica_admin)
+exports.requireSuperAdmin = (req, res, next) => {
+  const token = req.cookies?.bludica_admin;
+  if (!token) return res.status(403).json({ msg: 'Token de admin requerido' });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.rol !== 'superadmin') return res.status(403).json({ msg: 'Acceso solo para superadministradores' });
+    req.usuario = decoded;
+    next();
+  } catch (err) {
+    res.status(401).json({ msg: 'Token inválido o expirado' });
+  }
+};

@@ -9,13 +9,25 @@ const Login = () => {
   const [showModal, setShowModal] = useState(true);
   const { login } = useAuth();
 
-  // TEMPORAL: Solo permite usuario y contraseña 'admin' para probar el frontend
-  const handleLogin = (data) => {
-    const ok = login(data);
-    if (!ok) {
-      // El mensaje ya se muestra en AuthContext, pero aquí puedes agregar lógica extra si quieres
-    } else {
+  // Prefijo de API según entorno
+  const apiPrefix = import.meta.env.DEV ? '/api/' : `${import.meta.env.BASE_URL}api/`;
+  const loginUrl = `${apiPrefix}auth/login`;
+
+  const handleLogin = async (data) => {
+    try {
+      const res = await fetch(loginUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Importante para enviar/recibir cookies
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.msg || 'Error de autenticación');
+      login(result.usuario); // Solo datos de usuario, el token va en cookie
       setShowModal(false);
+      return true;
+    } catch (err) {
+      return false;
     }
   };
   const handleRegister = async (data) => {

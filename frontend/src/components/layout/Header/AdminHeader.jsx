@@ -6,7 +6,7 @@ const AdminHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, logoutError } = useAuth(); // Añadido logoutError
 
   // Cierra el menú si se hace clic fuera
   React.useEffect(() => {
@@ -23,10 +23,10 @@ const AdminHeader = () => {
     setMenuOpen(false);
     navigate('/admin/perfil');
   };
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setMenuOpen(false);
-    logout();
-    navigate('/login');
+    await logout();
+    navigate('/admin/login');
   };
 
   return (
@@ -58,6 +58,9 @@ const AdminHeader = () => {
             >
               <span role="img" aria-label="logout" className="mr-2">🚪</span> Cerrar sesión
             </button>
+            {logoutError && (
+              <span className="block px-5 py-2 text-xs text-red-600 bg-red-50 border-t border-red-200">{logoutError}</span>
+            )}
           </div>
         )}
       </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '../../components/common/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { TiendaHeader } from './Tienda';
@@ -7,8 +7,6 @@ import LoginForm from '../../components/features/auth/LoginForm';
 import UneteForm from '../../components/features/auth/UneteForm';
 import Modal from '../../components/common/Modal';
 import { createPedido } from '../../services/api';
-
-const WHATSAPP_NUMBER = '59177429542'; // Reemplaza con el número de WhatsApp destino (formato internacional, sin +)
 
 // Utilidad para obtener el precio numérico
 function getPrecioNumber(precio) {
@@ -30,14 +28,14 @@ const Carrito = () => {
   const navigate = useNavigate();
   const [showAuth, setShowAuth] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
+  const [empresa, setEmpresa] = useState(null);
   const total = cart.reduce((sum, p) => sum + (getPrecioNumber(p.precio) * p.cantidad), 0);
 
   useEffect(() => {
-    const globalHeader = document.querySelector('header.bg-card');
-    if (globalHeader) globalHeader.style.display = 'none';
-    return () => {
-      if (globalHeader) globalHeader.style.display = '';
-    };
+    fetch('/api/empresa', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setEmpresa(Array.isArray(data) ? data[0] : data))
+      .catch(() => setEmpresa(null));
   }, []);
 
   if (cart.length === 0) {
@@ -93,7 +91,9 @@ const Carrito = () => {
     const productosMsg = cart.map(p => `• ${p.nombre} x${p.cantidad} (Bs ${getPrecioNumber(p.precio).toFixed(2)})`).join('%0A');
     const totalMsg = `Total: Bs ${total.toFixed(2)}`;
     const mensaje = `¡Hola!%0AMi nombre es ${nombreUsuario}.%0AQuiero realizar un pedido con los siguientes productos:%0A${productosMsg}%0A${totalMsg}`;
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${mensaje}`;
+    // Usar el teléfono de la empresa si está disponible
+    const whatsappNumber = empresa?.telefono?.replace(/[^\d]/g, '') || '59177429542';
+    const url = `https://wa.me/${whatsappNumber}?text=${mensaje}`;
     window.open(url, '_blank');
     clearCart(); // Limpiar el carrito después de enviar
     // navigate('/confirmacion'); // Si tienes una página de confirmación, puedes redirigir después

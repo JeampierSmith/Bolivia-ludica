@@ -101,9 +101,13 @@ export async function getPedidos() {
 }
 
 export async function createPedido(data) {
+  const token = localStorage.getItem('token');
   const res = await fetch(`${API_URL}/pedidos`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    },
     body: JSON.stringify(data)
   });
   if (!res.ok) throw new Error('Error al crear pedido');

@@ -9,6 +9,7 @@ const menuItems = [
   { name: 'Usuarios', icon: '👤', path: `${BASE}/admin/usuarios` },
   { name: 'Clientes', icon: '🧑‍🤝‍🧑', path: `${BASE}/admin/clientes` },
   { name: 'Ranking', icon: '🏆', path: `${BASE}/admin/ranking` },
+  { name: 'Contactos', icon: '✉️', path: `${BASE}/admin/contactos` },
 ];
 
 const LOGO = `${BASE}/assets/image/LOGO-BOLIVIA-LUDICA.svg`;

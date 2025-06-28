@@ -26,15 +26,6 @@ const ProductoDetalle = () => {
   const [loading, setLoading] = useState(true);
   const [productosRelacionados, setProductosRelacionados] = useState([]);
 
-  // Ocultar header global y restaurar al salir
-  useEffect(() => {
-    const globalHeader = document.querySelector('header.bg-card');
-    if (globalHeader) globalHeader.style.display = 'none';
-    return () => {
-      if (globalHeader) globalHeader.style.display = '';
-    };
-  }, []);
-
   useEffect(() => {
     // Cargar productos y buscar el producto por slug
     const fetchProducto = async () => {

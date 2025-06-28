@@ -117,6 +117,15 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit }) => {
 
 const Usuarios = () => {
   const { user } = useAuth();
+  if (!user) return <Navigate to="/admin/login" replace />;
+  if (user.rol !== 'superadmin') return <Navigate to="/" replace />;
+
+
+  // --- PAGINACIÓN Y BUSQUEDA ---
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -127,12 +136,6 @@ const Usuarios = () => {
   const [redirect, setRedirect] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
-  if (!user) return <Navigate to="/admin/login" />;
-  if (user.rol !== 'superadmin') {
-    setTimeout(() => setRedirect(true), 2000);
-    return redirect ? <Navigate to="/admin" /> : <div>No autorizado. Redirigiendo al dashboard...</div>;
-  }
-
   useEffect(() => {
     setLoading(true);
     getUsuarios()
@@ -140,6 +143,22 @@ const Usuarios = () => {
       .catch(() => setUsuarios([]))
       .finally(() => setLoading(false));
   }, []);
+
+  // --- FILTRADO Y PAGINACIÓN ---
+  const filteredUsuarios = usuarios.filter(u => {
+    const term = search.trim().toLowerCase();
+    if (!term) return true;
+    return (
+      (u.nombre || "").toLowerCase().includes(term) ||
+      (u.correo || "").toLowerCase().includes(term) ||
+      (u.rol || "").toLowerCase().includes(term)
+    );
+  });
+  const totalEntries = filteredUsuarios.length;
+  const totalPages = Math.ceil(totalEntries / pageSize);
+  const startIdx = (page - 1) * pageSize;
+  const endIdx = Math.min(startIdx + pageSize, totalEntries);
+  const currentUsuarios = filteredUsuarios.slice(startIdx, endIdx);
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
@@ -219,27 +238,38 @@ const Usuarios = () => {
     setDeleteId(null);
   };
 
+  const handlePageSizeChange = e => {
+    setPageSize(Number(e.target.value));
+    setPage(1);
+  };
+  const handlePrev = () => setPage(p => Math.max(1, p - 1));
+  const handleNext = () => setPage(p => Math.min(totalPages, p + 1));
+  const handleSearchChange = e => {
+    setSearch(e.target.value);
+    setPage(1);
+  };
+
   return (
     <div className="p-6">
       {toast.show && (
-        <div className={`fixed top-6 right-6 z-[100] px-6 py-3 rounded shadow-lg text-white font-semibold transition-all ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
+        <div className={`fixed top-6 right-6 z-[100] px-6 py-3 rounded shadow-lg text-white font-semibold transition-all ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}> 
           {toast.message}
         </div>
       )}
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center space-x-2">
           <span>Show</span>
-          <select className="border rounded px-2 py-1 text-sm">
-            <option>10</option>
-            <option>25</option>
-            <option>50</option>
+          <select className="border rounded px-2 py-1 text-sm" value={pageSize} onChange={handlePageSizeChange}>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
           </select>
           <span>entries</span>
         </div>
         <button onClick={() => { setModalOpen(true); setIsEdit(false); setEditData(null); }} className="border border-black rounded p-2 hover:bg-black hover:text-white transition-colors text-xl font-bold">+</button>
         <div>
           <label className="mr-2">Search:</label>
-          <input className="border rounded px-2 py-1 text-sm" />
+          <input className="border rounded px-2 py-1 text-sm" value={search} onChange={handleSearchChange} placeholder="Buscar usuario..." />
         </div>
       </div>
       <div className="bg-white rounded-lg shadow p-4">
@@ -258,12 +288,12 @@ const Usuarios = () => {
               <tr>
                 <td colSpan={columns.length} className="text-center py-6">Loading...</td>
               </tr>
-            ) : usuarios.length === 0 ? (
+            ) : currentUsuarios.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="text-center py-6">No hay usuarios</td>
               </tr>
             ) : (
-              usuarios.map(usuario => (
+              currentUsuarios.map(usuario => (
                 <tr key={usuario._id}>
                   {columns.map(col => {
                     if (col.isAction && col.key === 'edit') {
@@ -301,6 +331,17 @@ const Usuarios = () => {
             )}
           </tbody>
         </table>
+        <div className="flex justify-between items-center mt-4">
+          <span className="text-xs">
+            {totalEntries === 0
+              ? 'Showing 0 to 0 of 0 entries'
+              : `Showing ${startIdx + 1} to ${endIdx} of ${totalEntries} entries`}
+          </span>
+          <div>
+            <button className="border rounded px-3 py-1 mr-2 text-xs" onClick={handlePrev} disabled={page === 1}>Previous</button>
+            <button className="border rounded px-3 py-1 text-xs" onClick={handleNext} disabled={page === totalPages || totalEntries === 0}>Next</button>
+          </div>
+        </div>
       </div>
       {/* Modal para crear/editar usuario */}
       <Modal open={modalOpen} onClose={handleModalClose} onSubmit={handleRegister} initialData={editData} isEdit={isEdit} />

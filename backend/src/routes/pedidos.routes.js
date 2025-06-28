@@ -3,10 +3,14 @@ const router = express.Router();
 const auth = require('../middleware/auth.middleware');
 const { obtenerPedidos, crearPedido, actualizarPedido, eliminarPedido } = require('../controllers/pedidos.controller');
 
-// Cambiado: permite admin o superadmin ver, editar y eliminar pedidos
-router.get('/', auth.auth, auth.requireAdminOrSuperAdmin, obtenerPedidos);
-router.post('/', auth.auth, crearPedido); // Clientes pueden crear pedido
-router.put('/:id', auth.auth, auth.requireAdminOrSuperAdmin, actualizarPedido);
-router.delete('/:id', auth.auth, auth.requireAdminOrSuperAdmin, eliminarPedido);
+// Admin o superadmin pueden hacer CRUD completo
+router.get('/', auth.requireAdmin, obtenerPedidos);
+router.post('/', auth.requireAdmin, crearPedido);
+router.put('/:id', auth.requireAdmin, actualizarPedido);
+router.delete('/:id', auth.requireAdmin, eliminarPedido);
+
+// Cliente puede crear y leer pedidos desde la tienda
+router.get('/tienda', auth.requireCliente, obtenerPedidos); // GET /api/pedidos/tienda
+router.post('/tienda', auth.requireCliente, crearPedido);  // POST /api/pedidos/tienda
 
 module.exports = router;

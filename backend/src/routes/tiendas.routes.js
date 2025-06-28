@@ -10,8 +10,8 @@ const {
 } = require('../controllers/tiendas.controller');
 
 router.get('/', obtenerTiendas);
-router.post('/', auth.auth, auth.requireAdminOrSuperAdmin, upload.single('imagen'), crearTienda);
-router.put('/:id', auth.auth, auth.requireAdminOrSuperAdmin, upload.single('imagen'), actualizarTienda);
-router.delete('/:id', auth.auth, auth.requireAdminOrSuperAdmin, eliminarTienda);
+router.post('/', auth.requireAdmin, upload.single('imagen'), crearTienda);
+router.put('/:id', auth.requireAdmin, upload.single('imagen'), actualizarTienda);
+router.delete('/:id', auth.requireAdmin, eliminarTienda);
 
 module.exports = router;

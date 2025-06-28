@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '../../components/common/AuthContext';
+import { Navigate } from 'react-router-dom';
 import { getRankings, createRanking, updateRanking, deleteRanking } from '../../services/rankingService';
 import { getDepartamentos, createDepartamento } from '../../services/departamentoService';
 import { uploadRankingAvatar } from '../../services/api';
@@ -222,6 +224,11 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit, departamentos, on
 };
 
 const Ranking = () => {
+  // --- PAGINACIÓN Y BUSQUEDA ---
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   const [rankings, setRankings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -316,10 +323,38 @@ const Ranking = () => {
   const ciudades = ['Todos', ...Array.from(new Set(rankings.map(r => r.ciudad)))];
   const nivelesUnicos = ['Todos', ...Array.from(new Set(rankings.map(r => r.nivel)))];
 
+  // --- FILTRADO Y PAGINACIÓN ---
   const rankingsFiltrados = rankings.filter(r =>
     (filtroCiudad === 'Todos' || r.ciudad === filtroCiudad) &&
     (filtroNivel === 'Todos' || r.nivel === filtroNivel)
-  );
+  ).filter(r => {
+    const term = search.trim().toLowerCase();
+    if (!term) return true;
+    return (
+      (r.jugador || "").toLowerCase().includes(term) ||
+      (r.ciudad || "").toLowerCase().includes(term) ||
+      (r.nivel || "").toLowerCase().includes(term) ||
+      (r.puntos + '').includes(term) ||
+      (r.victorias + '').includes(term) ||
+      (r.partidasJugadas + '').includes(term)
+    );
+  });
+  const totalEntries = rankingsFiltrados.length;
+  const totalPages = Math.ceil(totalEntries / pageSize);
+  const startIdx = (page - 1) * pageSize;
+  const endIdx = Math.min(startIdx + pageSize, totalEntries);
+  const currentRankings = rankingsFiltrados.slice(startIdx, endIdx);
+
+  const handlePageSizeChange = e => {
+    setPageSize(Number(e.target.value));
+    setPage(1);
+  };
+  const handlePrev = () => setPage(p => Math.max(1, p - 1));
+  const handleNext = () => setPage(p => Math.min(totalPages, p + 1));
+  const handleSearchChange = e => {
+    setSearch(e.target.value);
+    setPage(1);
+  };
 
   return (
     <div className="p-6">
@@ -334,17 +369,17 @@ const Ranking = () => {
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center space-x-2">
           <span>Show</span>
-          <select className="border rounded px-2 py-1 text-sm">
-            <option>10</option>
-            <option>25</option>
-            <option>50</option>
+          <select className="border rounded px-2 py-1 text-sm" value={pageSize} onChange={handlePageSizeChange}>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
           </select>
           <span>entries</span>
         </div>
         <button onClick={() => setModalOpen(true)} className="border border-black rounded p-2 hover:bg-black hover:text-white transition-colors text-xl font-bold">+</button>
         <div>
           <label className="mr-2">Search:</label>
-          <input className="border rounded px-2 py-1 text-sm" />
+          <input className="border rounded px-2 py-1 text-sm" value={search} onChange={handleSearchChange} placeholder="Buscar jugador, ciudad, nivel..." />
         </div>
       </div>
       <div className="flex gap-4 mb-4">
@@ -379,12 +414,12 @@ const Ranking = () => {
               <tr>
                 <td colSpan={columns.length} className="text-center py-6">Loading...</td>
               </tr>
-            ) : rankingsFiltrados.length === 0 ? (
+            ) : currentRankings.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="text-center py-6">No hay rankings</td>
               </tr>
             ) : (
-              rankingsFiltrados.map((ranking, idx) => (
+              currentRankings.map((ranking, idx) => (
                 <tr key={ranking._id}>
                   {columns.map(col => {
                     if (col.isAction && col.key === 'edit') {
@@ -471,10 +506,14 @@ const Ranking = () => {
           </tbody>
         </table>
         <div className="flex justify-between items-center mt-4">
-          <span className="text-xs">Showing 0 to 0 of 0 entries</span>
+          <span className="text-xs">
+            {totalEntries === 0
+              ? 'Showing 0 to 0 of 0 entries'
+              : `Showing ${startIdx + 1} to ${endIdx} of ${totalEntries} entries`}
+          </span>
           <div>
-            <button className="border rounded px-3 py-1 mr-2 text-xs">Previous</button>
-            <button className="border rounded px-3 py-1 text-xs">Next</button>
+            <button className="border rounded px-3 py-1 mr-2 text-xs" onClick={handlePrev} disabled={page === 1}>Previous</button>
+            <button className="border rounded px-3 py-1 text-xs" onClick={handleNext} disabled={page === totalPages || totalEntries === 0}>Next</button>
           </div>
         </div>
       </div>

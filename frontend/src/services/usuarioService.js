@@ -1,23 +1,29 @@
-import { getToken } from '../utils/auth';
-
 const API_URL = import.meta.env.VITE_API_URL + '/usuarios';
 
+function ensureArray(val) {
+  if (Array.isArray(val)) return val;
+  if (val && typeof val === 'object') {
+    if (Array.isArray(val.data)) return val.data;
+    return Object.values(val);
+  }
+  return [];
+}
+
 export async function getUsuarios() {
-  const token = getToken();
   const res = await fetch(API_URL, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {}
+    credentials: 'include'
   });
   if (!res.ok) throw new Error('Error al obtener usuarios');
-  return res.json();
+  const data = await res.json();
+  return ensureArray(data);
 }
 
 export async function createUsuario(data) {
-  const token = getToken();
   const res = await fetch(API_URL, {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
     },
     body: JSON.stringify(data)
   });
@@ -34,13 +40,11 @@ export async function createUsuario(data) {
 }
 
 export async function updateUsuario(id, data) {
-  const token = getToken();
-
   const res = await fetch(`${API_URL}/${id}`, {
     method: 'PUT',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
     },
     body: JSON.stringify(data)
   });
@@ -49,19 +53,17 @@ export async function updateUsuario(id, data) {
 }
 
 export async function deleteUsuario(id) {
-  const token = getToken();
   const res = await fetch(`${API_URL}/${id}`, {
     method: 'DELETE',
-    headers: token ? { Authorization: `Bearer ${token}` } : {}
+    credentials: 'include'
   });
   if (!res.ok) throw new Error('Error al eliminar usuario');
   return res.json();
 }
 
 export async function getUsuarioById(id) {
-  const token = getToken();
   const res = await fetch(`${API_URL}/${id}`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {}
+    credentials: 'include'
   });
   if (!res.ok) {
     let msg = 'Error al obtener usuario';

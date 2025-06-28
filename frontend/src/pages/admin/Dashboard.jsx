@@ -1,9 +1,14 @@
 import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../../components/common/AuthContext';
 import AdminSidebar from '../../components/layout/Header/AdminSidebar';
 import AdminHeader from '../../components/layout/Header/AdminHeader';
 import AdminFooter from '../../components/layout/Footer/AdminFooter';
 
 const Dashboard = ({ children }) => {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/admin/login" replace />;
+  if (user.rol !== 'admin' && user.rol !== 'superadmin') return <Navigate to="/" replace />;
   return (
     <div className="flex min-h-screen bg-white">
       <AdminSidebar />

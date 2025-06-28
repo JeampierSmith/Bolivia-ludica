@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth.middleware');
-const { requireRole, requireSuperAdmin, requireAdminOrSuperAdmin } = require('../middleware/auth.middleware');
+const { requireSuperAdmin, requireCliente } = require('../middleware/auth.middleware');
 const {
   obtenerPerfil,
   obtenerUsuarios,
@@ -18,41 +18,13 @@ router.post('/registro', async (req, res) => {
   await crearUsuario(req, res);
 });
 
-// Usuario autenticado puede ver su perfil
-router.get('/perfil', auth.auth, obtenerPerfil);
+// Cliente autenticado puede ver su perfil
+router.get('/perfil', auth.requireCliente, obtenerPerfil);
 
-// Admin puede ver solo clientes, superadmin ve todos
-router.get('/', auth.auth, requireAdminOrSuperAdmin, obtenerUsuarios);
-
-// Solo superadmin puede crear usuarios admin o superadmin, admin puede crear clientes (la lógica está en el controlador)
-router.post('/', auth.auth, requireAdminOrSuperAdmin, crearUsuario);
-
-// Solo superadmin puede eliminar admin/superadmin, admin puede eliminar clientes (la lógica está en el controlador)
-router.delete('/:id', auth.auth, requireAdminOrSuperAdmin, eliminarUsuario);
-
-// Solo superadmin puede cambiar el rol de un usuario
-router.patch('/:id/rol', auth.auth, requireSuperAdmin, async (req, res) => {
-  const { rol } = req.body;
-  if (!['cliente', 'admin', 'superadmin'].includes(rol)) {
-    return res.status(400).json({ msg: 'Rol no válido' });
-  }
-  const usuario = await require('../models/Usuario').findByIdAndUpdate(req.params.id, { rol }, { new: true });
-  if (!usuario) return res.status(404).json({ msg: 'Usuario no encontrado' });
-  res.json({ msg: 'Rol actualizado', usuario });
-});
-
-// Editar usuario (admin puede editar clientes, superadmin puede editar todos)
-router.put('/:id', auth.auth, requireAdminOrSuperAdmin, editarUsuario);
-
-// Obtener usuario por ID (admin o superadmin)
-router.get('/:id', auth.auth, requireAdminOrSuperAdmin, async (req, res) => {
-  try {
-    const usuario = await require('../models/Usuario').findById(req.params.id).select('-contraseña');
-    if (!usuario) return res.status(404).json({ msg: 'Usuario no encontrado' });
-    res.json(usuario);
-  } catch (err) {
-    res.status(400).json({ msg: 'Error al obtener usuario', error: err.message });
-  }
-});
+// Solo superadmin puede ver, crear, eliminar y editar usuarios
+router.get('/', auth.requireSuperAdmin, obtenerUsuarios);
+router.post('/', auth.requireSuperAdmin, crearUsuario);
+router.delete('/:id', auth.requireSuperAdmin, eliminarUsuario);
+router.patch('/:id/rol', auth.requireSuperAdmin, editarUsuario);
 
 module.exports = router;

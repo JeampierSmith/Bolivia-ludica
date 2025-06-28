@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const pedidoSchema = new mongoose.Schema({
   usuario: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', required: true },
+  nombreCliente: { type: String }, 
   productos: [{
     producto: { type: mongoose.Schema.Types.ObjectId, ref: 'Producto' },
     cantidad: { type: Number, default: 1 }

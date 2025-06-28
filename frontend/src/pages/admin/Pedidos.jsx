@@ -81,6 +81,11 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit }) => {
 
   const handleSubmit = e => {
     e.preventDefault();
+    // Validar que el usuario seleccionado es un cliente válido
+    if (!clientes.find(c => c._id === form.usuario)) {
+      alert('Debes seleccionar un cliente válido.');
+      return;
+    }
     // Agregar fechaPedido automáticamente
     const data = { ...form, total, fechaPedido: new Date().toISOString().split('T')[0] };
     onSubmit(data);
@@ -141,6 +146,11 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit }) => {
 };
 
 const Pedidos = () => {
+  // --- PAGINACIÓN Y BUSQUEDA ---
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   const [pedidos, setPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -149,6 +159,25 @@ const Pedidos = () => {
   const [error, setError] = useState('');
   const [deleteId, setDeleteId] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // --- FILTRADO Y PAGINACIÓN ---
+  const filteredPedidos = pedidos.filter(p => {
+    const term = search.trim().toLowerCase();
+    if (!term) return true;
+    return (
+      (p.usuario?.nombre || p.usuario || "").toLowerCase().includes(term) ||
+      (p.estado || "").toLowerCase().includes(term) ||
+      (p.direccionEntrega || "").toLowerCase().includes(term) ||
+      (p.productos && p.productos.map(prod => (prod.producto?.nombre || prod.producto || "")).join(", ").toLowerCase().includes(term)) ||
+      (p.total + '').includes(term) ||
+      (p.fechaPedido ? new Date(p.fechaPedido).toLocaleDateString().toLowerCase().includes(term) : false)
+    );
+  });
+  const totalEntries = filteredPedidos.length;
+  const totalPages = Math.ceil(totalEntries / pageSize);
+  const startIdx = (page - 1) * pageSize;
+  const endIdx = Math.min(startIdx + pageSize, totalEntries);
+  const currentPedidos = filteredPedidos.slice(startIdx, endIdx);
 
   const fetchPedidos = async () => {
     setLoading(true);
@@ -170,7 +199,6 @@ const Pedidos = () => {
     try {
       await createPedido({
         ...form,
-        productos: form.productos.split(',').map(p => ({ producto: p.trim(), cantidad: 1 })),
         total: Number(form.total),
         estado: form.estado,
         direccionEntrega: form.direccionEntrega,
@@ -199,7 +227,7 @@ const Pedidos = () => {
     try {
       await updatePedido(editData._id, {
         ...form,
-        productos: form.productos.split(',').map(p => ({ producto: p.trim(), cantidad: 1 })),
+        // productos ya es un array de objetos { producto, cantidad }
         total: Number(form.total),
         estado: form.estado,
         direccionEntrega: form.direccionEntrega,
@@ -233,22 +261,33 @@ const Pedidos = () => {
     setDeleteId(null);
   };
 
+  const handlePageSizeChange = e => {
+    setPageSize(Number(e.target.value));
+    setPage(1);
+  };
+  const handlePrev = () => setPage(p => Math.max(1, p - 1));
+  const handleNext = () => setPage(p => Math.min(totalPages, p + 1));
+  const handleSearchChange = e => {
+    setSearch(e.target.value);
+    setPage(1);
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center space-x-2">
           <span>Show</span>
-          <select className="border rounded px-2 py-1 text-sm">
-            <option>10</option>
-            <option>25</option>
-            <option>50</option>
+          <select className="border rounded px-2 py-1 text-sm" value={pageSize} onChange={handlePageSizeChange}>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
           </select>
           <span>entries</span>
         </div>
         <button onClick={() => setModalOpen(true)} className="border border-black rounded p-2 hover:bg-black hover:text-white transition-colors text-xl font-bold">+</button>
         <div>
           <label className="mr-2">Search:</label>
-          <input className="border rounded px-2 py-1 text-sm" />
+          <input className="border rounded px-2 py-1 text-sm" value={search} onChange={handleSearchChange} placeholder="Buscar pedido..." />
         </div>
       </div>
       <div className="bg-white rounded-lg shadow p-4">
@@ -266,12 +305,12 @@ const Pedidos = () => {
               <tr>
                 <td colSpan={columns.length} className="text-center py-6">Loading...</td>
               </tr>
-            ) : pedidos.length === 0 ? (
+            ) : currentPedidos.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="text-center py-6">No hay pedidos</td>
               </tr>
             ) : (
-              pedidos.map(pedido => (
+              currentPedidos.map(pedido => (
                 <tr key={pedido._id}>
                   {columns.map(col => {
                     if (col.isAction && col.key === 'edit') {
@@ -321,10 +360,14 @@ const Pedidos = () => {
           </tbody>
         </table>
         <div className="flex justify-between items-center mt-4">
-          <span className="text-xs">Showing 0 to 0 of 0 entries</span>
+          <span className="text-xs">
+            {totalEntries === 0
+              ? 'Showing 0 to 0 of 0 entries'
+              : `Showing ${startIdx + 1} to ${endIdx} of ${totalEntries} entries`}
+          </span>
           <div>
-            <button className="border rounded px-3 py-1 mr-2 text-xs">Previous</button>
-            <button className="border rounded px-3 py-1 text-xs">Next</button>
+            <button className="border rounded px-3 py-1 mr-2 text-xs" onClick={handlePrev} disabled={page === 1}>Previous</button>
+            <button className="border rounded px-3 py-1 text-xs" onClick={handleNext} disabled={page === totalPages || totalEntries === 0}>Next</button>
           </div>
         </div>
       </div>

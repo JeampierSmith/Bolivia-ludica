@@ -1,12 +1,8 @@
-import { getToken } from '../utils/auth';
-
 const API_URL = import.meta.env.VITE_API_URL + '/pedidos';
 
 export async function getPedidos() {
-  const token = getToken();
-  console.log('Token usado en getPedidos:', token);
   const res = await fetch(API_URL, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {}
+    credentials: 'include'
   });
   let errorMsg = 'Error al obtener pedidos';
   let errorBody = null;
@@ -22,12 +18,11 @@ export async function getPedidos() {
 }
 
 export async function createPedido(data) {
-  const token = getToken();
   const res = await fetch(API_URL, {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
     },
     body: JSON.stringify(data)
   });
@@ -43,13 +38,49 @@ export async function createPedido(data) {
   return errorBody;
 }
 
-export async function updatePedido(id, data) {
-  const token = getToken();
-  const res = await fetch(`${API_URL}/${id}`, {
-    method: 'PUT',
+export async function getPedidosCliente() {
+  const res = await fetch(API_URL + '/tienda', {
+    credentials: 'include'
+  });
+  let errorMsg = 'Error al obtener pedidos del cliente';
+  let errorBody = null;
+  try {
+    errorBody = await res.json();
+  } catch {}
+  if (!res.ok) {
+    if (errorBody && errorBody.error) errorMsg += ': ' + errorBody.error;
+    throw new Error(errorMsg);
+  }
+  return errorBody;
+}
+
+export async function createPedidoCliente(data) {
+  const res = await fetch(API_URL + '/tienda', {
+    method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
+    body: JSON.stringify(data)
+  });
+  let errorMsg = 'Error al crear pedido (cliente)';
+  let errorBody = null;
+  try {
+    errorBody = await res.json();
+  } catch {}
+  if (!res.ok) {
+    if (errorBody && errorBody.error) errorMsg += ': ' + errorBody.error;
+    throw new Error(errorMsg);
+  }
+  return errorBody;
+}
+
+export async function updatePedido(id, data) {
+  const res = await fetch(`${API_URL}/${id}`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify(data)
   });
@@ -66,10 +97,9 @@ export async function updatePedido(id, data) {
 }
 
 export async function deletePedido(id) {
-  const token = getToken();
   const res = await fetch(`${API_URL}/${id}`, {
     method: 'DELETE',
-    headers: token ? { Authorization: `Bearer ${token}` } : {}
+    credentials: 'include'
   });
   let errorMsg = 'Error al eliminar pedido';
   let errorBody = null;

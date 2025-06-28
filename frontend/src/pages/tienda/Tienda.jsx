@@ -74,13 +74,7 @@ const Tienda = () => {
     return coincideDepto && coincideCategoria && coincideBusqueda;
   });
 
-  useEffect(() => {
-    const globalHeader = document.querySelector('header.bg-card');
-    if (globalHeader) globalHeader.style.display = 'none';
-    return () => {
-      if (globalHeader) globalHeader.style.display = '';
-    };
-  }, []);
+ 
 
   // Opcional: manejar login/register
   const { login } = useAuth();

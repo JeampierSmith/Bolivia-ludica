@@ -117,6 +117,14 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit }) => {
 
 const Clientes = () => {
   const { user } = useAuth();
+  if (!user) return <Navigate to="/admin/login" replace />;
+  if (user.rol !== 'admin' && user.rol !== 'superadmin') return <Navigate to="/" replace />;
+
+  // --- PAGINACIÓN Y BUSQUEDA ---
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -127,11 +135,22 @@ const Clientes = () => {
   const [redirect, setRedirect] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
-  if (!user) return <Navigate to="/admin/login" />;
-  if (user.rol !== 'admin' && user.rol !== 'superadmin') {
-    setTimeout(() => setRedirect(true), 2000);
-    return redirect ? <Navigate to="/admin" /> : <div>No autorizado. Redirigiendo al dashboard...</div>;
-  }
+  // --- FILTRADO Y PAGINACIÓN ---
+  const filteredClientes = clientes.filter(c => {
+    const term = search.trim().toLowerCase();
+    if (!term) return true;
+    return (
+      (c.nombre || "").toLowerCase().includes(term) ||
+      (c.correo || "").toLowerCase().includes(term) ||
+      (c.telefono || "").toLowerCase().includes(term) ||
+      (c.direccion || "").toLowerCase().includes(term)
+    );
+  });
+  const totalEntries = filteredClientes.length;
+  const totalPages = Math.ceil(totalEntries / pageSize);
+  const startIdx = (page - 1) * pageSize;
+  const endIdx = Math.min(startIdx + pageSize, totalEntries);
+  const currentClientes = filteredClientes.slice(startIdx, endIdx);
 
   useEffect(() => {
     setLoading(true);
@@ -218,6 +237,17 @@ const Clientes = () => {
     setDeleteId(null);
   };
 
+  const handlePageSizeChange = e => {
+    setPageSize(Number(e.target.value));
+    setPage(1);
+  };
+  const handlePrev = () => setPage(p => Math.max(1, p - 1));
+  const handleNext = () => setPage(p => Math.min(totalPages, p + 1));
+  const handleSearchChange = e => {
+    setSearch(e.target.value);
+    setPage(1);
+  };
+
   return (
     <div className="p-6">
       {toast.show && (
@@ -228,17 +258,17 @@ const Clientes = () => {
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center space-x-2">
           <span>Show</span>
-          <select className="border rounded px-2 py-1 text-sm">
-            <option>10</option>
-            <option>25</option>
-            <option>50</option>
+          <select className="border rounded px-2 py-1 text-sm" value={pageSize} onChange={handlePageSizeChange}>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
           </select>
           <span>entries</span>
         </div>
         <button onClick={() => { setModalOpen(true); setIsEdit(false); setEditData(null); }} className="border border-black rounded p-2 hover:bg-black hover:text-white transition-colors text-xl font-bold">+</button>
         <div>
           <label className="mr-2">Search:</label>
-          <input className="border rounded px-2 py-1 text-sm" />
+          <input className="border rounded px-2 py-1 text-sm" value={search} onChange={handleSearchChange} placeholder="Buscar cliente..." />
         </div>
       </div>
       <div className="bg-white rounded-lg shadow p-4">
@@ -260,12 +290,12 @@ const Clientes = () => {
               <tr>
                 <td colSpan={5 + columns.filter(col => col.isAction).length} className="text-center py-6">Loading...</td>
               </tr>
-            ) : clientes.length === 0 ? (
+            ) : currentClientes.length === 0 ? (
               <tr>
                 <td colSpan={5 + columns.filter(col => col.isAction).length} className="text-center py-6">No hay clientes</td>
               </tr>
             ) : (
-              clientes.map(cliente => (
+              currentClientes.map(cliente => (
                 <tr key={cliente._id}>
                   <td className="px-4 py-2 border-b whitespace-nowrap">{cliente._id}</td>
                   <td className="px-4 py-2 border-b whitespace-nowrap">{cliente.nombre}</td>
@@ -298,6 +328,17 @@ const Clientes = () => {
             )}
           </tbody>
         </table>
+        <div className="flex justify-between items-center mt-4">
+          <span className="text-xs">
+            {totalEntries === 0
+              ? 'Showing 0 to 0 of 0 entries'
+              : `Showing ${startIdx + 1} to ${endIdx} of ${totalEntries} entries`}
+          </span>
+          <div>
+            <button className="border rounded px-3 py-1 mr-2 text-xs" onClick={handlePrev} disabled={page === 1}>Previous</button>
+            <button className="border rounded px-3 py-1 text-xs" onClick={handleNext} disabled={page === totalPages || totalEntries === 0}>Next</button>
+          </div>
+        </div>
       </div>
       {/* Modal para crear/editar cliente */}
       <Modal open={modalOpen} onClose={handleModalClose} onSubmit={handleRegister} initialData={editData} isEdit={isEdit} />

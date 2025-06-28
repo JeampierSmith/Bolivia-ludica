@@ -23,12 +23,12 @@ const Login = () => {
       const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Importante para enviar/recibir cookies
         body: JSON.stringify(form),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.msg || 'Error de autenticación');
-      // Guarda el usuario y el token juntos en localStorage
-      login({ ...data.usuario, token: data.token });
+      login(data.usuario); // Solo datos de usuario, el token va en cookie
       navigate('/admin');
     } catch (err) {
       setError(err.message);

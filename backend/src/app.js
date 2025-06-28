@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const app = express();
 const errorHandler = require('./middleware/error.middleware');
+const cookieParser = require('cookie-parser'); // Cambiado a paquete oficial
 
 // Middlewares
 app.use(cors({
@@ -10,6 +11,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+app.use(cookieParser());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads'))); // Cambiado para servir uploads fuera de src
 
 // Rutas
@@ -20,8 +22,9 @@ app.use('/api/productos', require('./routes/productos.routes'));
 app.use('/api/pedidos', require('./routes/pedidos.routes'));
 app.use('/api/ranking', require('./routes/ranking.routes'));
 app.use('/api/upload', require('./routes/upload.routes'));
-console.log('Registrando ruta /api/departamentos');
+
 app.use('/api/departamentos', require('./routes/departamentos.routes'));
+app.use('/api/empresa', require('./routes/empresa.routes'));
 
 // Error handler
 app.use(require('./middleware/error.middleware'));

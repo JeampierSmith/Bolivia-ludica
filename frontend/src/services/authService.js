@@ -4,7 +4,8 @@ export async function login({ correo, contraseña }) {
   const res = await fetch(`${API_URL}/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ correo, contraseña })
+    body: JSON.stringify({ correo, contraseña }),
+    credentials: 'include'
   });
   if (!res.ok) throw new Error('Error al iniciar sesión');
   return res.json();
@@ -14,7 +15,8 @@ export async function register(data) {
   const res = await fetch(`${API_URL}/registro`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
+    credentials: 'include'
   });
   if (!res.ok) throw new Error('Error al registrar usuario');
   return res.json();

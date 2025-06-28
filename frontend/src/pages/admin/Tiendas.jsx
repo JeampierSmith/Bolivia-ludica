@@ -305,6 +305,29 @@ const Tiendas = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const [departamentos, setDepartamentos] = useState([]);
+  // --- PAGINACIÓN ---
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  // --- BUSCADOR ---
+  const [search, setSearch] = useState("");
+
+  // Filtrado por búsqueda antes de paginar
+  const filteredTiendas = tiendas.filter(t => {
+    const term = search.trim().toLowerCase();
+    if (!term) return true;
+    return (
+      (t.nombre || "").toLowerCase().includes(term) ||
+      (t.ubicacion || "").toLowerCase().includes(term) ||
+      (t.direccion || "").toLowerCase().includes(term) ||
+      (t.telefono || "").toLowerCase().includes(term) ||
+      (t.correo || "").toLowerCase().includes(term)
+    );
+  });
+  const totalEntries = filteredTiendas.length;
+  const totalPages = Math.ceil(totalEntries / pageSize);
+  const startIdx = (page - 1) * pageSize;
+  const endIdx = Math.min(startIdx + pageSize, totalEntries);
+  const currentTiendas = filteredTiendas.slice(startIdx, endIdx);
 
   const fetchTiendas = async () => {
     setLoading(true);
@@ -398,6 +421,18 @@ const Tiendas = () => {
     setDeleteId(null);
   };
 
+  // --- MODIFICACIÓN PARA PAGINACIÓN Y ENTRIES ---
+  const handlePageSizeChange = e => {
+    setPageSize(Number(e.target.value));
+    setPage(1);
+  };
+  const handlePrev = () => setPage(p => Math.max(1, p - 1));
+  const handleNext = () => setPage(p => Math.min(totalPages, p + 1));
+  const handleSearchChange = e => {
+    setSearch(e.target.value);
+    setPage(1);
+  };
+
   return (
     <div className="p-6">
       {toast.show && (
@@ -409,17 +444,17 @@ const Tiendas = () => {
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center space-x-2">
           <span>Show</span>
-          <select className="border rounded px-2 py-1 text-sm">
-            <option>10</option>
-            <option>25</option>
-            <option>50</option>
+          <select className="border rounded px-2 py-1 text-sm" value={pageSize} onChange={handlePageSizeChange}>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
           </select>
           <span>entries</span>
         </div>
         <button onClick={() => { setModalOpen(true); setEditData(null); setIsEdit(false); }} className="border border-black rounded p-2 hover:bg-black hover:text-white transition-colors text-xl font-bold">+</button>
         <div>
           <label className="mr-2">Search:</label>
-          <input className="border rounded px-2 py-1 text-sm" />
+          <input className="border rounded px-2 py-1 text-sm" value={search} onChange={handleSearchChange} placeholder="Buscar tienda..." />
         </div>
       </div>
       <div className="bg-white rounded-lg shadow p-4">
@@ -436,12 +471,12 @@ const Tiendas = () => {
               <tr>
                 <td colSpan={columns.length} className="text-center py-6">Loading...</td>
               </tr>
-            ) : tiendas.length === 0 ? (
+            ) : currentTiendas.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="text-center py-6">No hay tiendas</td>
               </tr>
             ) : (
-              tiendas.map(tienda => (
+              currentTiendas.map(tienda => (
                 <tr key={tienda._id}>
                   {columns.map(col => {
                     if (col.isAction && col.key === 'edit') {
@@ -500,10 +535,14 @@ const Tiendas = () => {
           </tbody>
         </table>
         <div className="flex justify-between items-center mt-4">
-          <span className="text-xs">Showing 0 to 0 of 0 entries</span>
+          <span className="text-xs">
+            {totalEntries === 0
+              ? 'Showing 0 to 0 of 0 entries'
+              : `Showing ${startIdx + 1} to ${endIdx} of ${totalEntries} entries`}
+          </span>
           <div>
-            <button className="border rounded px-3 py-1 mr-2 text-xs">Previous</button>
-            <button className="border rounded px-3 py-1 text-xs">Next</button>
+            <button className="border rounded px-3 py-1 mr-2 text-xs" onClick={handlePrev} disabled={page === 1}>Previous</button>
+            <button className="border rounded px-3 py-1 text-xs" onClick={handleNext} disabled={page === totalPages || totalEntries === 0}>Next</button>
           </div>
         </div>
       </div>

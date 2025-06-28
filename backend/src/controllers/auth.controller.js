@@ -1,6 +1,7 @@
 const Usuario = require('../models/Usuario');
 const { hashPassword, comparePassword } = require('../utils/hashPassword');
 const generateToken = require('../utils/generateToken');
+const cookieOptions = require('../utils/cookieOptions');
 
 exports.registro = async (req, res) => {
   try {
@@ -47,9 +48,17 @@ exports.login = async (req, res) => {
 
     const token = generateToken(usuario);
 
+    // Set cookie según rol
+    if (usuario.rol === 'cliente') {
+      res.clearCookie('bludica_admin', { path: '/api' });
+      res.cookie('bludica_cliente', token, cookieOptions.cliente);
+    } else {
+      res.clearCookie('bludica_cliente', { path: '/api/tiendas' });
+      res.cookie('bludica_admin', token, cookieOptions.admin);
+    }
+
     res.json({
       msg: 'Login exitoso.',
-      token,
       usuario: {
         id: usuario._id,
         nombre: usuario.nombre,
@@ -60,4 +69,10 @@ exports.login = async (req, res) => {
   } catch (error) {
     res.status(500).json({ msg: 'Error en el login.', error: error.message });
   }
+};
+
+exports.logout = (req, res) => {
+  res.clearCookie('bludica_cliente', { path: '/api/tiendas' });
+  res.clearCookie('bludica_admin', { path: '/api' });
+  res.json({ msg: 'Logout exitoso.' });
 };

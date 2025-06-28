@@ -1,8 +1,18 @@
 import { useTranslation } from 'react-i18next';
 import { FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
+import React, { useEffect, useState } from 'react';
 
 const Footer = () => {
   const { t } = useTranslation();
+  const [empresa, setEmpresa] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/empresa', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setEmpresa(Array.isArray(data) ? data[0] : data))
+      .catch(() => setEmpresa(null));
+  }, []);
+
   return (
     <footer className="bg-secondary py-12">
       <div className="container mx-auto px-4">
@@ -26,10 +36,21 @@ const Footer = () => {
           </div>
           <div>
             <h3 className="text-lg font-bold mb-4 text-foreground">{t('contact')}</h3>
-            <p className="text-[#222]"><a href="mailto:BOLIVIALUDICA@gmail.com" className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('email')}: BOLIVIALUDICA@gmail.com</a></p>
-            <p className="text-[#222]"><a href="https://wa.me/59177958996" className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('phone')}: +591 77958996</a></p>
-            <p className="text-[#222]"><a href="https://maps.google.com/?q=Av. Villarroel, esq. Beni, Cochabamba, Bolivia" className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('address')}: Av. Villarroel, esq. Beni</a></p>
-            <p className="text-[#222]">Cochabamba-Bolivia</p>
+            {empresa ? (
+              <>
+                <p className="text-[#222]"><a href={`mailto:${empresa.correo}`} className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('email')}: {empresa.correo}</a></p>
+                <p className="text-[#222]"><a href={`https://wa.me/${empresa.telefono.replace(/[^\d]/g, '')}`} className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('phone')}: {empresa.telefono}</a></p>
+                <p className="text-[#222]"><a href={`https://maps.google.com/?q=${encodeURIComponent(empresa.direccion)}`} className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('address')}: {empresa.direccion}</a></p>
+                {empresa.mensaje && <p className="text-[#222]">{empresa.mensaje}</p>}
+              </>
+            ) : (
+              <>
+                <p className="text-[#222]"><a href="mailto:BOLIVIALUDICA@gmail.com" className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('email')}: BOLIVIALUDICA@gmail.com</a></p>
+                <p className="text-[#222]"><a href="https://wa.me/59177958996" className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('phone')}: +591 77958996</a></p>
+                <p className="text-[#222]"><a href="https://maps.google.com/?q=Av. Villarroel, esq. Beni, Cochabamba, Bolivia" className="hover:text-primary underline" target="_blank" rel="noopener noreferrer">{t('address')}: Av. Villarroel, esq. Beni</a></p>
+                <p className="text-[#222]">Cochabamba-Bolivia</p>
+              </>
+            )}
           </div>
           <div>
             <h3 className="text-lg font-bold mb-4 text-foreground">{t('letter')}</h3>

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { getProductos, createProducto, updateProducto, deleteProducto } from '../../services/productoService';
 import { getToken } from '../../utils/auth';
+import { useAuth } from '../../components/common/AuthContext';
+import { Navigate } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const UPLOADS_URL = import.meta.env.VITE_UPLOADS_URL;
@@ -155,6 +157,16 @@ const Modal = ({ open, onClose, onSubmit, initialData, isEdit }) => {
 };
 
 const Productos = () => {
+  const { user } = useAuth();
+  // Redirigir si no es admin o superadmin
+  if (!user) return <Navigate to="/admin/login" replace />;
+  if (user.rol !== 'admin' && user.rol !== 'superadmin') return <Navigate to="/" replace />;
+
+  // --- PAGINACIÓN Y BUSQUEDA ---
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -171,6 +183,24 @@ const Productos = () => {
       .catch(() => setProductos([]))
       .finally(() => setLoading(false));
   }, []);
+
+  // --- FILTRADO Y PAGINACIÓN ---
+  const filteredProductos = productos.filter(p => {
+    const term = search.trim().toLowerCase();
+    if (!term) return true;
+    return (
+      (p.nombre || "").toLowerCase().includes(term) ||
+      (p.descripcion || "").toLowerCase().includes(term) ||
+      (p.categoria || "").toLowerCase().includes(term) ||
+      (p.precio + '').includes(term) ||
+      (p.stock + '').includes(term)
+    );
+  });
+  const totalEntries = filteredProductos.length;
+  const totalPages = Math.ceil(totalEntries / pageSize);
+  const startIdx = (page - 1) * pageSize;
+  const endIdx = Math.min(startIdx + pageSize, totalEntries);
+  const currentProductos = filteredProductos.slice(startIdx, endIdx);
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
@@ -239,6 +269,17 @@ const Productos = () => {
     setDeleteId(null);
   };
 
+  const handlePageSizeChange = e => {
+    setPageSize(Number(e.target.value));
+    setPage(1);
+  };
+  const handlePrev = () => setPage(p => Math.max(1, p - 1));
+  const handleNext = () => setPage(p => Math.min(totalPages, p + 1));
+  const handleSearchChange = e => {
+    setSearch(e.target.value);
+    setPage(1);
+  };
+
   return (
     <div className="p-6">
       {toast.show && (
@@ -252,17 +293,17 @@ const Productos = () => {
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center space-x-2">
           <span>Show</span>
-          <select className="border rounded px-2 py-1 text-sm">
-            <option>10</option>
-            <option>25</option>
-            <option>50</option>
+          <select className="border rounded px-2 py-1 text-sm" value={pageSize} onChange={handlePageSizeChange}>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
           </select>
           <span>entries</span>
         </div>
         <button onClick={() => setModalOpen(true)} className="border border-black rounded p-2 hover:bg-black hover:text-white transition-colors text-xl font-bold">+</button>
         <div>
           <label className="mr-2">Search:</label>
-          <input className="border rounded px-2 py-1 text-sm" />
+          <input className="border rounded px-2 py-1 text-sm" value={search} onChange={handleSearchChange} placeholder="Buscar producto..." />
         </div>
       </div>
       <div className="bg-white rounded-lg shadow p-4">
@@ -279,12 +320,12 @@ const Productos = () => {
               <tr>
                 <td colSpan={columns.length} className="text-center py-6">Loading...</td>
               </tr>
-            ) : productos.length === 0 ? (
+            ) : currentProductos.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="text-center py-6">No hay productos</td>
               </tr>
             ) : (
-              productos.map(producto => (
+              currentProductos.map(producto => (
                 <tr key={producto._id}>
                   {columns.map(col => {
                     if (col.isAction && col.key === 'edit') {
@@ -335,10 +376,14 @@ const Productos = () => {
           </tbody>
         </table>
         <div className="flex justify-between items-center mt-4">
-          <span className="text-xs">Showing 0 to 0 of 0 entries</span>
+          <span className="text-xs">
+            {totalEntries === 0
+              ? 'Showing 0 to 0 of 0 entries'
+              : `Showing ${startIdx + 1} to ${endIdx} of ${totalEntries} entries`}
+          </span>
           <div>
-            <button className="border rounded px-3 py-1 mr-2 text-xs">Previous</button>
-            <button className="border rounded px-3 py-1 text-xs">Next</button>
+            <button className="border rounded px-3 py-1 mr-2 text-xs" onClick={handlePrev} disabled={page === 1}>Previous</button>
+            <button className="border rounded px-3 py-1 text-xs" onClick={handleNext} disabled={page === totalPages || totalEntries === 0}>Next</button>
           </div>
         </div>
       </div>
