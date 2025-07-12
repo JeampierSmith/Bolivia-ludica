@@ -29,6 +29,7 @@ import PrivateRoute from './routes/PrivateRoutes';
 import AdminLogin from './pages/admin/login.jsx';
 import PerfilAdmin from './pages/admin/perfilAdmin.jsx';
 import Contactos from './pages/admin/Contactos.jsx';
+import BoliviaJuega from './pages/admin/BoliviaJuega.jsx';
 
 
 const App = () => {
@@ -108,6 +109,11 @@ const App = () => {
             <Route path="/admin/contactos" element={
               <PrivateRoute>
                 <Dashboard><Contactos /></Dashboard>
+              </PrivateRoute>
+            } />
+            <Route path="/admin/boliviajuega" element={
+              <PrivateRoute>
+                <Dashboard><BoliviaJuega /></Dashboard>
               </PrivateRoute>
             } />
        

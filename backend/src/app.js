@@ -25,6 +25,9 @@ app.use('/api/upload', require('./routes/upload.routes'));
 
 app.use('/api/departamentos', require('./routes/departamentos.routes'));
 app.use('/api/empresa', require('./routes/empresa.routes'));
+app.use('/api/eventos', require('./routes/eventos.routes'));
+app.use('/api/participacionDepartamental', require('./routes/participacionDepartamental.routes'));
+app.use('/api/actividadesEspeciales', require('./routes/actividadesEspeciales.routes'));
 
 // Error handler
 app.use(require('./middleware/error.middleware'));

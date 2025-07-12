@@ -154,4 +154,80 @@ export async function uploadRankingAvatar(file) {
   return res.json();
 }
 
+// --- Bolivia Juega: Eventos ---
+export async function getEventos() {
+  const res = await fetch(`${API_URL}/eventos`);
+  if (!res.ok) throw new Error('Error al obtener eventos');
+  return res.json();
+}
+export async function createEvento(data) {
+  const res = await fetch(`${API_URL}/eventos`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('Error al crear evento');
+  return res.json();
+}
+export async function updateEvento(id, data) {
+  const res = await fetch(`${API_URL}/eventos/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('Error al actualizar evento');
+  return res.json();
+}
+export async function deleteEvento(id) {
+  const res = await fetch(`${API_URL}/eventos/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Error al eliminar evento');
+  return res.json();
+}
+
+// --- Participación Departamental ---
+export async function getParticipacionDepartamental() {
+  const res = await fetch(`${API_URL}/participacionDepartamental`);
+  if (!res.ok) throw new Error('Error al obtener participación');
+  return res.json();
+}
+export async function updateParticipacionDepartamental(id, data) {
+  const res = await fetch(`${API_URL}/participacionDepartamental/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('Error al actualizar participación');
+  return res.json();
+}
+
+// --- Actividades Especiales ---
+export async function getActividadesEspeciales() {
+  const res = await fetch(`${API_URL}/actividadesEspeciales`);
+  if (!res.ok) throw new Error('Error al obtener actividades especiales');
+  return res.json();
+}
+export async function createActividadEspecial(data) {
+  const res = await fetch(`${API_URL}/actividadesEspeciales`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('Error al crear actividad especial');
+  return res.json();
+}
+export async function updateActividadEspecial(id, data) {
+  const res = await fetch(`${API_URL}/actividadesEspeciales/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('Error al actualizar actividad especial');
+  return res.json();
+}
+export async function deleteActividadEspecial(id) {
+  const res = await fetch(`${API_URL}/actividadesEspeciales/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Error al eliminar actividad especial');
+  return res.json();
+}
+
 // Puedes agregar servicios similares para otras entidades si es necesario.
